@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-import fsetools
+import fseutil
 
 try:
     from .__key__ import key as key_
@@ -21,7 +21,7 @@ def build_gui(app_name: str = 'FSEUTIL', fp_target_py: str = 'pyinstaller_build_
         f'-n={app_name}',
         "--icon=" + os.path.realpath(os.path.join("etc", "ofr_logo_1_80_80.ico")),
     ]
-    if 'dev' in fsetools.__version__:
+    if 'dev' in fseutil.__version__:
         print('Dev. build is enabled.')
     else:
         cmd_option_list.append('--windowed')
