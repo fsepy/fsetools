@@ -6,6 +6,6 @@ install:
   - pip install codecov
   - pip install pytest-cov
 script:
-  - pytest --cov-report=term --cov-config=.coveragerc --cov=fseutil/
+  - pytest --cov-report=term --cov-config=.coveragerc --cov=fsetools/
 after_success:
   - codecov
