@@ -1,6 +1,6 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 
-from fseutil.etc.images_base64 import dialog_0103_bs9999_merging_flow_1 as figure_1
+from fseutil.gui.images_base64 import dialog_0103_bs9999_merging_flow_1 as figure_1
 from fseutil.gui.layout.dialog_0103_merging_flow import Ui_MainWindow
 from fseutil.gui.logic.common import filter_objects_by_name
 from fseutil.libstd.bs_9999_2017 import (

@@ -1,10 +1,8 @@
-import datetime
-
 from PySide2 import QtWidgets, QtGui, QtCore
 
 import fseutil
-from fseutil.etc.images_base64 import OFR_LOGO_1_PNG
-from fseutil.etc.images_base64 import OFR_LOGO_2_PNG
+from fseutil.gui.images_base64 import OFR_LOGO_1_PNG
+from fseutil.gui.images_base64 import OFR_LOGO_2_PNG
 from fseutil.gui.layout.main import Ui_MainWindow
 from fseutil.gui.logic.dialog_0101_adb_datasheet_1 import Dialog as Dialog0101
 from fseutil.gui.logic.dialog_0102_bs9999_datasheet_1 import Dialog as Dialog0102

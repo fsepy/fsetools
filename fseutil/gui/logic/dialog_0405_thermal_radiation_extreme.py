@@ -1,7 +1,7 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 import numpy as np
 from fseutil.lib.fse_thermal_radiation_3d import single_receiver, heat_flux_to_temperature
-from fseutil.etc.images_base64 import dialog_0404_br187_perpendicular_figure_1
+from fseutil.gui.images_base64 import dialog_0404_br187_perpendicular_figure_1
 from fseutil.gui.layout.dialog_0405_thermal_radiation_extreme import Ui_MainWindow
 
 

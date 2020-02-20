@@ -1,7 +1,7 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 
-from fseutil.etc.images_base64 import dialog_0101_adb2_datasheet_1
-from fseutil.etc.images_base64 import OFR_LOGO_1_PNG
+from fseutil.gui.images_base64 import dialog_0101_adb2_datasheet_1
+from fseutil.gui.images_base64 import OFR_LOGO_1_PNG
 
 
 class Dialog(QtWidgets.QDialog):

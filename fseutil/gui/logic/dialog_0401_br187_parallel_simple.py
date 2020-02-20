@@ -1,6 +1,6 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 
-from fseutil.etc.images_base64 import dialog_0401_br187_parallel_figure_1 as figure_1
+from fseutil.gui.images_base64 import dialog_0401_br187_parallel_figure_1 as figure_1
 from fseutil.gui.layout.dialog_0401_br187_parallel_simple import Ui_MainWindow
 from fseutil.lib.fse_thermal_radiation import phi_parallel_any_br187, linear_solver
 

@@ -1,7 +1,7 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 
 import fseutil
-from fseutil.etc.images_base64 import OFR_LOGO_1_PNG
+from fseutil.gui.images_base64 import OFR_LOGO_1_PNG
 
 EXPIRY_DATE_PERIOD = 90
 
