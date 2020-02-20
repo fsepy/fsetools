@@ -1,5 +1,0 @@
-from fseutil.lib.fse_thermal_radiation import _test_phi_parallel_any_br187 as test_phi_parallel_any_br187
-from fseutil.lib.fse_thermal_radiation import _test_phi_perpendicular_any_br187 as test_phi_perpendicular_any_br187
-
-test_phi_parallel_any_br187()
-test_phi_perpendicular_any_br187()

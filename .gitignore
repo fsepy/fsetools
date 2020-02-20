@@ -138,13 +138,13 @@ dmypy.json
 # Pyinstaller
 buildscript/build
 buildscript/dist
-fseutil/build
-fseutil/dist
+fsetools/build
+fsetools/dist
 
 # Temporary UI files
 fseutil/gui/layout/*.py
 
 # Include project files
-!fseutil/lib
+!fsetools/lib/
 *key.txt
 *__key__.py
