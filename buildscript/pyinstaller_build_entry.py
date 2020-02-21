@@ -4,7 +4,6 @@ import os
 import sys
 import time
 import warnings
-from os.path import join, realpath, dirname
 
 warnings.filterwarnings("ignore")
 
@@ -13,7 +12,7 @@ from fsetools.gui.logic.dialog_0001_pass_code import Dialog0001
 from fsetools.gui.__main__ import main
 from PySide2 import QtWidgets
 try:
-    from buildscript.__key__ import key
+    from .__key__ import key
     KEY = key()
 except ModuleNotFoundError:
     KEY = None
@@ -23,7 +22,7 @@ if __name__ == "__main__":
     # splash screen
     print(os.path.realpath(__file__))
     print('='*80)
-    print('FSETOOLS')
+    print('FSEUTIL')
     print(f'VERSION: {fsetools.__version__}.')
     print(f'RELEASED: {fsetools.__date_released__.strftime("%Y %B %d")}.')
     _exp = fsetools.__date_released__ + datetime.timedelta(days=fsetools.__expiry_period_days__) - datetime.datetime.now()
@@ -45,7 +44,8 @@ if __name__ == "__main__":
                 time.sleep(2)
                 raise ValueError('Incorrect password.')
             app_.close()
+            app_.destroy()
             del app_
 
-    # make_nsh_files program starts
+    # main program starts
     main()
