@@ -15,21 +15,21 @@ Documentation is under construction.
 1. to use `pip` install from PyPI:
 
     ```sh
-    pip install --upgrade fseutil
+    pip install --upgrade fsetools
     ```
 
 2. to use `pip` install from GitHub (requires [git](https://git-scm.com/downloads)):  
 
-    *Note installing `fseutil` via this route will include the latest commits/changes to the library.*  
+    *Note installing `fsetools` via this route will include the latest commits/changes to the library.*  
 
     ```sh
-    pip install --upgrade "git+https://github.com/fsepy/fseutil.git@dev"
+    pip install --upgrade "git+https://github.com/fsepy/fsetools.git@dev"
     ```
 
 
 ### Command line interface
 
-Once `fseutil` is installed, CLI help can be summoned:
+Once `fsetools` is installed, CLI help can be summoned using the following command:
 
 ```shell
 (base) C:\Users\IanFu>fseutil -h
