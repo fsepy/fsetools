@@ -135,11 +135,12 @@ dmypy.json
 # Dev files
 /.coverage
 
-# Pyinstaller
+# build files
 buildscript/build
 buildscript/dist
 fsetools/build
 fsetools/dist
+buildscript/*.exe
 
 # Temporary UI files
 fseutil/gui/layout/*.py
