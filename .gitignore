@@ -141,6 +141,7 @@ buildscript/dist
 fsetools/build
 fsetools/dist
 buildscript/*.exe
+buildscript/*.nsh
 
 # Temporary UI files
 fseutil/gui/layout/*.py
