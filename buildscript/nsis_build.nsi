@@ -7,41 +7,41 @@
 # If you change the names "app.exe", "logo.ico", or "license.rtf" you should do a search and replace - they
 # show up in a few places.
 # All the other settings can be tweaked by editing the !defines at the top of this script
-!define FILES_SOURCE_PATH dist\FSEUTIL
-!define INST_LIST install_list.nsh
-!define UNINST_LIST uninstall_list.nsh
-!define APPNAME "FSEUTIL"
-!define COMPANYNAME "OFR"
-!define DESCRIPTION "Fire Safety Engineering Utility Tools"
+!define FILES_SOURCE_PATH dist\FSETOOLS
+!define INST_LIST nsis_build_inst_list.nsh
+!define UNINST_LIST nsis_build_uninst_list.nsh
+!define APPNAME FSETOOLS
+!define COMPANYNAME OFR
+!define DESCRIPTION "Fire Safety Engineering Tools"
 # These three must be integers
 !define VERSIONMAJOR 0
 !define VERSIONMINOR 0
-!define VERSIONBUILD 1
+!define VERSIONBUILD 0
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
-!define HELPURL "https://github.com/fsepy/fseutil" # "Support Information" link
-!define UPDATEURL "https://github.com/fsepy/fseutil" # "Product Updates" link
-!define ABOUTURL "https://github.com/fsepy/fseutil" # "Publisher" link
+!define HELPURL "https://github.com/fsepy/fsetools" # "Support Information" link
+!define UPDATEURL "https://github.com/fsepy/fsetools" # "Product Updates" link
+!define ABOUTURL "https://github.com/fsepy/fsetools" # "Publisher" link
 # This is the size (in kB) of all the files copied into "Program Files"
-!define INSTALLSIZE 7233
+# !define INSTALLSIZE 7233
 
 RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on)
 
 InstallDir "$PROGRAMFILES\${COMPANYNAME}\${APPNAME}"
 
 # rtf or txt file - remember if it is txt, it must be in the DOS text format (\r\n)
-LicenseData "license.rtf"
+# LicenseData "license.rtf"
 # This will be in the installer/uninstaller's title bar
-Name "${COMPANYNAME} - ${APPNAME}"
-Icon "\etc\ofr_logo_1_80_80.ico"
-outFile "FSEUTIL Installer.exe"
+Name "${APPNAME}"
+Icon "etc\ofr_logo_1_80_80.ico"
+outFile "FSETOOLS Installer.exe"
 
 !include LogicLib.nsh
 
 # Just three pages - license agreement, install location, and installation
-page license
+# page license
 page directory
-Page instfiles
+page instfiles
 
 !macro VerifyUserIsAdmin
 UserInfo::GetAccountType
@@ -62,8 +62,8 @@ section "install"
 	# Files for the install directory - to build the installer, these should be in the same directory as the install script (this file)
 	setOutPath $INSTDIR
 	# Files added here should be removed by the uninstaller (see section "uninstall")
-	file "app.exe"
-	file "logo.ico"
+	# !include 'nsis_build_inst_list'
+	File /r 'dist\FSETOOLS\*'
 	# Add any other files for the install directory (license files, app data, etc) here
 
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
@@ -71,14 +71,14 @@ section "install"
 
 	# Start Menu
 	createDirectory "$SMPROGRAMS\${COMPANYNAME}"
-	createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$INSTDIR\app.exe" "" "$INSTDIR\logo.ico"
+	createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$INSTDIR\${APPNAME}.exe" "" "$INSTDIR\etc\ofr_logo_1_80_80.ico"
 
 	# Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayName" "${COMPANYNAME} - ${APPNAME} - ${DESCRIPTION}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "InstallLocation" "$\"$INSTDIR$\""
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayIcon" "$\"$INSTDIR\logo.ico$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayIcon" "$\"$INSTDIR\ofr_logo_1_80_80.ico$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "Publisher" "$\"${COMPANYNAME}$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "HelpLink" "$\"${HELPURL}$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "URLUpdateInfo" "$\"${UPDATEURL}$\""
@@ -90,7 +90,8 @@ section "install"
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "NoModify" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "NoRepair" 1
 	# Set the INSTALLSIZE constant (!defined at the top of this script) so Add/Remove Programs can accurately report the size
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "EstimatedSize" ${INSTALLSIZE}
+	# WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "EstimatedSize" ${INSTALLSIZE}
+
 sectionEnd
 
 # Uninstaller
@@ -119,8 +120,9 @@ section "uninstall"
 	delete $INSTDIR\uninstall.exe
  
 	# Try to remove the install directory - this will only happen if it is empty
-	rmDir $INSTDIR
+	rmDir /r $INSTDIR
  
 	# Remove uninstaller information from the registry
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}"
+
 sectionEnd
