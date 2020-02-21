@@ -4,7 +4,7 @@ Fire Safety Engineering Tools.
 
 ## Getting Started
 
-Documentation is under construction.
+Documentation is work in progress.
 
 ### Installation
 
@@ -32,7 +32,7 @@ Documentation is under construction.
 Once `fsetools` is installed, CLI help can be summoned using the following command:
 
 ```shell
-(base) C:\Users\IanFu>fseutil -h
+(base) C:\Users\Fu>fsetools -h
 ```
 
 ## Authors

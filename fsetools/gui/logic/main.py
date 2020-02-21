@@ -31,7 +31,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         # window properties
-        self.setWindowTitle('OFR Fire Safety Engineering Utility Tools')
+        self.setWindowTitle('Fire Safety Engineering Tools')
         self.statusBar().setSizeGripEnabled(False)
         self.setFixedSize(self.width(), self.height())
 
@@ -39,11 +39,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.init_buttons()
 
         # default values
-        self.ui.label_big_name.setText('FSE Toolbox')
-        self.ui.label_version.setText('Version ' + fsetools.__version__)
+        self.ui.label_big_name.setText('FSE Tools')
+        self.ui.label_version.setText(fsetools.__version__)
         self.ui.label_version.setStyleSheet('color: grey;')
-        self.ui.label_version.setStatusTip('Version ' + fsetools.__version__)
-        self.ui.label_version.setToolTip('Version ' + fsetools.__version__)
+        self.ui.label_version.setStatusTip(fsetools.__version__)
+        self.ui.label_version.setToolTip(fsetools.__version__)
         self.init_logos()  # logo
         self.ui.dialog_error = QtWidgets.QErrorMessage(self)
         self.ui.dialog_error.setWindowTitle('Message')

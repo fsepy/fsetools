@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main.ui'
+## Form generated from reading UI file 'make_nsh_files.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.14.1
 ##

@@ -3,7 +3,7 @@ def ui2py():
     import subprocess
 
     list_ui_file_names = [
-        'main.ui',
+        'make_nsh_files.ui',
         'dialog_0103_merging_flow.ui',
         'dialog_0111_heat_detector_activation.ui',
         'dialog_0401_br187_parallel_simple.ui',

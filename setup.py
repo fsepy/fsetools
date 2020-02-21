@@ -16,7 +16,7 @@ with open("requirements.txt") as f:
 setuptools.setup(
     name="fsetools",
     version=fsetools.__version__,
-    description="Fire Safety Engineering Utility Tools",
+    description="Fire Safety Engineering Tools",
     author="Ian Fu",
     author_email="fuyans@gmail.com",
     url="https://github.com/fsepy/fsetools",
@@ -45,5 +45,5 @@ setuptools.setup(
     ],
     install_requires=requirements,
     include_package_data=True,
-    entry_points={"console_scripts": ["fsetools=fsetools.cli.__main__:main"]},
+    entry_points={"console_scripts": ["fsetools=fsetools.cli.__main__:make_nsh_files"]},
 )
