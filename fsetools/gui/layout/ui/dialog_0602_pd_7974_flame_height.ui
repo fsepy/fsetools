@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>826</width>
-    <height>664</height>
+    <height>651</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>715</x>
-      <y>610</y>
+      <y>555</y>
       <width>96</width>
       <height>24</height>
      </rect>
@@ -27,24 +27,11 @@
      <string>Calculate</string>
     </property>
    </widget>
-   <widget class="Line" name="line">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>585</y>
-      <width>826</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton_test">
     <property name="geometry">
      <rect>
-      <x>15</x>
-      <y>610</y>
+      <x>600</x>
+      <y>555</y>
       <width>96</width>
       <height>24</height>
      </rect>
@@ -78,9 +65,9 @@
    <widget class="QGroupBox" name="groupBox_inputs">
     <property name="geometry">
      <rect>
-      <x>445</x>
-      <y>375</y>
-      <width>351</width>
+      <x>415</x>
+      <y>230</y>
+      <width>396</width>
       <height>131</height>
      </rect>
     </property>
@@ -799,9 +786,9 @@
    <widget class="QGroupBox" name="groupBox_outputs">
     <property name="geometry">
      <rect>
-      <x>625</x>
-      <y>505</y>
-      <width>171</width>
+      <x>415</x>
+      <y>460</y>
+      <width>396</width>
       <height>81</height>
      </rect>
     </property>
@@ -955,9 +942,9 @@
    <widget class="QGroupBox" name="groupBox_options">
     <property name="geometry">
      <rect>
-      <x>445</x>
-      <y>295</y>
-      <width>351</width>
+      <x>415</x>
+      <y>370</y>
+      <width>396</width>
       <height>80</height>
      </rect>
     </property>
@@ -1127,7 +1114,6 @@
    </widget>
    <zorder>label_figure_flame_height</zorder>
    <zorder>pushButton_calculate</zorder>
-   <zorder>line</zorder>
    <zorder>pushButton_test</zorder>
    <zorder>groupBox_inputs</zorder>
    <zorder>groupBox_outputs</zorder>
