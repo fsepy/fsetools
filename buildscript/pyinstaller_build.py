@@ -9,7 +9,7 @@ import fsetools
 try:
     from buildscript.__key__ import key as key_
     key = key_()
-except ValueError:
+except ModuleNotFoundError:
     key = None
 
 
