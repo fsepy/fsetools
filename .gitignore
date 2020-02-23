@@ -145,7 +145,7 @@ buildscript/*.nsh
 buildscript/*.nsi
 
 # Temporary UI files
-fseutil/gui/layout/*.py
+fsetools/gui/layout/*.py
 
 # Include project files
 !fsetools/lib/
