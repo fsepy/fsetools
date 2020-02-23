@@ -1,6 +1,8 @@
+import subprocess
+from os.path import join, realpath, dirname
+
+
 def ui2py():
-    import os
-    import subprocess
 
     list_ui_file_names = [
         'make_nsh_files.ui',
@@ -13,18 +15,18 @@ def ui2py():
         'dialog_0602_pd_7974_flame_height.ui',
     ]
 
-    cwd = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui')
-    destination_dir = os.path.dirname(os.path.realpath(__file__))
+    cwd = join(dirname(realpath(__file__)), 'layout', 'ui')
+    destination_dir = join(dirname(realpath(__file__)), 'layout')
 
-    cmds_list = list()
+    cmd_list = list()
     for ui_file_name in list_ui_file_names:
         cmd = [
             'pyside2-uic',
-            '--output', f'{os.path.join(destination_dir, ui_file_name.replace(".ui", ".py"))}',
-            f'{os.path.join(cwd, ui_file_name)}'
+            '--output', f'{join(destination_dir, ui_file_name.replace(".ui", ".py"))}',
+            f'{join(cwd, ui_file_name)}'
         ]
-        cmds_list.append(cmd)
-    procs_list = [subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) for cmd in cmds_list]
+        cmd_list.append(cmd)
+    procs_list = [subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) for cmd in cmd_list]
     for proc in procs_list:
         proc.wait()
 
