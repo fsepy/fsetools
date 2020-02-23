@@ -7,60 +7,34 @@
     <x>0</x>
     <y>0</y>
     <width>826</width>
-    <height>786</height>
+    <height>726</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton_calculate">
-    <property name="geometry">
-     <rect>
-      <x>715</x>
-      <y>695</y>
-      <width>96</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Calculate</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_test">
-    <property name="geometry">
-     <rect>
-      <x>415</x>
-      <y>695</y>
-      <width>96</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Example</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_image_context">
     <property name="geometry">
      <rect>
       <x>15</x>
       <y>15</y>
-      <width>796</width>
-      <height>566</height>
+      <width>794</width>
+      <height>681</height>
      </rect>
     </property>
     <property name="text">
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>../../../../../../../Library/Mobile Documents/6LVTQB9699~com~seriflabs~affinitydesigner/Documents/FSEUTIL/png/0111_context_1_794_560.png</pixmap>
+     <pixmap>../../../../../../../Library/Mobile Documents/6LVTQB9699~com~seriflabs~affinitydesigner/Documents/FSEUTIL/png/0111_context_2_794_560.png</pixmap>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBox_in">
     <property name="geometry">
      <rect>
       <x>415</x>
-      <y>290</y>
+      <y>220</y>
       <width>396</width>
       <height>256</height>
      </rect>
@@ -937,7 +911,7 @@
     <property name="geometry">
      <rect>
       <x>415</x>
-      <y>545</y>
+      <y>485</y>
       <width>396</width>
       <height>80</height>
      </rect>
@@ -988,7 +962,7 @@
     <property name="geometry">
      <rect>
       <x>415</x>
-      <y>625</y>
+      <y>575</y>
       <width>396</width>
       <height>56</height>
      </rect>
@@ -1078,27 +1052,11 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton_show_results_in_table">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>605</x>
-      <y>695</y>
-      <width>96</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Full Results</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_image_figure">
     <property name="geometry">
      <rect>
-      <x>445</x>
-      <y>5</y>
+      <x>15</x>
+      <y>15</y>
       <width>342</width>
       <height>284</height>
      </rect>
@@ -1110,14 +1068,48 @@
      <pixmap>../../../../../../../Library/Mobile Documents/6LVTQB9699~com~seriflabs~affinitydesigner/Documents/FSEUTIL/png/0111_figure_1_342_284.png</pixmap>
     </property>
    </widget>
-   <zorder>label_image_context</zorder>
-   <zorder>pushButton_calculate</zorder>
-   <zorder>pushButton_test</zorder>
-   <zorder>groupBox_in</zorder>
-   <zorder>groupBox_gas_correlation</zorder>
-   <zorder>groupBox_out</zorder>
-   <zorder>pushButton_show_results_in_table</zorder>
-   <zorder>label_image_figure</zorder>
+   <widget class="QPushButton" name="pushButton_show_results_in_table">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>605</x>
+      <y>645</y>
+      <width>96</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Full Results</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_calculate">
+    <property name="geometry">
+     <rect>
+      <x>715</x>
+      <y>645</y>
+      <width>96</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Calculate</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_test">
+    <property name="geometry">
+     <rect>
+      <x>415</x>
+      <y>645</y>
+      <width>96</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Example</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -1143,8 +1135,6 @@
   <tabstop>lineEdit_in_T_act</tabstop>
   <tabstop>radioButton_ceiling_jet</tabstop>
   <tabstop>radioButton_fire_plume</tabstop>
-  <tabstop>pushButton_calculate</tabstop>
-  <tabstop>pushButton_test</tabstop>
  </tabstops>
  <resources/>
  <connections/>

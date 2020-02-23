@@ -5,7 +5,7 @@ from os.path import join, realpath, dirname
 def ui2py():
 
     list_ui_file_names = [
-        'make_nsh_files.ui',
+        'main.ui',
         'dialog_0103_merging_flow.ui',
         'dialog_0111_heat_detector_activation.ui',
         'dialog_0401_br187_parallel_simple.ui',

@@ -66,6 +66,7 @@ class Dialog0111(QtWidgets.QMainWindow):
 
     def error(self, msg: str, stop: bool = False):
         self.statusBar().showMessage(msg)
+        self.repaint()
         if stop:
             raise ValueError
 
@@ -141,7 +142,7 @@ class Dialog0111(QtWidgets.QMainWindow):
                 force_plume_temperature_correlation=self.ui.radioButton_fire_plume.isChecked()
             )
         except Exception as e:
-            self.error('Calculation incomplete. ' + str(e))
+            self.error(str(e))
             raise e
 
         res['time'], res['gas_hrr_kW'] = time, gas_hrr_kW
