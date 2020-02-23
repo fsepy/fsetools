@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label_figure_main">
+   <widget class="QLabel" name="label_image_context">
     <property name="geometry">
      <rect>
       <x>15</x>
@@ -27,7 +27,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>../../../../../../../Library/Mobile Documents/6LVTQB9699~com~seriflabs~affinitydesigner/Documents/FSEUTIL/final/0103_bs9999_2017_merging_flow_794_560.png</pixmap>
+     <pixmap>../../../../../../../Library/Mobile Documents/6LVTQB9699~com~seriflabs~affinitydesigner/Documents/FSEUTIL/png/0103_back_794_560.png</pixmap>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBox_inputs">
@@ -331,8 +331,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>999999</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="toolTip">
@@ -368,8 +368,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>999999</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="toolTip">
@@ -399,8 +399,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>999999</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="toolTip">
@@ -430,8 +430,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>999999</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="toolTip">
@@ -461,8 +461,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>999999</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="toolTip">
@@ -631,8 +631,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>999999</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="toolTip">
@@ -736,8 +736,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>999999</width>
-       <height>30</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="toolTip">
@@ -955,6 +955,22 @@
     </property>
     <property name="text">
      <string>Calculate</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_image_figure">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>95</y>
+      <width>342</width>
+      <height>284</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../../../../../../../Library/Mobile Documents/6LVTQB9699~com~seriflabs~affinitydesigner/Documents/FSEUTIL/png/0103_figure_1_342_284.png</pixmap>
     </property>
    </widget>
   </widget>

@@ -1,8 +1,10 @@
 import numpy as np
 from PySide2 import QtWidgets, QtGui, QtCore
 
-from fsetools.gui.images_base64 import dialog_0111_heat_detector_activation_figure_1
-from fsetools.gui.images_base64 import dialog_0111_heat_detector_activation_figure_2
+from fsetools.gui.images_base64 import dialog_0111_context_1 as image_context_1
+from fsetools.gui.images_base64 import dialog_0111_context_2 as image_context_2
+from fsetools.gui.images_base64 import dialog_0111_figure_1 as image_figure_1
+from fsetools.gui.images_base64 import dialog_0111_figure_2 as image_figure_2
 from fsetools.gui.layout.dialog_0111_heat_detector_activation import Ui_MainWindow as Ui_Dialog
 from fsetools.lib.fse_activation_hd import heat_detector_temperature_pd7974
 from fsetools.libstd.pd_7974_1_2019 import eq_22_t_squared_fire_growth
@@ -11,13 +13,28 @@ from fsetools.gui.logic.dialog_0002_tableview import TableWindow
 
 class Dialog0111(QtWidgets.QMainWindow):
 
-    _results = None
+    _numerical_results: dict = None
+
+    dict_images_pixmap = dict(
+        image_context_1=image_context_1,
+        image_context_2=image_context_2,
+        image_figure_1=image_figure_1,
+        image_figure_2=image_figure_2,
+    )
 
     def __init__(self, parent=None):
+        # instantiate ui
         super().__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
 
+        # construct pixmaps that are used in this app
+        for k, v in self.dict_images_pixmap.items():
+            ba = QtCore.QByteArray.fromBase64(v)
+            self.dict_images_pixmap[k] = QtGui.QPixmap()
+            self.dict_images_pixmap[k].loadFromData(ba)
+
+        # set output items readonly
         from fsetools.gui.logic.common import filter_objects_by_name
         for i in filter_objects_by_name(self.ui.groupBox_out, object_types=[QtWidgets.QLineEdit]):
             try:
@@ -32,10 +49,6 @@ class Dialog0111(QtWidgets.QMainWindow):
         self.setFixedSize(self.width(), self.height())
 
         # default values
-        self._figure_1 = QtGui.QPixmap()
-        self._figure_1.loadFromData(QtCore.QByteArray.fromBase64(dialog_0111_heat_detector_activation_figure_1))
-        self._figure_2 = QtGui.QPixmap()
-        self._figure_2.loadFromData(QtCore.QByteArray.fromBase64(dialog_0111_heat_detector_activation_figure_2))
         self.ui.radioButton_ceiling_jet.setChecked(True)
         self.set_temperature_correlation()
 
@@ -57,16 +70,19 @@ class Dialog0111(QtWidgets.QMainWindow):
             raise ValueError
 
     def set_temperature_correlation(self):
-        if self.ui.radioButton_fire_plume.isChecked():
+        """Set figures, disable and enable UI items accordingly."""
+        if self.ui.radioButton_fire_plume.isChecked():  # plume temperature and velocity
             self.ui.lineEdit_in_R.setEnabled(False)
             self.ui.label_in_R_label.setEnabled(False)
             self.ui.label_in_R_unit.setEnabled(False)
-            self.ui.label.setPixmap(self._figure_2)
-        else:
+            self.ui.label_image_context.setPixmap(self.dict_images_pixmap['image_context_2'])
+            self.ui.label_image_figure.setPixmap(self.dict_images_pixmap['image_figure_2'])
+        else:  # ceiling jet temperature and velocity
             self.ui.lineEdit_in_R.setEnabled(True)
             self.ui.label_in_R_label.setEnabled(True)
             self.ui.label_in_R_unit.setEnabled(True)
-            self.ui.label.setPixmap(self._figure_1)
+            self.ui.label_image_context.setPixmap(self.dict_images_pixmap['image_context_1'])
+            self.ui.label_image_figure.setPixmap(self.dict_images_pixmap['image_figure_1'])
 
     def test(self):
         self.ui.lineEdit_in_t.setText('600')
@@ -152,7 +168,7 @@ class Dialog0111(QtWidgets.QMainWindow):
             print(''.join(fs1_))
 
         # store calculated results
-        self._results = res
+        self._numerical_results = res
 
         # status feedback
         self.statusBar().showMessage('Calculation complete.')
@@ -163,7 +179,7 @@ class Dialog0111(QtWidgets.QMainWindow):
 
     def show_results_in_table(self):
 
-        res = self._results
+        res = self._numerical_results
         res['jet_temperature'] -= 273.15
         res['detector_temperature'] -= 273.15
 
@@ -171,10 +187,10 @@ class Dialog0111(QtWidgets.QMainWindow):
         list_title = ['Time [s]', 'HRR [kW]', 'V. Origin [m]', 'Jet T. [°C]', 'Jet Vel. [m/s]', 'Detector T. [°C]']
         list_param = ['time', 'gas_hrr_kW', 'virtual_origin', 'jet_temperature', 'jet_velocity', 'detector_temperature']
         list_content = list()
-        for i, time_ in enumerate(self._results['time']):
+        for i, time_ in enumerate(self._numerical_results['time']):
             list_content_ = list()
             for i_, param in enumerate(list_param):
-                v = self._results[param][i]
+                v = self._numerical_results[param][i]
                 list_content_.append(float(v))
             list_content.append(list_content_)
 

@@ -1,6 +1,10 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 
-from fsetools.gui.images_base64 import dialog_0103_bs9999_merging_flow_1 as figure_1
+from fsetools.gui.images_base64 import dialog_0103_bs9999_merging_flow_context as image_context
+from fsetools.gui.images_base64 import dialog_0103_bs9999_mergine_flow_figure_1 as image_figure_1
+from fsetools.gui.images_base64 import dialog_0103_bs9999_mergine_flow_figure_2 as image_figure_2
+from fsetools.gui.images_base64 import dialog_0103_bs9999_mergine_flow_figure_3 as image_figure_3
+
 from fsetools.gui.layout.dialog_0103_merging_flow import Ui_MainWindow
 from fsetools.gui.logic.common import filter_objects_by_name
 from fsetools.libstd.bs_9999_2017 import (
@@ -9,6 +13,14 @@ from fsetools.libstd.bs_9999_2017 import (
 
 
 class Dialog0103(QtWidgets.QMainWindow):
+
+    dict_images_pixmap = dict(
+        image_context=image_context,
+        image_figure_1=image_figure_1,
+        image_figure_2=image_figure_2,
+        image_figure_3=image_figure_3,
+    )
+
     maximum_acceptable_thermal_radiation_heat_flux = 12.6
 
     def __init__(self, parent=None):
@@ -18,6 +30,13 @@ class Dialog0103(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle('Means of Escape Merging Flow')
 
+        # construct pixmaps that are used in this app
+        for k, v in self.dict_images_pixmap.items():
+            ba = QtCore.QByteArray.fromBase64(v)
+            self.dict_images_pixmap[k] = QtGui.QPixmap()
+            self.dict_images_pixmap[k].loadFromData(ba)
+
+        # set all outputs lineedit to readonly
         for i in filter_objects_by_name(
                 self.ui.groupBox_outputs,
                 object_types=[QtWidgets.QLineEdit, QtWidgets.QCheckBox]):
@@ -26,11 +45,8 @@ class Dialog0103(QtWidgets.QMainWindow):
             except AttributeError:
                 i.setEnabled(False)
 
-        # set up radiation figure
-        ba = QtCore.QByteArray.fromBase64(figure_1)
-        pix_map = QtGui.QPixmap()
-        pix_map.loadFromData(ba)
-        self.ui.label_figure_main.setPixmap(pix_map)
+        # set up context image
+        self.ui.label_image_context.setPixmap(self.dict_images_pixmap['image_context'])
 
         # entry default values
         self.ui.radioButton_opt_scenario_1.setChecked(True)
@@ -54,22 +70,27 @@ class Dialog0103(QtWidgets.QMainWindow):
     def change_option_scenarios(self):
         """When mode changes, turn off (grey them out) not required inputs and clear their value."""
 
-        # enable everything in input group, i.e. scenario 3
+        # enable everything in input group to start with.
+        # ui items will be disabled for scenario 1 or 2 (if applicable) below.
         list_obj = filter_objects_by_name(
             self.ui.groupBox_inputs, [QtWidgets.QLabel, QtWidgets.QLineEdit], ['_in_S_dn', '_in_W_SE', '_in_B', '_in_N']
         )
         for i in list_obj:
             i.setEnabled(True)
 
-        # disable items in accordance with selected mode
+        # disable items in accordance with the selected mode
         if self.ui.radioButton_opt_scenario_1.isChecked():  # scenario 1, flow from upper levels + ground floor
+            # get items that to be processed
             list_obj = filter_objects_by_name(
                 self.ui.groupBox_inputs, [QtWidgets.QLabel, QtWidgets.QLineEdit], ['_in_S_dn', '_in_B']
             )
+            # disable items that are not required in scenario 1
             for i in list_obj:
                 i.setEnabled(False)
                 if isinstance(i, QtWidgets.QLineEdit):
                     i.setText('')
+            # set figure to scenario 1
+            self.ui.label_image_figure.setPixmap(self.dict_images_pixmap['image_figure_1'])
 
         elif self.ui.radioButton_opt_scenario_2.isChecked():  # scenario 2, flow from upper levels + basement
             list_obj = filter_objects_by_name(
@@ -79,6 +100,12 @@ class Dialog0103(QtWidgets.QMainWindow):
                 i.setEnabled(False)
                 if isinstance(i, QtWidgets.QLineEdit):
                     i.setText('')
+            # set figure to scenario 2
+            self.ui.label_image_figure.setPixmap(self.dict_images_pixmap['image_figure_2'])
+
+        else:
+            # set figure to scenario 3
+            self.ui.label_image_figure.setPixmap(self.dict_images_pixmap['image_figure_3'])
 
     def test(self):
         self.ui.lineEdit_in_X.setText('3.06')
