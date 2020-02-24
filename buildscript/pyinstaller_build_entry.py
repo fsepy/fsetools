@@ -31,7 +31,7 @@ if __name__ == "__main__":
     _exp_h, _ = divmod(_, 60 * 60)
     _exp_m, _ = divmod(_, 60)
     print(f'EXPIRES IN: {_exp_d:.0f} day(s), {_exp_h:.0f} hour(s) and {_exp_m:.0f} minute(s).')
-    print('(THIS WINDOW IS ONLY VISIBLE IN DEV MODE WHEN VERSION CONTAINS DEV KEYWORD.)')
+    print('THIS WINDOW IS ONLY VISIBLE IN DEV MODE WHEN VERSION CONTAINS DEV KEYWORD.')
     print('='*80)
 
     # check expiry date and check pass code

@@ -18,7 +18,7 @@ setuptools.setup(
     version=fsetools.__version__,
     description="Fire Safety Engineering Tools",
     author="Ian Fu",
-    author_email="fuyans@gmail.com",
+    author_email=''.join([chr(ord(v)+i) for i, v in enumerate(r'ftw^jn:`eX_a"Va^')]),
     url="https://github.com/fsepy/fsetools",
     download_url="https://github.com/fsepy/fsetools/archive/master.zip",
     keywords=["fire", "safety", "engineering"],

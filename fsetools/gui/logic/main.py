@@ -16,12 +16,6 @@ from fsetools.gui.logic.dialog_0405_thermal_radiation_extreme import Dialog0405 
 from fsetools.gui.logic.dialog_0601_naming_convention import Dialog0601 as Dialog0601
 from fsetools.gui.logic.dialog_0602_pd7974_flame_height import Dialog0602 as Dialog0602
 
-try:
-    from fsetools.__key__ import key
-    KEY = key()
-except ModuleNotFoundError:
-    KEY = None
-
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
