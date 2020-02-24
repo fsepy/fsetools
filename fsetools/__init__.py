@@ -36,8 +36,8 @@ Public version identifiers are separated into up to five segments:
 
 import datetime
 
-__version__ = "0.0.0.dev20200219"
-__date_released__ = datetime.datetime(2020, 2, 19)
+__version__ = "0.0.0.post20200224"
+__date_released__ = datetime.datetime(2020, 2, 24)
 __expiry_period_days__ = 21
 
 if __name__ == "__main__":

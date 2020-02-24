@@ -45,5 +45,5 @@ setuptools.setup(
     ],
     install_requires=requirements,
     include_package_data=True,
-    entry_points={"console_scripts": ["fsetools=fsetools.cli.__main__:make_nsh_files"]},
+    entry_points={"console_scripts": ["fsetools=fsetools.cli.__main__:main"]},
 )

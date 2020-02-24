@@ -1,7 +1,8 @@
 import operator
-from PySide2 import QtWidgets
-from PySide2 import QtGui
+
 from PySide2 import QtCore
+from PySide2 import QtGui
+from PySide2 import QtWidgets
 
 
 class TableWindow(QtWidgets.QDialog):
@@ -19,7 +20,7 @@ class TableWindow(QtWidgets.QDialog):
         table_view = QtWidgets.QTableView()
         table_view.setModel(self.TableModel)
         # set font
-        font = QtGui.QFont("Courier New", 14)
+        font = QtGui.QFont("Courier New", 9)
         table_view.setFont(font)
         # set column width to fit contents (set font first!)
         table_view.resizeColumnsToContents()
