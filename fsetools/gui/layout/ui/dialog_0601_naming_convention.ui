@@ -571,6 +571,18 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_1_date</tabstop>
+  <tabstop>comboBox_2_revision</tabstop>
+  <tabstop>lineEdit_3_project_no</tabstop>
+  <tabstop>lineEdit_4_project_stage</tabstop>
+  <tabstop>lineEdit_5_title</tabstop>
+  <tabstop>comboBox_6_type</tabstop>
+  <tabstop>comboBox_7_security_status</tabstop>
+  <tabstop>checkBox_replace_spaces</tabstop>
+  <tabstop>lineEdit_out_result</tabstop>
+  <tabstop>pushButton_copy</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
