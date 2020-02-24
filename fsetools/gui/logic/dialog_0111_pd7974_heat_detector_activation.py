@@ -15,13 +15,6 @@ class Dialog0111(QtWidgets.QMainWindow):
 
     _numerical_results: dict = None
 
-    dict_images_pixmap = dict(
-        image_context_1=image_context_1,
-        image_context_2=image_context_2,
-        image_figure_1=image_figure_1,
-        image_figure_2=image_figure_2,
-    )
-
     def __init__(self, parent=None):
         # instantiate ui
         super().__init__(parent)
@@ -29,6 +22,12 @@ class Dialog0111(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         # construct pixmaps that are used in this app
+        self.dict_images_pixmap = dict(
+            image_context_1=image_context_1,
+            image_context_2=image_context_2,
+            image_figure_1=image_figure_1,
+            image_figure_2=image_figure_2,
+        )
         for k, v in self.dict_images_pixmap.items():
             ba = QtCore.QByteArray.fromBase64(v)
             self.dict_images_pixmap[k] = QtGui.QPixmap()
@@ -93,7 +92,7 @@ class Dialog0111(QtWidgets.QMainWindow):
         self.ui.lineEdit_in_RTI.setText('115')
         self.ui.lineEdit_in_C.setText('0.4')
         self.ui.lineEdit_in_HRRPUA.setText('510')
-        self.ui.lineEdit_in_C_conv.setText('0.67')
+        self.ui.lineEdit_in_C_conv.setText('66.7')
         self.ui.lineEdit_in_T_act.setText('58')
 
         self.calculate()
@@ -119,7 +118,7 @@ class Dialog0111(QtWidgets.QMainWindow):
             detector_response_time_index = float(self.ui.lineEdit_in_RTI.text())
             detector_conduction_factor = float(self.ui.lineEdit_in_C.text())
             fire_hrr_density_kWm2 = float(self.ui.lineEdit_in_HRRPUA.text())
-            fire_convection_fraction = float(self.ui.lineEdit_in_C_conv.text())
+            fire_convection_fraction = float(self.ui.lineEdit_in_C_conv.text()) / 100.
             detector_activation_temperature = float(self.ui.lineEdit_in_T_act.text())
         except Exception as e:
             self.error('Calculation incomplete. Failed to parse inputs')
