@@ -1,5 +1,7 @@
 # fseutil
 
+[![Build Status](https://travis-ci.com/fsepy/fsetools.svg?branch=master)](https://travis-ci.com/fsepy/fsetools)
+
 Fire Safety Engineering Tools.
 
 ## Getting Started
