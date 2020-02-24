@@ -14,12 +14,7 @@ from fsetools.libstd.bs_9999_2017 import (
 
 class Dialog0103(QtWidgets.QMainWindow):
 
-    dict_images_pixmap = dict(
-        image_context=image_context,
-        image_figure_1=image_figure_1,
-        image_figure_2=image_figure_2,
-        image_figure_3=image_figure_3,
-    )
+
 
     maximum_acceptable_thermal_radiation_heat_flux = 12.6
 
@@ -31,6 +26,12 @@ class Dialog0103(QtWidgets.QMainWindow):
         self.setWindowTitle('Means of Escape Merging Flow')
 
         # construct pixmaps that are used in this app
+        self.dict_images_pixmap = dict(
+            image_context=image_context,
+            image_figure_1=image_figure_1,
+            image_figure_2=image_figure_2,
+            image_figure_3=image_figure_3,
+        )
         for k, v in self.dict_images_pixmap.items():
             ba = QtCore.QByteArray.fromBase64(v)
             self.dict_images_pixmap[k] = QtGui.QPixmap()

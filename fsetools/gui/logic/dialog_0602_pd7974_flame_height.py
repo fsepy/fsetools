@@ -1,6 +1,7 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
-from fsetools.gui.images_base64 import dialog_0602_pd_7974_flame_height_figure_1
+from fsetools.gui.images_base64 import dialog_0602_context as image_context
+from fsetools.gui.images_base64 import dialog_0602_figure as image_figure
 from fsetools.gui.layout.dialog_0602_pd_7974_flame_height import Ui_MainWindow
 from fsetools.lib.fse_flame_height import mean_flame_height_pd_7974
 from fsetools.libstd.pd_7974_1_2019 import eq_11_dimensionless_hrr_rectangular
@@ -21,6 +22,14 @@ class Dialog0602(QtWidgets.QMainWindow):
         self.setFixedSize(self.width(), self.height())
         self.statusBar().setSizeGripEnabled(False)
 
+        # construct pixmaps that are used in this app
+        self.dict_images_pixmap = dict(image_context=image_context,
+                                       image_figure=image_figure,)
+        for k, v in self.dict_images_pixmap.items():
+            ba = QtCore.QByteArray.fromBase64(v)
+            self.dict_images_pixmap[k] = QtGui.QPixmap()
+            self.dict_images_pixmap[k].loadFromData(ba)
+
         from fsetools.gui.logic.common import filter_objects_by_name
         for i in filter_objects_by_name(self.ui.groupBox_outputs, object_types=[QtWidgets.QLineEdit]):
             try:
@@ -29,10 +38,8 @@ class Dialog0602(QtWidgets.QMainWindow):
                 i.setEnabled(False)
 
         # set up figures
-        ba = QtCore.QByteArray.fromBase64(dialog_0602_pd_7974_flame_height_figure_1)
-        pix_map = QtGui.QPixmap()
-        pix_map.loadFromData(ba)
-        self.ui.label_figure_flame_height.setPixmap(pix_map)
+        self.ui.label_image_context.setPixmap(self.dict_images_pixmap['image_context'])
+        self.ui.label_image_figure.setPixmap(self.dict_images_pixmap['image_figure'])
 
         # set default values
         # todo
@@ -51,23 +58,23 @@ class Dialog0602(QtWidgets.QMainWindow):
 
     def change_fire_shape(self):
         if self.ui.comboBox_fire_shape.currentIndex() == 0:  # circular fire source
-            self.ui.label_Q_dot_or_Q_dot_l.setText('Q_dot')
+            self.ui.label_Q_dot_or_Q_dot_l.setText('Q`, fire total HRR')
             self.ui.label_Q_dot_or_Q_dot_l_unit.setText('kW')
-            self.ui.label_L_A_or_D.setText('D')
+            self.ui.label_L_A_or_D.setText('D, fire diameter')
             self.ui.label_L_B.setDisabled(True)
             self.ui.lineEdit_L_B.setDisabled(True)
             self.ui.label_L_B_unit.setDisabled(True)
         elif self.ui.comboBox_fire_shape.currentIndex() == 1:  # rectangular fire source
-            self.ui.label_Q_dot_or_Q_dot_l.setText('Q_dot')
+            self.ui.label_Q_dot_or_Q_dot_l.setText('Q`, total fire HRR')
             self.ui.label_Q_dot_or_Q_dot_l_unit.setText('kW')
-            self.ui.label_L_A_or_D.setText(r'L<sub>A<\sub>')
+            self.ui.label_L_A_or_D.setText(r'<html><head/><body><p>L<span style=" vertical-align:sub;">A</span>, fire longer dimension</p></body></html>')
             self.ui.label_L_B.setDisabled(False)
             self.ui.lineEdit_L_B.setDisabled(False)
             self.ui.label_L_B_unit.setDisabled(False)
         elif self.ui.comboBox_fire_shape.currentIndex() == 2:  # line fire source
-            self.ui.label_Q_dot_or_Q_dot_l.setText('Q_dot_l')
+            self.ui.label_Q_dot_or_Q_dot_l.setText(r'<html><head/><body><p>Q`<span style=" vertical-align:sub;">l</span>, fire length</p></body></html>')
             self.ui.label_Q_dot_or_Q_dot_l_unit.setText('kW/m')
-            self.ui.label_L_A_or_D.setText(r'L<sub>A<\sub>')
+            self.ui.label_L_A_or_D.setText(r'<html><head/><body><p>L<span style=" vertical-align:sub;">A</span>, fire length</p></body></html>')
             self.ui.label_L_B.setDisabled(True)
             self.ui.lineEdit_L_B.setDisabled(True)
             self.ui.label_L_B_unit.setDisabled(True)
