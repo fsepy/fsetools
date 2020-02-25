@@ -1,4 +1,2 @@
-pyside2>=5.14.1
 numpy>=1.18.1
-# setuptools<=44.0.0
 docopt>=0.6.2

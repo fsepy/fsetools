@@ -1,16 +1,13 @@
 # !/usr/bin/python
 # coding:utf-8
 
-import sys
-
-from PySide2 import QtCore, QtWidgets
-
-from fsetools.gui.logic.main import MainWindow
-
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-
 
 def main():
+    import sys
+    from PySide2 import QtCore, QtWidgets
+    from fsetools.gui.logic.main import MainWindow
+
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
     app = QtWidgets.QApplication.instance()
     if app is None:

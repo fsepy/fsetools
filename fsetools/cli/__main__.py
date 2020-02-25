@@ -13,7 +13,6 @@ import os
 from docopt import docopt
 
 import fsetools
-from fsetools.gui.__main__ import main as main_gui
 
 
 def helper_get_list_filepath_end_width(cwd: str, end_with: str) -> list:
@@ -31,6 +30,7 @@ def helper_get_list_filepath_end_width(cwd: str, end_with: str) -> list:
 
 
 def gui():
+    from fsetools.gui.__main__ import main as main_gui
     print(fsetools.__version__)
     main_gui()
 
