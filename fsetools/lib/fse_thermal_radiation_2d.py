@@ -1,15 +1,16 @@
-import numpy as np
-import numpy as np
-from pprint import pprint
-import matplotlib.pyplot as plt
-from matplotlib import cm
-from pprint import pprint
-from tqdm import tqdm
-import typing
-from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
 import os
+import typing
 from os.path import join, realpath, basename, dirname
+from pprint import pprint
+
 import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+from tqdm import tqdm
+
+from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
+
 matplotlib.use("Qt5Agg")
 
 
@@ -154,20 +155,6 @@ def solve_phi(
     return phi_arr
 
 
-# def solve_phi_for_single_emitter(
-#         emitter: dict,
-#         xx: np.ndarray,
-#         yy: np.ndarray,
-#         zz: np.ndarray
-# ) -> np.ndarray:
-#
-#     emitter = update_emitter(emitter)
-#
-#     phi = solve_phi(emitter=emitter, xx=xx, yy=yy, zz=zz)
-#
-#     return phi
-
-
 def plot_heat_flux_on_ax(
         ax,
         xx: np.ndarray,
@@ -234,27 +221,28 @@ def solve_heat_flux_single_emitter(
 
 def main_plot(input_param_dict: dict, dir_cwd: str = None):
 
-    figsize_width = 7 * len(input_param_dict)
-
-    # create a figure
-    fig = plt.figure(
-        figsize=(figsize_width, figsize_width),
-        frameon=False,
-    )
-
-    xmin, xmax = np.inf, -np.inf
-    for case_name in input_param_dict.keys():
-        if xmin > input_param_dict[case_name]['xx'].min():
-            xmin = input_param_dict[case_name]['xx'].min()
-        if xmax < input_param_dict[case_name]['xx'].max():
-            xmax = input_param_dict[case_name]['xx'].max()
-
+    # ratio of physical dimension to base figure size
+    figsize_base = 7  # this is going to be the longest dimension of all figures (not axes)
+    figsize_x_real_to_base = max([case_param['domain']['x'][1] - case_param['domain']['x'][0] for _, case_param in input_param_dict.items()]) / figsize_base
+    figsize_y_real_to_base = max([case_param['domain']['y'][1] - case_param['domain']['y'][0] for _, case_param in input_param_dict.items()]) / figsize_base
 
     for n_count, case_name in enumerate(sorted(input_param_dict.keys())):
 
-        ax = fig.add_subplot(len(input_param_dict), 1, n_count+1)
+        figsize_x = (input_param_dict[case_name]['domain']['x'][1] - input_param_dict[case_name]['domain']['x'][0]) / figsize_x_real_to_base
+        figsize_y = (input_param_dict[case_name]['domain']['y'][1] - input_param_dict[case_name]['domain']['y'][0]) / figsize_y_real_to_base
+
+        figsize = max([figsize_x, figsize_y])
+
+        # create a figure
+        fig = plt.figure(
+            figsize=(figsize, figsize),
+            frameon=False,
+        )
+
+        ax = fig.add_subplot()
 
         ax.set_aspect('equal')
+
         plot_heat_flux_on_ax(
             ax=ax,
             xx=input_param_dict[case_name]['xx'],
@@ -270,11 +258,10 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
 
         input_param_dict[case_name]['ax'] = ax
 
-    # fig.tight_layout()
-    if dir_cwd:
-        dir_cwd = realpath(dir_cwd)
+        # fig.tight_layout()
+        if dir_cwd:
+            dir_cwd = realpath(dir_cwd)
 
-    for case_name in input_param_dict.keys():
         ax = input_param_dict[case_name]['ax']
         extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
         if dir_cwd:
@@ -283,13 +270,9 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
             fp_fig = f'{case_name}.png'
         fig.savefig(fp_fig, transparent=True, bbox_inches=extent)
 
-    if dir_cwd:
-        fp_fig = join(dir_cwd, 'main.png')
-    else:
-        fp_fig = 'main.png'
-    fig.savefig(fp_fig, transparent=True)
+        del fig, ax
 
-    return input_param_dict, fig
+    return input_param_dict
 
 
 def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
@@ -340,7 +323,7 @@ if __name__ == '__main__':
             ],
             domain=dict(
                 x=(0, 30),
-                y=(0, 3),
+                y=(0, 15),
             ),
             delta=.2
         ),
@@ -378,14 +361,14 @@ if __name__ == '__main__':
                 ),
                 dict(
                     x=[15.48, 28.25],
-                    y=[0, 100],
+                    y=[0, 10],
                     # z = [0, 20.7],
                     z=[0, 3.5],
                     heat_flux=84,
                 )
             ],
             domain=dict(
-                x=(0, 10),
+                x=(0, 15),
                 y=(0, 30),
             ),
             delta=.2
