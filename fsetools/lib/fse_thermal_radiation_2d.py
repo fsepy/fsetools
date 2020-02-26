@@ -300,8 +300,7 @@ def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
     pprint(input_param_dict)
 
 
-if __name__ == '__main__':
-    _test_solve_intersection_line_and_perpendicular_point()
+def _test_without_compartmentation_floors():
 
     input_param_dict = dict(
         facade_a=dict(
@@ -309,70 +308,239 @@ if __name__ == '__main__':
                 dict(
                     x=[0, 15.48],
                     y=[0, 0.00001],
-                    # z = [0, 29.5],
                     z=[0, 3.5],
-                    heat_flux=84 * (163 / 571),
+                    heat_flux=84 * 0.287,
                 ),
                 dict(
-                    x=[15.48, 28.25],
+                    x=[15.48, 15.48+12.77],
                     y=[0, 0.00001],
-                    # z = [0, 20.7],
                     z=[0, 3.5],
                     heat_flux=84,
                 )
             ],
             domain=dict(
-                x=(0, 30),
-                y=(0, 15),
+                x=(0, 15.48+12.77),
+                y=(0, 8.66),
             ),
             delta=.2
         ),
         facade_b=dict(
             emitter_list=[
                 dict(
-                    x=[0, 15.48],
+                    x=[0, 27.61],
                     y=[0, 0.00001],
-                    # z = [0, 29.5],
                     z=[0, 3.5],
-                    heat_flux=84 * (163 / 571),
+                    heat_flux=84 * 0.293,
                 ),
-                dict(
-                    x=[15.48, 28.25],
-                    y=[0, 10],
-                    # z = [0, 20.7],
-                    z=[0, 3.5],
-                    heat_flux=84,
-                )
             ],
             domain=dict(
-                x=(0, 30),
-                y=(0, 30),
+                x=(0, 27.61),
+                y=(0, 10),
             ),
             delta=.2
         ),
         facade_c=dict(
             emitter_list=[
                 dict(
-                    x=[0, 15.48],
+                    x=[0, 15.93],
                     y=[0, 0.00001],
-                    # z = [0, 29.5],
-                    z=[0, 3.5],
-                    heat_flux=84 * (163 / 571),
-                ),
-                dict(
-                    x=[15.48, 28.25],
-                    y=[0, 10],
-                    # z = [0, 20.7],
                     z=[0, 3.5],
                     heat_flux=84,
+                ),
+                dict(
+                    x=[15.93, 15.93+20.30],
+                    y=[0, 0.00001],
+                    z=[0, 3.5],
+                    heat_flux=84 * 0.293,
                 )
             ],
             domain=dict(
-                x=(0, 15),
-                y=(0, 30),
+                x=(0, 15.93+20.30),
+                y=(0, 11.53),
+            ),
+            delta=.2
+        ),
+        facade_d=dict(
+            emitter_list=[
+                dict(
+                    x=[0, 22.98],
+                    y=[0, 0.00001],
+                    z=[0, 3.],
+                    heat_flux=84,
+                ),
+            ],
+            domain=dict(
+                x=(0, 22.98),
+                y=(0, 9.29),
             ),
             delta=.2
         )
     )
 
     main(input_param_dict)
+
+
+def _test_without_compartmentation_floors_without_facade_protection():
+
+    input_param_dict = dict(
+        facade_a=dict(
+            emitter_list=[
+                dict(
+                    x=[0, 15.48],
+                    y=[0, 0.00001],
+                    z=[0, 29.43],
+                    heat_flux=84 * 0.287,
+                ),
+                dict(
+                    x=[15.48, 15.48+12.77],
+                    y=[0, 0.00001],
+                    z=[0, 20.71],
+                    heat_flux=84,
+                )
+            ],
+            domain=dict(
+                x=(0, 15.48+12.77),
+                y=(0, 8.66),
+            ),
+            delta=.2
+        ),
+        facade_b=dict(
+            emitter_list=[
+                dict(
+                    x=[0, 27.61],
+                    y=[0, 0.00001],
+                    z=[0, 31.16],
+                    heat_flux=84 * 0.293,
+                ),
+            ],
+            domain=dict(
+                x=(0, 27.61),
+                y=(0, 20),
+            ),
+            delta=.2
+        ),
+        facade_c=dict(
+            emitter_list=[
+                dict(
+                    x=[0, 15.93],
+                    y=[0, 0.00001],
+                    z=[0, 19.91],
+                    heat_flux=84,
+                ),
+                dict(
+                    x=[15.93, 15.93+20.30],
+                    y=[0, 0.00001],
+                    z=[0, 30.97],
+                    heat_flux=84 * 0.293,
+                )
+            ],
+            domain=dict(
+                x=(0, 15.93+20.30),
+                y=(0, 11.53),
+            ),
+            delta=.2
+        ),
+        facade_d=dict(
+            emitter_list=[
+                dict(
+                    x=[0, 22.98],
+                    y=[0, 0.00001],
+                    z=[0, 19.91],
+                    heat_flux=84,
+                ),
+            ],
+            domain=dict(
+                x=(0, 22.98),
+                y=(0, 9.29),
+            ),
+            delta=.2
+        )
+    )
+
+    main(input_param_dict)
+
+
+def _test_3():
+
+    input_param_dict = dict(
+        # facade_a=dict(
+        #     emitter_list=[
+        #         dict(
+        #             x=[0, 15.48],
+        #             y=[0, 0.00001],
+        #             z=[0, 29.43],
+        #             heat_flux=84 * 0.287,
+        #         ),
+        #         dict(
+        #             x=[15.48, 15.48+12.77],
+        #             y=[0, 0.00001],
+        #             z=[0, 20.71],
+        #             heat_flux = 84 * 0.00001,
+        #         )
+        #     ],
+        #     domain=dict(
+        #         x=(0, 15.48+12.77),
+        #         y=(0, 8.66),
+        #     ),
+        #     delta=.2
+        # ),
+        # facade_b=dict(
+        #     emitter_list=[
+        #         dict(
+        #             x=[0, 27.61],
+        #             y=[0, 0.00001],
+        #             z=[0, 31.16],
+        #             heat_flux=84 * 0.293,
+        #         ),
+        #     ],
+        #     domain=dict(
+        #         x=(0, 27.61),
+        #         y=(0, 20),
+        #     ),
+        #     delta=.2
+        # ),
+        # facade_c=dict(
+        #     emitter_list=[
+        #         dict(
+        #             x=[0, 15.93],
+        #             y=[0, 0.00001],
+        #             z=[0, 19.91],
+        #             heat_flux=84*0.00001,
+        #         ),
+        #         dict(
+        #             x=[15.93, 15.93+20.30],
+        #             y=[0, 0.00001],
+        #             z=[0, 30.97],
+        #             heat_flux=84 * 0.293,
+        #         )
+        #     ],
+        #     domain=dict(
+        #         x=(0, 15.93+20.30),
+        #         y=(0, 11.53),
+        #     ),
+        #     delta=.2
+        # ),
+        facade_d=dict(
+            emitter_list=[
+                dict(
+                    x=[0, 22.98],
+                    y=[0, 0.00001],
+                    z=[0, 19.91],
+                    heat_flux=84*0.2,
+                ),
+            ],
+            domain=dict(
+                x=(0, 22.98),
+                y=(0, 9.29),
+            ),
+            delta=.2
+        )
+    )
+
+    main(input_param_dict)
+
+
+if __name__ == '__main__':
+    # _test_solve_intersection_line_and_perpendicular_point()
+    # _test_without_compartmentation_floors_without_facade_protection()
+    _test_3()
