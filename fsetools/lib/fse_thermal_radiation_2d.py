@@ -242,7 +242,14 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
         frameon=False,
     )
 
-    ax = None
+    xmin, xmax = np.inf, -np.inf
+    for case_name in input_param_dict.keys():
+        if xmin > input_param_dict[case_name]['xx'].min():
+            xmin = input_param_dict[case_name]['xx'].min()
+        if xmax < input_param_dict[case_name]['xx'].max():
+            xmax = input_param_dict[case_name]['xx'].max()
+
+
     for n_count, case_name in enumerate(sorted(input_param_dict.keys())):
 
         ax = fig.add_subplot(len(input_param_dict), 1, n_count+1)
@@ -281,7 +288,6 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
     else:
         fp_fig = 'main.png'
     fig.savefig(fp_fig, transparent=True)
-    plt.show()
 
     return input_param_dict, fig
 
