@@ -9,6 +9,8 @@ import typing
 from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
 import os
 from os.path import join, realpath, basename, dirname
+import matplotlib
+matplotlib.use("Qt5Agg")
 
 
 def update_input_param(input_set: dict):
@@ -60,23 +62,40 @@ def solve_intersection_line_and_perpendicular_point(
     x2, y2 = xy2
     x3, y3 = xy3
 
-    # solve for the line equation p1->p2
+    # solve the plane equation
     # a x + b = y
+    # a = np.tan(emitter['theta'])
+    # b = a * emitter['x'][1] + emitter['y'][1]
     m1 = np.array([[x1, 1], [x2, 1]])
     m2 = np.array([y1, y2])
     a1, b1 = np.linalg.solve(m1, m2)
 
-    # solve for the line equation p3->p4
+    # solve the tangent line equation
     # a2 x + b2 = y, a2 is known
-    a2 = np.tan(np.arctan(a1 ) +np.pi /2)
+    a2 = np.tan(np.arctan(a1) + np.pi / 2)
     b2 = y3 - a2 * x3
 
-    # solve p4
-    m1 = np.array([[a1 ,-1], [a2 ,-1]])
-    m2 = np.array([-b1 ,-b2])
-    x4, x4 = np.linalg.solve(m1, m2)
+    # solve the intersection
+    m1 = np.array([[a1, -1], [a2, -1]])
+    m2 = np.array([-b1, -b2])
+    x4, y4 = np.linalg.solve(m1, m2)
 
-    return x4, x4
+    return x4, y4
+
+
+def _test_solve_intersection_line_and_perpendicular_point():
+    x4, y4 = solve_intersection_line_and_perpendicular_point(
+        xy1=(0, 0),
+        xy2=(10,10),
+        xy3=(10, 0)
+    )
+    print(x4, y4)
+    x4, y4 = solve_intersection_line_and_perpendicular_point(
+        (0, 0),
+        (10,5),
+        (10, 0)
+    )
+    print(x4, y4)
 
 
 def solve_phi(
@@ -94,7 +113,9 @@ def solve_phi(
     n_iter_total = xx.size*len(zz)
     n_iter_count = 0
     with tqdm(total=n_iter_total) as pbar:
+
         for i in range(np.shape(xx)[0]):
+
             for j in range(np.shape(xx)[1]):
 
                 # point 3, the point outside the line
@@ -115,13 +136,14 @@ def solve_phi(
                 D = ((x5 - x4) ** 2 + (y5 - y4) ** 2) ** 0.5
 
                 phi_z = 0
-                zz = [emitter['height'] / 2]  # temporary, currently always set at mid-point vertically.
                 for z in zz:
                     pbar.update(n_iter_count - pbar.n)
                     n_iter_count += 1
                     if d > 0:
                         phi = phi_parallel_any_br187(
-                            W_m=emitter['width'], H_m=emitter['height'], w_m=0.5 * emitter['width'] + D,
+                            W_m=emitter['width'],
+                            H_m=emitter['height'],
+                            w_m=0.5 * emitter['width'] + D,
                             h_m=z - emitter['z'][0], S_m=d
                         )
                         if phi > phi_z:
@@ -132,18 +154,18 @@ def solve_phi(
     return phi_arr
 
 
-def solve_phi_for_single_emitter(
-        emitter: dict,
-        xx: np.ndarray,
-        yy: np.ndarray,
-        zz: np.ndarray
-) -> np.ndarray:
-
-    emitter = update_emitter(emitter)
-
-    phi = solve_phi(emitter=emitter, xx=xx, yy=yy, zz=zz)
-
-    return phi
+# def solve_phi_for_single_emitter(
+#         emitter: dict,
+#         xx: np.ndarray,
+#         yy: np.ndarray,
+#         zz: np.ndarray
+# ) -> np.ndarray:
+#
+#     emitter = update_emitter(emitter)
+#
+#     phi = solve_phi(emitter=emitter, xx=xx, yy=yy, zz=zz)
+#
+#     return phi
 
 
 def plot_heat_flux_on_ax(
@@ -183,8 +205,8 @@ def plot_heat_flux_on_ax(
     # ax.set_yticks(np.arange(yy.min(), xx.max() + d_ticks, d_ticks))
 
     # axis limits
-    ax.set_xlim((xx.min(), xx.max()))
-    ax.set_ylim((yy.min(), xx.max()))
+    # ax.set_xlim((xx.min(), xx.max()))
+    # ax.set_ylim((yy.min(), xx.max()))
 
     # axis visibility
     # ax.get_xaxis().set_visible(False)
@@ -202,12 +224,9 @@ def solve_heat_flux_single_emitter(
         yy: np.ndarray,
 ):
 
-    for i in range(len(emitter_list)):
-        emitter_list[i] = update_emitter(emitter_list[i])
-
     heat_flux = np.zeros_like(xx)
     for emitter in emitter_list:
-        phi = solve_phi(emitter, xx, yy, np.array([emitter['height']]))
+        phi = solve_phi(emitter, xx, yy, np.array([emitter['height']/2]))
         heat_flux += phi * emitter['heat_flux']
 
     return heat_flux
@@ -215,7 +234,7 @@ def solve_heat_flux_single_emitter(
 
 def main_plot(input_param_dict: dict, dir_cwd: str = None):
 
-    figsize_width = 10
+    figsize_width = 7 * len(input_param_dict)
 
     # create a figure
     fig = plt.figure(
@@ -223,10 +242,12 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
         frameon=False,
     )
 
+    ax = None
     for n_count, case_name in enumerate(sorted(input_param_dict.keys())):
 
         ax = fig.add_subplot(len(input_param_dict), 1, n_count+1)
-        ax.set_aspect(aspect=1)
+
+        ax.set_aspect('equal')
         plot_heat_flux_on_ax(
             ax=ax,
             xx=input_param_dict[case_name]['xx'],
@@ -259,6 +280,8 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
         fp_fig = join(dir_cwd, 'main.png')
     else:
         fp_fig = 'main.png'
+    fig.savefig(fp_fig, transparent=True)
+    plt.show()
 
     return input_param_dict, fig
 
@@ -289,9 +312,10 @@ def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
 
 
 if __name__ == '__main__':
+    _test_solve_intersection_line_and_perpendicular_point()
 
     input_param_dict = dict(
-        facade_a = dict(
+        facade_a=dict(
             emitter_list=[
                 dict(
                     x=[0, 15.48],
@@ -302,20 +326,19 @@ if __name__ == '__main__':
                 ),
                 dict(
                     x=[15.48, 28.25],
-                    y=[0, 10],
+                    y=[0, 0.00001],
                     # z = [0, 20.7],
                     z=[0, 3.5],
                     heat_flux=84,
                 )
             ],
             domain=dict(
-                x=(0, 28.25),
-                y=(0, 8.66),
+                x=(0, 30),
+                y=(0, 3),
             ),
-            delta=.5
+            delta=.2
         ),
-
-        facade_b = dict(
+        facade_b=dict(
             emitter_list=[
                 dict(
                     x=[0, 15.48],
@@ -333,10 +356,33 @@ if __name__ == '__main__':
                 )
             ],
             domain=dict(
-                x=(0, 28.25),
-                y=(0, 8.66),
+                x=(0, 30),
+                y=(0, 30),
             ),
-            delta=.5
+            delta=.2
+        ),
+        facade_c=dict(
+            emitter_list=[
+                dict(
+                    x=[0, 15.48],
+                    y=[0, 0.00001],
+                    # z = [0, 29.5],
+                    z=[0, 3.5],
+                    heat_flux=84 * (163 / 571),
+                ),
+                dict(
+                    x=[15.48, 28.25],
+                    y=[0, 100],
+                    # z = [0, 20.7],
+                    z=[0, 3.5],
+                    heat_flux=84,
+                )
+            ],
+            domain=dict(
+                x=(0, 10),
+                y=(0, 30),
+            ),
+            delta=.2
         )
     )
 
