@@ -35,7 +35,7 @@ InstallDir "$PROGRAMFILES\${{COMPANYNAME}}\${{APPNAME}}"
 ;This will be in the installer/uninstaller's title bar
 Name "${{APPNAME}}"
 Icon "etc\ofr_logo_1_80_80.ico"
-outFile "FSETOOLS Installer.exe"
+outFile "{fn_installer}"
 
 ;Just three pages - license agreement, install location, and installation
 ;page license
