@@ -151,3 +151,4 @@ fsetools/gui/layout/*.py
 !fsetools/lib/
 *key.txt
 *__key__.py
+*.png
