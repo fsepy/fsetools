@@ -3,6 +3,8 @@ import operator
 from PySide2 import QtCore
 from PySide2 import QtGui
 from PySide2 import QtWidgets
+import csv
+import io
 
 
 class TableWindow(QtWidgets.QDialog):
@@ -17,18 +19,42 @@ class TableWindow(QtWidgets.QDialog):
         if window_title:
             self.setWindowTitle(window_title)
         self.TableModel = TableModel(self, data_list, header)
-        table_view = QtWidgets.QTableView()
-        table_view.setModel(self.TableModel)
+
+        self.TableView = QtWidgets.QTableView()
+        self.TableView.setModel(self.TableModel)
         # set font
         font = QtGui.QFont("Courier New", 9)
-        table_view.setFont(font)
+        self.TableView.setFont(font)
         # set column width to fit contents (set font first!)
-        table_view.resizeColumnsToContents()
+        self.TableView.resizeColumnsToContents()
         # enable sorting
-        table_view.setSortingEnabled(True)
+        self.TableView.setSortingEnabled(True)
         layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(table_view)
+        layout.addWidget(self.TableView)
         self.setLayout(layout)
+
+    def CopySelection(self):
+        selection = self.TableView.selectedIndexes()
+        if selection:
+            rows = sorted(index.row() for index in selection)
+            columns = sorted(index.column() for index in selection)
+            rowcount = rows[-1] - rows[0] + 1
+            colcount = columns[-1] - columns[0] + 1
+            table = [[''] * colcount for _ in range(rowcount)]
+            for index in selection:
+                row = index.row() - rows[0]
+                column = index.column() - columns[0]
+                table[row][column] = index.data()
+            stream = io.StringIO()
+            csv.writer(stream, delimiter='\t').writerows(table)
+            # QtWidgets.qApp.clipboard().setText(stream.getvalue())
+            QtGui.QClipboard().setText(stream.getvalue())
+        return
+
+    def keyPressEvent(self, event):
+        if QtGui.QKeySequence(event.key()+int(event.modifiers())) == QtGui.QKeySequence('Ctrl+C'):
+            print('hello world.')
+            self.CopySelection()
 
 
 class TableModel(QtCore.QAbstractTableModel):
