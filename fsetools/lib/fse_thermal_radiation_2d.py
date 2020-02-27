@@ -1,17 +1,12 @@
-import os
 import typing
-from os.path import join, realpath, basename, dirname
-from pprint import pprint
+from os.path import join, realpath
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
 from tqdm import tqdm
 
 from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
-
-matplotlib.use("Qt5Agg")
 
 
 def update_input_param(input_set: dict):
@@ -168,7 +163,7 @@ def plot_heat_flux_on_ax(
         xx: np.ndarray,
         yy: np.ndarray,
         zz: np.ndarray,
-        levels: tuple = (0, 5, 12.6, 20, 40, 60, 80),
+        levels: tuple = (0, 12.6, 20, 40, 60, 80),
 ):
 
     levels_contour = levels
@@ -176,6 +171,7 @@ def plot_heat_flux_on_ax(
     levels_contourf = levels_contour
     colors_contourf = [cm.get_cmap('YlOrRd')(i / (len(levels_contour) - 1)) for i, _ in enumerate(levels_contour)]
     colors_contourf = [(r_, g_, b_, 0.85) for r_, g_, b_, a_ in colors_contourf]
+    colors_contourf[0] = (195/255,255/255,143/255,0.85)
 
 
     # create axes
@@ -183,7 +179,7 @@ def plot_heat_flux_on_ax(
     cs_f = ax.contourf(xx, yy, zz, levels=levels_contourf, colors=colors_contourf)
 
 
-    ax.clabel(cs, inline=1, fontsize=8, fmt='%1.1f kW')
+    ax.clabel(cs, inline=1, fontsize=12, fmt='%1.1f kW')
 
     ax.grid(b=True, which='major', axis='both')
     ax.set_aspect(aspect=1)
