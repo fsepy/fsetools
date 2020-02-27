@@ -42,6 +42,11 @@ def update_emitter(dict_emitter: dict):
         )
     )
 
+    if emitter['x'][0] == emitter['x'][1]:
+        emitter['x'][1] += 1e-9
+    if emitter['y'][0] == emitter['y'][1]:
+        emitter['y'][1] += 1e-9
+
     return emitter
 
 
@@ -50,8 +55,12 @@ def solve_intersection_line_and_perpendicular_point(
         xy2: tuple,
         xy3: tuple
 ) -> tuple:
-    """Solves for coordinates of p4. Where p4 is the intersection between two lines p1->p2 and p3->p4, and p4 is on the
-    same line as p1->p2.
+    """
+    Solves for coordinates of p4 given p1, p2 and p3.
+    p1 and p2 are two points forms a line l1.
+    p3 and p4 are two points forms a line l2.
+    l1 and l2 is perpendicular to each other.
+    p4 is the intersection between l1 and l2.
 
     :param xy1:
     :param xy2:
@@ -96,7 +105,6 @@ def _test_solve_intersection_line_and_perpendicular_point():
         (10,5),
         (10, 0)
     )
-    print(x4, y4)
 
 
 def solve_phi(
@@ -205,18 +213,18 @@ def plot_heat_flux_on_ax(
 
 
 
-def solve_heat_flux_single_emitter(
-        emitter_list: typing.List[dict],
-        xx: np.ndarray,
-        yy: np.ndarray,
-):
-
-    heat_flux = np.zeros_like(xx)
-    for emitter in emitter_list:
-        phi = solve_phi(emitter, xx, yy, np.array([emitter['height']/2]))
-        heat_flux += phi * emitter['heat_flux']
-
-    return heat_flux
+# def solve_heat_flux_single_emitter(
+#         emitter_list: typing.List[dict],
+#         xx: np.ndarray,
+#         yy: np.ndarray,
+# ):
+#
+#     heat_flux = np.zeros_like(xx)
+#     for emitter in emitter_list:
+#         phi = solve_phi(emitter, xx, yy, np.array([emitter['height']/2]))
+#         heat_flux += phi * emitter['heat_flux']
+#
+#     return heat_flux
 
 
 def main_plot(input_param_dict: dict, dir_cwd: str = None):
@@ -288,250 +296,56 @@ def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
 
     # calculation
     for case_name in input_param_dict.keys():
-        input_param_dict[case_name]['heat_flux'] = solve_heat_flux_single_emitter(
-            emitter_list=input_param_dict[case_name]['emitter_list'],
-            xx=input_param_dict[case_name]['xx'],
-            yy=input_param_dict[case_name]['yy'],
-        )
+        heat_flux = np.zeros_like(input_param_dict[case_name]['xx'], dtype=np.float64)
+        # calculate phi
+        for i_emitter, emitter in enumerate(input_param_dict[case_name]['emitter_list']):
+            phi = solve_phi(
+                emitter=emitter,
+                xx=input_param_dict[case_name]['xx'],
+                yy=input_param_dict[case_name]['yy'],
+                zz=np.array([emitter['height']/2]),
+            )
+            input_param_dict[case_name]['emitter_list'][i_emitter]['phi'] = phi
+            heat_flux += phi * input_param_dict[case_name]['emitter_list'][i_emitter]['heat_flux']
+        input_param_dict[case_name]['heat_flux'] = heat_flux
 
     # make plots
     main_plot(input_param_dict, dir_cwd)
 
-    pprint(input_param_dict)
 
-
-def _test_without_compartmentation_floors():
+def _test_main():
 
     input_param_dict = dict(
-        facade_a=dict(
+        case_1=dict(
             emitter_list=[
                 dict(
-                    x=[0, 15.48],
-                    y=[0, 0.00001],
-                    z=[0, 3.5],
-                    heat_flux=84 * 0.287,
-                ),
-                dict(
-                    x=[15.48, 15.48+12.77],
-                    y=[0, 0.00001],
-                    z=[0, 3.5],
+                    x=[0, 10],
+                    y=[0, 0],
+                    z=[0, 5],
                     heat_flux=84,
-                )
-            ],
-            domain=dict(
-                x=(0, 15.48+12.77),
-                y=(0, 8.66),
-            ),
-            delta=.2
-        ),
-        facade_b=dict(
-            emitter_list=[
-                dict(
-                    x=[0, 27.61],
-                    y=[0, 0.00001],
-                    z=[0, 3.5],
-                    heat_flux=84 * 0.293,
                 ),
-            ],
-            domain=dict(
-                x=(0, 27.61),
-                y=(0, 10),
-            ),
-            delta=.2
-        ),
-        facade_c=dict(
-            emitter_list=[
                 dict(
-                    x=[0, 15.93],
-                    y=[0, 0.00001],
+                    x=[10, 10],
+                    y=[0, 5],
                     z=[0, 3.5],
                     heat_flux=84,
                 ),
                 dict(
-                    x=[15.93, 15.93+20.30],
-                    y=[0, 0.00001],
+                    x=[10, 0],
+                    y=[5, 5],
                     z=[0, 3.5],
-                    heat_flux=84 * 0.293,
-                )
-            ],
-            domain=dict(
-                x=(0, 15.93+20.30),
-                y=(0, 11.53),
-            ),
-            delta=.2
-        ),
-        facade_d=dict(
-            emitter_list=[
-                dict(
-                    x=[0, 22.98],
-                    y=[0, 0.00001],
-                    z=[0, 3.],
                     heat_flux=84,
                 ),
+                # dict(
+                #     x=[0, 0],
+                #     y=[5, 0],
+                #     z=[0, 3.5],
+                #     heat_flux=84,
+                # )
             ],
             domain=dict(
-                x=(0, 22.98),
-                y=(0, 9.29),
-            ),
-            delta=.2
-        )
-    )
-
-    main(input_param_dict)
-
-
-def _test_without_compartmentation_floors_without_facade_protection():
-
-    input_param_dict = dict(
-        facade_a=dict(
-            emitter_list=[
-                dict(
-                    x=[0, 15.48],
-                    y=[0, 0.00001],
-                    z=[0, 29.43],
-                    heat_flux=84 * 0.287,
-                ),
-                dict(
-                    x=[15.48, 15.48+12.77],
-                    y=[0, 0.00001],
-                    z=[0, 20.71],
-                    heat_flux=84,
-                )
-            ],
-            domain=dict(
-                x=(0, 15.48+12.77),
-                y=(0, 8.66),
-            ),
-            delta=.2
-        ),
-        facade_b=dict(
-            emitter_list=[
-                dict(
-                    x=[0, 27.61],
-                    y=[0, 0.00001],
-                    z=[0, 31.16],
-                    heat_flux=84 * 0.293,
-                ),
-            ],
-            domain=dict(
-                x=(0, 27.61),
-                y=(0, 20),
-            ),
-            delta=.2
-        ),
-        facade_c=dict(
-            emitter_list=[
-                dict(
-                    x=[0, 15.93],
-                    y=[0, 0.00001],
-                    z=[0, 19.91],
-                    heat_flux=84,
-                ),
-                dict(
-                    x=[15.93, 15.93+20.30],
-                    y=[0, 0.00001],
-                    z=[0, 30.97],
-                    heat_flux=84 * 0.293,
-                )
-            ],
-            domain=dict(
-                x=(0, 15.93+20.30),
-                y=(0, 11.53),
-            ),
-            delta=.2
-        ),
-        facade_d=dict(
-            emitter_list=[
-                dict(
-                    x=[0, 22.98],
-                    y=[0, 0.00001],
-                    z=[0, 19.91],
-                    heat_flux=84,
-                ),
-            ],
-            domain=dict(
-                x=(0, 22.98),
-                y=(0, 9.29),
-            ),
-            delta=.2
-        )
-    )
-
-    main(input_param_dict)
-
-
-def _test_3():
-
-    input_param_dict = dict(
-        # facade_a=dict(
-        #     emitter_list=[
-        #         dict(
-        #             x=[0, 15.48],
-        #             y=[0, 0.00001],
-        #             z=[0, 29.43],
-        #             heat_flux=84 * 0.287,
-        #         ),
-        #         dict(
-        #             x=[15.48, 15.48+12.77],
-        #             y=[0, 0.00001],
-        #             z=[0, 20.71],
-        #             heat_flux = 84 * 0.00001,
-        #         )
-        #     ],
-        #     domain=dict(
-        #         x=(0, 15.48+12.77),
-        #         y=(0, 8.66),
-        #     ),
-        #     delta=.2
-        # ),
-        # facade_b=dict(
-        #     emitter_list=[
-        #         dict(
-        #             x=[0, 27.61],
-        #             y=[0, 0.00001],
-        #             z=[0, 31.16],
-        #             heat_flux=84 * 0.293,
-        #         ),
-        #     ],
-        #     domain=dict(
-        #         x=(0, 27.61),
-        #         y=(0, 20),
-        #     ),
-        #     delta=.2
-        # ),
-        # facade_c=dict(
-        #     emitter_list=[
-        #         dict(
-        #             x=[0, 15.93],
-        #             y=[0, 0.00001],
-        #             z=[0, 19.91],
-        #             heat_flux=84*0.00001,
-        #         ),
-        #         dict(
-        #             x=[15.93, 15.93+20.30],
-        #             y=[0, 0.00001],
-        #             z=[0, 30.97],
-        #             heat_flux=84 * 0.293,
-        #         )
-        #     ],
-        #     domain=dict(
-        #         x=(0, 15.93+20.30),
-        #         y=(0, 11.53),
-        #     ),
-        #     delta=.2
-        # ),
-        facade_d=dict(
-            emitter_list=[
-                dict(
-                    x=[0, 22.98],
-                    y=[0, 0.00001],
-                    z=[0, 19.91],
-                    heat_flux=84*0.2,
-                ),
-            ],
-            domain=dict(
-                x=(0, 22.98),
-                y=(0, 9.29),
+                x=(-5, 15),
+                y=(-5, 10),
             ),
             delta=.2
         )
@@ -541,6 +355,4 @@ def _test_3():
 
 
 if __name__ == '__main__':
-    # _test_solve_intersection_line_and_perpendicular_point()
-    # _test_without_compartmentation_floors_without_facade_protection()
-    _test_3()
+    _test_main()
