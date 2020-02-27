@@ -1,4 +1,5 @@
 from PySide2 import QtWidgets, QtGui, QtCore
+from fsetools.gui.logic.main_0000_QMainWindow import QMainWindow
 
 from fsetools.gui.images_base64 import dialog_0103_bs9999_merging_flow_context as image_context
 from fsetools.gui.images_base64 import dialog_0103_bs9999_mergine_flow_figure_1 as image_figure_1
@@ -12,18 +13,16 @@ from fsetools.libstd.bs_9999_2017 import (
 )
 
 
-class Dialog0103(QtWidgets.QMainWindow):
-
-
+class Dialog0103(QMainWindow):
 
     maximum_acceptable_thermal_radiation_heat_flux = 12.6
 
     def __init__(self, parent=None):
         # instantiation
-        super(Dialog0103, self).__init__(parent)
+        super().__init__(parent=parent, title='Means of Escape Merging Flow')
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle('Means of Escape Merging Flow')
+        # self.setWindowTitle('Means of Escape Merging Flow')
 
         # construct pixmaps that are used in this app
         self.dict_images_pixmap = dict(
