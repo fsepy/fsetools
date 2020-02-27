@@ -15,6 +15,10 @@ from fsetools.gui.logic.dialog_0404_br187_perpendicular_complex import Dialog040
 from fsetools.gui.logic.dialog_0405_thermal_radiation_extreme import Dialog0405 as Dialog0405
 from fsetools.gui.logic.dialog_0601_naming_convention import Dialog0601 as Dialog0601
 from fsetools.gui.logic.dialog_0602_pd7974_flame_height import Dialog0602 as Dialog0602
+from fsetools.etc.util import check_online_version
+
+import threading
+from packaging import version
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -24,20 +28,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        # check update
+        check_update = threading.Timer(1, self.check_update)
+        check_update.start()  # after 60 seconds, 'callback' will be called
+
         # window properties
         self.setWindowTitle('Fire Safety Engineering Tools')
         self.statusBar().setSizeGripEnabled(False)
         self.setFixedSize(self.width(), self.height())
+        self.ui.label_version.setText(f'Version {fsetools.__version__}')
+        self.ui.label_version.setStatusTip(f'Version {fsetools.__version__}')
+        self.ui.label_version.setToolTip(f'Version {fsetools.__version__}')
 
         # signals
         self.init_buttons()
 
         # default values
         self.ui.label_big_name.setText('FSE Tools')
-        self.ui.label_version.setText(fsetools.__version__)
-        self.ui.label_version.setStyleSheet('color: grey;')
-        self.ui.label_version.setStatusTip(fsetools.__version__)
-        self.ui.label_version.setToolTip(fsetools.__version__)
         self.init_logos()  # logo
         self.ui.dialog_error = QtWidgets.QErrorMessage(self)
         self.ui.dialog_error.setWindowTitle('Message')
@@ -59,10 +66,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # signals
         self.ui.label_logo.mousePressEvent = self.label_logo_mousePressEvent
+        self.ui.label_version.mousePressEvent = self.label_version_mousePressEvent
 
     def label_logo_mousePressEvent(self, event=None):
         if event:
             QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://ofrconsultants.com/"))
+
+    def label_version_mousePressEvent(self, event=None):
+        if event:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://github.com/fsepy/fsetools/releases"))
 
     def init_buttons(self):
 
@@ -88,3 +100,25 @@ class MainWindow(QtWidgets.QMainWindow):
         except AttributeError:
             pass
         return app_
+
+    def check_update(self):
+        online_version = check_online_version(
+            url=r'https://github.com/fsepy/fsetools/raw/dev/fsetools/__init__.py',
+            current_version=fsetools.__version__
+        )
+
+        version_label_text = online_version
+
+        if len(version_label_text) == 0:
+            version_label_text = 'Version ' + fsetools.__version__
+            self.ui.label_version.setStyleSheet('color: black;')
+        elif version.parse(online_version) > version.parse(fsetools.__version__):
+            version_label_text = f'New version {version_label_text} available.'
+            self.ui.label_version.setStyleSheet('color: red;')
+        else:
+            version_label_text = 'Version ' + online_version
+            self.ui.label_version.setStyleSheet('color: grey;')
+
+        self.ui.label_version.setText(version_label_text)
+        self.ui.label_version.setStatusTip(version_label_text + ' Click to download.')
+        self.ui.label_version.setToolTip(version_label_text + ' Click to download.')
