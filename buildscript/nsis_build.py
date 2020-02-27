@@ -24,8 +24,8 @@ def find_all_dist_files(dir_build: str, include_root_name: bool = True):
 
 def make_nsh_files():
     fp_list = find_all_dist_files(join(dirname(realpath(__file__)), 'dist', 'FSETOOLS'), False)
-    for i in fp_list:
-        print(i)
+    # for i in fp_list:
+    #     print(i)
 
     with open('nsis_build_inst_list.nsh', 'w+') as f:
         f.writelines([f'file {join("dist", "FSETOOLS")}{i}\n' for i in fp_list])
