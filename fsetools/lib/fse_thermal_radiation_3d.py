@@ -4,7 +4,7 @@ from typing import Union
 import numpy as np
 # from matplotlib.path import Path
 
-from fsetools.etc.geo import points_in_ploy
+from fsetools.etc.transforms2d import points_in_ploy
 
 
 def polygon_area_2d(x, y):
@@ -145,7 +145,7 @@ def unit_vector(vector: np.ndarray):
 
 
 def angle_between(v1: Union[list, np.ndarray], v2: Union[list, np.ndarray]) -> np.ndarray:
-    """ Returns the angle in radians between vectors 'v1' and 'v2' """
+    """ Returns the angle in theta_in_radians between vectors 'v1' and 'v2' """
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
