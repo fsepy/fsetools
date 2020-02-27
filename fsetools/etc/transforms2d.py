@@ -1,12 +1,51 @@
-import numpy as np
-#
-# intersections.py
-#
-# Python for finding line intersections
-#   intended to be easily adaptable for line-segment intersections
-#
-
 import math
+
+import numpy as np
+
+
+def rotation_meshgrid(xx: np.ndarray, yy: np.ndarray, theta_in_radians: float):
+    """Rotate a mesh grid by angle theta_in_radians.
+
+    :param xx: x values of a mesh grid.
+    :param yy: y values of a mesh grid.
+    :param theta_in_radians: the angle to be rotated.
+    :return (xx2, yy2): rotated arrays.
+    """
+
+    # Clockwise, 2D rotation_meshgrid matrix
+    R = np.array(
+        [
+            [np.cos(theta_in_radians), np.sin(theta_in_radians)],
+            [-np.sin(theta_in_radians), np.cos(theta_in_radians)]]
+    )
+
+    return np.einsum('ji, mni -> jmn', R, np.dstack([xx, yy]))
+
+
+def _test_rotation():
+    import matplotlib.pyplot as plt
+
+    x_span = np.arange(-10, 11, 1)
+    y_span = np.arange(-10, 11, 1)
+    theta = 45/180*3.1415926
+
+    xx_1, yy_1 = np.meshgrid(x_span, y_span)
+
+    xx_2, yy_2 = rotation_meshgrid(xx_1, yy_1, theta)
+
+    fig, (ax1, ax2) = plt.subplots(nrows=2)
+
+    ax1.contourf(xx_1, yy_1, np.ones_like(xx_1))
+    ax1.set_aspect('equal')
+    ax1.set_xlim((-20, 20))
+    ax1.set_ylim((-20, 20))
+
+    ax2.contourf(xx_2, yy_2, np.ones_like(xx)*2)
+    ax2.set_aspect('equal')
+    ax2.set_xlim((-20, 20))
+    ax2.set_ylim((-20, 20))
+
+    x, y = rotation_meshgrid([10], [0], theta)
 
 
 def find_line_segment_intersection_1(pt1, pt2, ptA, ptB):
@@ -206,3 +245,4 @@ if __name__ == "__main__":
     # _test_find_line_segment_intersection_1()
     # _test_find_line_segment_intersection_2()
     _test_points_in_ploy()
+    _test_rotation()
