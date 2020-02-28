@@ -152,7 +152,7 @@ class Dialog0111(QtWidgets.QMainWindow):
         self.ui.lineEdit_out_t_act.setText(f'{activation_time:.1f}')
 
         # print results (for console enabled version only)
-        list_title = ['Time', 'HRR', 'V. Origin', 'Jet T.', 'Jet Vel.', 'Detector T.']
+        list_title = ['Time', 'HRR', 'V. Origin', 'Jet/Plume T.', 'Jet/Plume Vel.', 'Detector T.']
         list_param = ['time', 'gas_hrr_kW', 'virtual_origin', 'jet_temperature', 'jet_velocity', 'detector_temperature']
         list_units = ['s', 'kW', 'm', '°C', 'm/s', '°C']
         for i, time_ in enumerate(time):
@@ -196,7 +196,7 @@ class Dialog0111(QtWidgets.QMainWindow):
 
         app_ = TableWindow(
             parent=self,
-            data_list=list_content,
+            data_list=list_title.extend(list_content),
             header=list_title,
             window_title='Numerical Results'
         )
