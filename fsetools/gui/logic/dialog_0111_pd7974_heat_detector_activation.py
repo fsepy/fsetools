@@ -196,7 +196,7 @@ class Dialog0111(QtWidgets.QMainWindow):
 
         app_ = TableWindow(
             parent=self,
-            data_list=list_title.extend(list_content),
+            data_list=list_content,
             header=list_title,
             window_title='Numerical Results'
         )

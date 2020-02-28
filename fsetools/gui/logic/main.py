@@ -4,6 +4,7 @@ import fsetools
 from fsetools.gui.images_base64 import OFR_LOGO_1_PNG
 from fsetools.gui.images_base64 import OFR_LOGO_2_PNG
 from fsetools.gui.layout.main import Ui_MainWindow
+from fsetools.gui.logic.QMainWindow import QMainWindow
 from fsetools.gui.logic.dialog_0101_adb_datasheet_1 import Dialog as Dialog0101
 from fsetools.gui.logic.dialog_0102_bs9999_datasheet_1 import Dialog as Dialog0102
 from fsetools.gui.logic.dialog_0103_bs9999_merging_flow import Dialog0103 as Dialog0103
@@ -21,19 +22,19 @@ import threading
 from packaging import version
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QMainWindow):
     def __init__(self):
         # ui setup
-        super(MainWindow, self).__init__()
+        super().__init__(title='Fire Safety Engineering Tools')
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.init()
 
         # check update
         check_update = threading.Timer(1, self.check_update)
         check_update.start()  # after 60 seconds, 'callback' will be called
 
         # window properties
-        self.setWindowTitle('Fire Safety Engineering Tools')
         self.statusBar().setSizeGripEnabled(False)
         self.setFixedSize(self.width(), self.height())
         self.ui.label_version.setText(f'Version {fsetools.__version__}')
@@ -50,10 +51,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.dialog_error.setWindowTitle('Message')
 
     def init_logos(self):
-        ba = QtCore.QByteArray.fromBase64(OFR_LOGO_1_PNG)
-        pix_map = QtGui.QPixmap()
-        pix_map.loadFromData(ba)
-        self.setWindowIcon(pix_map)
 
         ba = QtCore.QByteArray.fromBase64(OFR_LOGO_2_PNG)
         pix_map = QtGui.QPixmap()

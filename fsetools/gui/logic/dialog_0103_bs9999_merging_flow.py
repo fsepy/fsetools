@@ -6,7 +6,7 @@ from fsetools.gui.images_base64 import dialog_0103_bs9999_mergine_flow_figure_3 
 from fsetools.gui.images_base64 import dialog_0103_bs9999_merging_flow_context as image_context
 from fsetools.gui.layout.dialog_0103_merging_flow import Ui_MainWindow
 from fsetools.gui.logic.common import filter_objects_by_name
-from fsetools.gui.logic.main_0000_QMainWindow import QMainWindow
+from fsetools.gui.logic.QMainWindow import QMainWindow
 from fsetools.libstd.bs_9999_2017 import (
     clause_15_6_6_e_merging_flow_1, clause_15_6_6_e_merging_flow_2, clause_15_6_6_e_merging_flow_3
 )
