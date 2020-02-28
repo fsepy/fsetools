@@ -106,62 +106,6 @@ def _test_solve_intersection_line_and_perpendicular_point():
     )
 
 
-# def solve_phi(
-#         emitter: dict,
-#         xx: np.ndarray,
-#         yy: np.ndarray,
-#         zz: np.ndarray
-# ) -> np.ndarray:
-#
-#     # point 1 and point 2 defines the line segment (i.e. emitter).
-#     x1, y1 = emitter['x'][0], emitter['y'][0]
-#     x2, y2 = emitter['x'][1], emitter['y'][1]
-#
-#     phi_arr = np.zeros_like(xx)
-#     n_iter_total = xx.size*len(zz)
-#     n_iter_count = 0
-#     with tqdm(total=n_iter_total) as pbar:
-#
-#         for i in range(np.shape(xx)[0]):
-#
-#             for j in range(np.shape(xx)[1]):
-#
-#                 # point 3, the point outside the line
-#                 x3, y3 = xx[i, j], yy[i, j]
-#
-#                 # point 4, so that p4 -> p3 is perpendicular to p1 -> p2 and p4 is the intersection.
-#                 x4, y4 = solve_intersection_line_and_perpendicular_point(
-#                     xy1=(x1, y1), xy2=(x2, y2), xy3=(x3, y3)
-#                 )
-#
-#                 # point 5, the median of p1 -> p2
-#                 x5, y5 = (x2 + x1) / 2, (y2 + y1) / 2
-#
-#                 # separation between receiver (p3) and emitter (p4)
-#                 d = ((x4 - x3) ** 2 + (y4 - y3) ** 2) ** 0.5
-#
-#                 # offset between p3 (receiver) to p1->p2 (emitter) centre axis, i.e. the horizontal distance
-#                 D = ((x5 - x4) ** 2 + (y5 - y4) ** 2) ** 0.5
-#
-#                 phi_z = 0
-#                 for z in zz:
-#                     pbar.update(n_iter_count - pbar.n)
-#                     n_iter_count += 1
-#                     if d > 0:
-#                         phi = phi_parallel_any_br187(
-#                             W_m=emitter['width'],
-#                             H_m=emitter['height'],
-#                             w_m=0.5 * emitter['width'] + D,
-#                             h_m=z - emitter['z'][0], S_m=d
-#                         )
-#                         if phi > phi_z:
-#                             phi_z = phi
-#
-#                 phi_arr[i, j] = phi_z
-#
-#     return phi_arr
-
-
 def solve_phi(
         emitter: dict,
         xx: np.ndarray,
@@ -169,7 +113,7 @@ def solve_phi(
         zz: np.ndarray
 ) -> np.ndarray:
 
-    # point 1 and point 2 defines the line segment (i.e. emitter).
+    # calculate the angle between a flat line (1, 0) and the emitter plane on z-plane
     v1 = emitter['x'][1]-emitter['x'][0], emitter['y'][1]-emitter['y'][0]
     v2 = (1, 0)
     theta_in_radians = angle_between_two_vectors_2d(
@@ -177,43 +121,49 @@ def solve_phi(
         v2=v2
     )
 
+    # since this is a 2d solver, the results can only shown on a single z plane. therefore, calculation domain in zz
+    # can only have one value.
     if len(zz) != 1:
         raise NotImplementedError('Multiple zz is not implemented.')
 
+    # solver domain
     xx, yy = rotation_meshgrid(xx, yy, theta_in_radians)
 
-    yy -= emitter['y'][1]
+    # calculate the emitter surface level, i.e. everything below this level is behind the emitter.
     emitter_x, emitter_y = rotation_meshgrid(emitter['x'], emitter['y'], theta_in_radians)
+    assert emitter_y[0, 0] == emitter_y[0, 1]
+    surface_level_y = emitter_y[0, 0]
 
     emitter_x_centre = np.average(emitter_x)
 
     # check meshgrid rotation
     # plt.contourf(xx, yy, np.ones_like(xx))
     # plt.show()
+
     vv = np.zeros_like(xx)
     emitter_height = emitter['height']
     emitter_width = emitter['width']
-    emitter_heat_flux = emitter['heat_flux']
     for i in range(xx.shape[0]):
         for j in range(xx.shape[1]):
             y = yy[i, j]
-            if y > 0:
+            if y > surface_level_y:
                 vv[i, j] = phi_parallel_any_br187(
                     W_m=emitter_width,
                     H_m=emitter_height,
                     w_m=0.5 * emitter_width + abs(emitter_x_centre - xx[i, j]),
                     h_m=zz[0],
-                    S_m=y
+                    S_m=y-surface_level_y
                 )
 
+    # check phi
     # plt.contourf(xx, yy, vv)
     # plt.show()
-    print(theta_in_radians)
+    # print(theta_in_radians)
 
     return vv
 
 
-def _test_solve_phi_2():
+def _test_solve_phi():
 
     xx, yy = np.meshgrid(np.linspace(-20, 20, 100), np.linspace(-20, 20, 100))
 
@@ -290,7 +240,10 @@ def plot_heat_flux_on_ax(
 def main_plot(input_param_dict: dict, dir_cwd: str = None):
 
     # ratio of physical dimension to base figure size
-    figsize_base = 7  # this is going to be the longest dimension of all figures (not axes)
+    if 'figsize_base' in input_param_dict:
+        figsize_base = input_param_dict['figsize_base']
+    else:
+        figsize_base = 30  # this is going to be the longest dimension of all figures (not axes)
     figsize_x_real_to_base = max([case_param['domain']['x'][1] - case_param['domain']['x'][0] for _, case_param in input_param_dict.items()]) / figsize_base
     figsize_y_real_to_base = max([case_param['domain']['y'][1] - case_param['domain']['y'][0] for _, case_param in input_param_dict.items()]) / figsize_base
 
@@ -367,6 +320,8 @@ def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
             )
             input_param_dict[case_name]['emitter_list'][i_emitter]['phi'] = phi
             heat_flux += phi * input_param_dict[case_name]['emitter_list'][i_emitter]['heat_flux']
+
+        heat_flux[heat_flux==0] = -1
         input_param_dict[case_name]['heat_flux'] = heat_flux
 
     # make plots
@@ -423,4 +378,4 @@ def _test_main():
 
 if __name__ == '__main__':
     _test_main()
-    # _test_solve_phi_2()
+    # _test_solve_phi()
