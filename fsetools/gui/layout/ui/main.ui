@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>461</width>
+    <height>507</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>110</y>
+      <width>381</width>
+      <height>106</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>B1 Means of escape</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_0102_bs9999_datasheet_1">
+     <property name="geometry">
+      <rect>
+       <x>85</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Data sheet 1 for BS 9999:2017, for B1.</string>
+     </property>
+     <property name="statusTip">
+      <string>Data sheet 1 for BS 9999:2017, for B1.</string>
+     </property>
+     <property name="text">
+      <string>BS 9999
+Datasheet
+No. 1</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0103_merging_flow">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>155</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Merging flow calculation in accordance with BS 9999:2017.</string>
+     </property>
+     <property name="statusTip">
+      <string>Merging flow calculation in accordance with BS 9999:2017.</string>
+     </property>
+     <property name="text">
+      <string>Merging
+Flow</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0111_heat_detector_activation">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Heat detector activation time (ceiling jet) in accordance with PD 7974-1:2019.</string>
+     </property>
+     <property name="statusTip">
+      <string>Heat detector activation time (ceiling jet) in accordance with PD 7974-1:2019.</string>
+     </property>
+     <property name="text">
+      <string>PD 7974
+HD
+Activation
+Time</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="b4_01_br187_parallel_10">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>295</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Not implemented.</string>
+     </property>
+     <property name="statusTip">
+      <string>Not implemented.</string>
+     </property>
+     <property name="text">
+      <string>Zone
+Model</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0101_adb2_datasheet_1">
+     <property name="geometry">
+      <rect>
+       <x>15</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Data sheet 1 for Approved Document B (2019) Vol. 2, for B1.</string>
+     </property>
+     <property name="statusTip">
+      <string>Data sheet 1 for Approved Document B (2019) Vol. 2, for B1.</string>
+     </property>
+     <property name="text">
+      <string>ADB 2
+Datasheet
+No. 1</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>340</y>
+      <width>311</width>
+      <height>106</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Miscellaneous</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_0601_naming_convention">
+     <property name="geometry">
+      <rect>
+       <x>15</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>File name generator in accordance with OFR file naming protocal.</string>
+     </property>
+     <property name="statusTip">
+      <string>File name generator in accordance with OFR file naming protocal.</string>
+     </property>
+     <property name="text">
+      <string>File
+Naming
+Protocol</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="b4_01_br187_parallel_11">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>85</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>CFD
+Required
+Vent. Size</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="b4_01_br187_parallel_12">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>155</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>To estimate optimal mesh resolution.</string>
+     </property>
+     <property name="statusTip">
+      <string>To estimate optimal mesh resolution.</string>
+     </property>
+     <property name="text">
+      <string>CFD
+Mesh Size</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0602_pd7974_flame_height">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Flame height in accordance with PD 7974-1:2019.</string>
+     </property>
+     <property name="statusTip">
+      <string>Flame height in accordance with PD 7974-1:2019.</string>
+     </property>
+     <property name="text">
+      <string>PD 7974
+Flame
+Height</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>225</y>
+      <width>381</width>
+      <height>106</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>B4 External flame spread</string>
+    </property>
+    <widget class="QPushButton" name="pushButton_0401_br187_parallel_simple">
+     <property name="geometry">
+      <rect>
+       <x>15</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Thermal radiation calculation following BR 187 (Parallel rectangular orientation).</string>
+     </property>
+     <property name="statusTip">
+      <string>Thermal radiation calculation following BR 187 (Parallel rectangular orientation).</string>
+     </property>
+     <property name="text">
+      <string>BR 187
+Parallel</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0402_br187_perpendicular_simple">
+     <property name="geometry">
+      <rect>
+       <x>85</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Thermal radiation calculation following BR 187 (Perpendicular rectangular orientation).</string>
+     </property>
+     <property name="statusTip">
+      <string>Thermal radiation calculation following BR 187 (Perpendicular rectangular orientation).</string>
+     </property>
+     <property name="text">
+      <string>BR 187
+Perp.</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0403_br187_parallel_complex">
+     <property name="geometry">
+      <rect>
+       <x>155</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Thermal radiation calculation following BR 187 (Parallel rectangular orientation).</string>
+     </property>
+     <property name="statusTip">
+      <string>Thermal radiation calculation following BR 187 (Parallel rectangular orientation).</string>
+     </property>
+     <property name="text">
+      <string>BR 187
+Parallel 2</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0404_br187_perpendicular_complex">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Thermal radiation calculation following BR 187 (Perpendicular rectangular orientation).</string>
+     </property>
+     <property name="statusTip">
+      <string>Thermal radiation calculation following BR 187 (Perpendicular rectangular orientation).</string>
+     </property>
+     <property name="text">
+      <string>BR 187
+Perp. 2</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_0405_thermal_radiation_extreme">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>295</x>
+       <y>20</y>
+       <width>70</width>
+       <height>70</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>General purpose thermal radiation calculator.</string>
+     </property>
+     <property name="statusTip">
+      <string>General purpose thermal radiation calculator.</string>
+     </property>
+     <property name="text">
+      <string>Therm. Rad.
+Analysis</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>15</y>
+      <width>431</width>
+      <height>84</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label_big_name">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>18</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>OFR TOOLBOX</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_copy_right">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>28</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>© OFR Consultants Ltd.
+All rights reserved.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_logo">
+       <property name="minimumSize">
+        <size>
+         <width>194</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>../images/OFR_LOGO_2_194_80.png</pixmap>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="label_version">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>450</y>
+      <width>426</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>14</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>6</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Version #.#.#</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>461</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_0101_ADB_Vol_2_Datasheet">
+   <property name="text">
+    <string>ADB Vol. 2 Datasheet No. 1</string>
+   </property>
+  </action>
+  <action name="action_0102_BS_9999_Datasheet">
+   <property name="text">
+    <string>BS 9999 Datasheet No. 1</string>
+   </property>
+  </action>
+  <action name="action_0103_BS_9999_Merging_flow">
+   <property name="text">
+    <string>BS 9999 Merging flow calculation</string>
+   </property>
+  </action>
+  <action name="action_0104_PD_7974_HD_activation">
+   <property name="text">
+    <string>PD 7974 HD activation time calculation</string>
+   </property>
+  </action>
+  <action name="action_0401_BR_187_parallel_simple">
+   <property name="text">
+    <string>BR 187 parallel plane calculation</string>
+   </property>
+  </action>
+  <action name="action_0402_BR_187_perpendicular_simple">
+   <property name="text">
+    <string>BR 187 perpendicular plane calculation</string>
+   </property>
+  </action>
+  <action name="action_0403_BR_187_parallel_complex">
+   <property name="text">
+    <string>BR 187 parallel plane calculation (complex)</string>
+   </property>
+  </action>
+  <action name="action_0404_BR_187_perpendicular_complex">
+   <property name="text">
+    <string>BR 187 perpendicular plain calculation (complex)</string>
+   </property>
+  </action>
+  <action name="action_0601_OFR_naming_protocol">
+   <property name="text">
+    <string>OFR file naming protocol</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>pushButton_0101_adb2_datasheet_1</tabstop>
+  <tabstop>pushButton_0102_bs9999_datasheet_1</tabstop>
+  <tabstop>pushButton_0103_merging_flow</tabstop>
+  <tabstop>pushButton_0111_heat_detector_activation</tabstop>
+  <tabstop>b4_01_br187_parallel_10</tabstop>
+  <tabstop>pushButton_0401_br187_parallel_simple</tabstop>
+  <tabstop>pushButton_0402_br187_perpendicular_simple</tabstop>
+  <tabstop>pushButton_0403_br187_parallel_complex</tabstop>
+  <tabstop>pushButton_0404_br187_perpendicular_complex</tabstop>
+  <tabstop>pushButton_0601_naming_convention</tabstop>
+  <tabstop>b4_01_br187_parallel_11</tabstop>
+  <tabstop>b4_01_br187_parallel_12</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

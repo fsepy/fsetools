@@ -1,10 +1,12 @@
 # fseutil
 
-Fire Safety Engineering Tools. Note this project is currently WIP and use with caution.
+[![Build Status](https://travis-ci.com/fsepy/fsetools.svg?branch=master)](https://travis-ci.com/fsepy/fsetools)
+
+Fire Safety Engineering Tools.
 
 ## Getting Started
 
-Documentation is under construction.
+Documentation is work in progress.
 
 ### Installation
 
@@ -15,26 +17,30 @@ Documentation is under construction.
 1. to use `pip` install from PyPI:
 
     ```sh
-    pip install --upgrade fseutil
+    pip install --upgrade fsetools
     ```
 
 2. to use `pip` install from GitHub (requires [git](https://git-scm.com/downloads)):  
 
-    *Note installing `fseutil` via this route will include the latest commits/changes to the library.*  
+    *Note installing `fsetools` via this route will include the latest commits/changes to the library.*  
 
     ```sh
-    pip install --upgrade "git+https://github.com/fsepy/fseutil.git@dev"
+    pip install --upgrade "git+https://github.com/fsepy/fsetools.git@dev"
     ```
 
 
 ### Command line interface
 
-Once `fseutil` is installed, CLI help can be summoned:
+Once `fsetools` is installed, CLI help can be summoned using the following command:
 
 ```shell
-(base) C:\Users\IanFu>fseutil -h
+(base) C:\Users\Fu>fsetools -h
 ```
 
 ## Authors
 
 **Ian Fu** - *fuyans@gmail.com*
+
+## License
+
+This project is licensed under the Apache License version 2.0 - see the [LICENSE](LICENSE) file for details
