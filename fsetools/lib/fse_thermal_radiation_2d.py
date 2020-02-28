@@ -131,7 +131,11 @@ def solve_phi(
 
     # calculate the emitter surface level, i.e. everything below this level is behind the emitter.
     emitter_x, emitter_y = rotation_meshgrid(emitter['x'], emitter['y'], theta_in_radians)
-    assert emitter_y[0, 0] == emitter_y[0, 1]
+    try:
+        assert abs(emitter_y[0, 0] - emitter_y[0, 1]) <= 1e-10
+    except AssertionError:
+        print(emitter_y[0, 0], emitter_y[0, 1], 'do not match.')
+        raise AssertionError
     surface_level_y = emitter_y[0, 0]
 
     emitter_x_centre = np.average(emitter_x)
@@ -198,8 +202,8 @@ def plot_heat_flux_on_ax(
     colors_contour = ['r' if i == 12.6 else 'k' for i in levels_contour]
     levels_contourf = levels_contour
     colors_contourf = [cm.get_cmap('YlOrRd')(i / (len(levels_contour) - 1)) for i, _ in enumerate(levels_contour)]
-    colors_contourf = [(r_, g_, b_, 0.85) for r_, g_, b_, a_ in colors_contourf]
-    colors_contourf[0] = (195/255,255/255,143/255,0.85)
+    colors_contourf = [(r_, g_, b_, 0.65) for r_, g_, b_, a_ in colors_contourf]
+    colors_contourf[0] = (195/255,255/255,143/255,0.65)
 
 
     # create axes
@@ -272,7 +276,13 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
         )
 
         for i in range(len(input_param_dict[case_name]['emitter_list'])):
-            ax.plot(input_param_dict[case_name]['emitter_list'][i]['x'], input_param_dict[case_name]['emitter_list'][i]['y'], lw=5, c='k', ls='--')
+            ax.plot(input_param_dict[case_name]['emitter_list'][i]['x'], input_param_dict[case_name]['emitter_list'][i]['y'], lw=5, c='r', ls='--')
+
+        try:
+            for i in range(len(input_param_dict[case_name]['receiver_list'])):
+                ax.plot(input_param_dict[case_name]['receiver_list'][i]['x'], input_param_dict[case_name]['receiver_list'][i]['y'], lw=5, c='k', ls='--')
+        except KeyError:
+            pass
 
         ax.set_xlim(*input_param_dict[case_name]['domain']['x'])
         ax.set_ylim(*input_param_dict[case_name]['domain']['y'])
