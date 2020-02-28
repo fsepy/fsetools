@@ -103,7 +103,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def check_update(self):
         online_version = check_online_version(
-            url=r'https://github.com/fsepy/fsetools/raw/dev/fsetools/__init__.py',
+            url=r'https://raw.githubusercontent.com/fsepy/fsetools/master/fsetools/__init__.py',
             current_version=fsetools.__version__
         )
 
@@ -113,12 +113,12 @@ class MainWindow(QtWidgets.QMainWindow):
             version_label_text = 'Version ' + fsetools.__version__
             self.ui.label_version.setStyleSheet('color: black;')
         elif version.parse(online_version) > version.parse(fsetools.__version__):
-            version_label_text = f'New version {version_label_text} available.'
+            version_label_text = f'New version {version_label_text} available.' + ' Click to download.'
             self.ui.label_version.setStyleSheet('color: red;')
         else:
             version_label_text = 'Version ' + online_version
             self.ui.label_version.setStyleSheet('color: grey;')
 
         self.ui.label_version.setText(version_label_text)
-        self.ui.label_version.setStatusTip(version_label_text + ' Click to download.')
-        self.ui.label_version.setToolTip(version_label_text + ' Click to download.')
+        self.ui.label_version.setStatusTip(version_label_text)
+        self.ui.label_version.setToolTip(version_label_text)
