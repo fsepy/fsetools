@@ -205,19 +205,14 @@ def plot_heat_flux_on_ax(
     colors_contourf = [(r_, g_, b_, 0.65) for r_, g_, b_, a_ in colors_contourf]
     colors_contourf[0] = (195/255,255/255,143/255,0.65)
 
-
     # create axes
     cs = ax.contour(xx, yy, zz, levels=levels_contour, colors=colors_contour)
     cs_f = ax.contourf(xx, yy, zz, levels=levels_contourf, colors=colors_contourf)
-
 
     ax.clabel(cs, inline=1, fontsize=12, fmt='%1.1f kW')
 
     ax.grid(b=True, which='major', axis='both')
     ax.set_aspect(aspect=1)
-
-    # colour bar
-    # fig.colorbar(cs_f)
 
     # axis labels
     # ax.set_xlabel('Building Facade')
@@ -237,30 +232,23 @@ def plot_heat_flux_on_ax(
     ax.axis('off')
 
 
-    return ax
+    return ax, (cs, cs_f)
 
 
 
-def main_plot(input_param_dict: dict, dir_cwd: str = None):
-
-    # ratio of physical dimension to base figure size
-    if 'figsize_base' in input_param_dict:
-        figsize_base = input_param_dict['figsize_base']
-    else:
-        figsize_base = 30  # this is going to be the longest dimension of all figures (not axes)
-    figsize_x_real_to_base = max([case_param['domain']['x'][1] - case_param['domain']['x'][0] for _, case_param in input_param_dict.items()]) / figsize_base
-    figsize_y_real_to_base = max([case_param['domain']['y'][1] - case_param['domain']['y'][0] for _, case_param in input_param_dict.items()]) / figsize_base
+def main_plot(input_param_dict: dict, dir_cwd: str = None, save_figure: bool = True):
 
     for n_count, case_name in enumerate(sorted(input_param_dict.keys())):
-
-        figsize_x = (input_param_dict[case_name]['domain']['x'][1] - input_param_dict[case_name]['domain']['x'][0]) / figsize_x_real_to_base
-        figsize_y = (input_param_dict[case_name]['domain']['y'][1] - input_param_dict[case_name]['domain']['y'][0]) / figsize_y_real_to_base
-
-        figsize = max([figsize_x, figsize_y])
+        # ratio of physical dimension to base figure size
+        if 'figsize_base' in input_param_dict[case_name]:
+            print('d')
+            figsize_base = input_param_dict[case_name]['figsize_base']
+        else:
+            figsize_base = 30  # this is going to be the longest dimension of all figures (not axes)
 
         # create a figure
         fig = plt.figure(
-            figsize=(figsize, figsize),
+            figsize=(figsize_base, figsize_base),
             frameon=False,
         )
 
@@ -268,11 +256,17 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
 
         ax.set_aspect('equal')
 
-        plot_heat_flux_on_ax(
+        if 'figure_levels' in input_param_dict[case_name]:
+            figure_levels = input_param_dict[case_name]['figure_levels']
+        else:
+            figure_levels = (0, 12.6, 20, 40, 60, 80, 200)
+
+        ax, (_, cs_f) = plot_heat_flux_on_ax(
             ax=ax,
             xx=input_param_dict[case_name]['xx'],
             yy=input_param_dict[case_name]['yy'],
-            zz=input_param_dict[case_name]['heat_flux']
+            zz=input_param_dict[case_name]['heat_flux'],
+            levels=figure_levels
         )
 
         for i in range(len(input_param_dict[case_name]['emitter_list'])):
@@ -287,21 +281,24 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None):
         ax.set_xlim(*input_param_dict[case_name]['domain']['x'])
         ax.set_ylim(*input_param_dict[case_name]['domain']['y'])
 
+        # colour bar
+        cbar = fig.colorbar(cs_f)
+        cbar.ax.set_yticklabels([f'{i:.1f} $kW\cdot m^{{2}}$' for i in figure_levels])
+
         input_param_dict[case_name]['ax'] = ax
 
-        # fig.tight_layout()
-        if dir_cwd:
-            dir_cwd = realpath(dir_cwd)
-
-        ax = input_param_dict[case_name]['ax']
-        extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-        if dir_cwd:
-            fp_fig = join(dir_cwd, f'{case_name}.png')
-        else:
-            fp_fig = f'{case_name}.png'
-        fig.savefig(fp_fig, transparent=True, bbox_inches=extent)
-
-        del fig, ax
+        if save_figure:
+            if dir_cwd:
+                dir_cwd = realpath(dir_cwd)
+            if dir_cwd:
+                fp_fig = join(dir_cwd, f'{case_name}.png')
+                fp_fig_extend = join(dir_cwd, f'{case_name}_extend.png')
+            else:
+                fp_fig = f'{case_name}.png'
+                fp_fig_extend = f'{case_name}_extend.png'
+            fig.savefig(fp_fig, transparent=True)
+            extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            fig.savefig(fp_fig_extend, transparent=True, bbox_inches=extent)
 
     return input_param_dict
 
