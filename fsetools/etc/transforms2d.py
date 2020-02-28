@@ -1,6 +1,35 @@
 import math
+from typing import Union
 
 import numpy as np
+
+
+def unit_vector(vector: np.ndarray):
+    """ Returns the unit vector of the vector. """
+    return vector / np.linalg.norm(vector)
+
+
+def angle_between_two_vectors_2d(v1: Union[list, tuple, np.ndarray], v2: Union[list, tuple, np.ndarray]) -> np.ndarray:
+    """ Returns the angle in radians between vectors 'v1' and 'v2' """
+    # v1_u = v1 / np.linalg.norm(v1)
+    # v2_u = v2 / np.linalg.norm(v2)
+    # r = np.arccos2(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
+    ang1 = np.arctan2(*np.array(v1)[::-1])
+    ang2 = np.arctan2(*np.array(v2)[::-1])
+    r = (ang1 - ang2) % (2 * np.pi)
+
+    return r
+
+
+def _test_angle_between_two_vectors():
+    v1 = [0, 10]
+    v2 = [10, 0]
+    assert angle_between_two_vectors_2d(v1, v2) == np.pi / 2
+
+    v1 = [1, 0]
+    v2 = [-1, -1]
+    print(angle_between_two_vectors_2d(v2, v1))
 
 
 def rotation_meshgrid(xx: np.ndarray, yy: np.ndarray, theta_in_radians: float):
@@ -40,7 +69,7 @@ def _test_rotation():
     ax1.set_xlim((-20, 20))
     ax1.set_ylim((-20, 20))
 
-    ax2.contourf(xx_2, yy_2, np.ones_like(xx)*2)
+    ax2.contourf(xx_2, yy_2, np.ones_like(xx_2)*2)
     ax2.set_aspect('equal')
     ax2.set_xlim((-20, 20))
     ax2.set_ylim((-20, 20))
@@ -246,3 +275,4 @@ if __name__ == "__main__":
     # _test_find_line_segment_intersection_2()
     _test_points_in_ploy()
     _test_rotation()
+    _test_angle_between_two_vectors()
