@@ -71,8 +71,6 @@ def linear_solver(
         y2 = func_multiplier * func(**dict_params)
         iter_count += 1
 
-    return None  # this shouldn't be possible, should always terminate within the while loop above
-
 
 def phi_parallel_any_br187(W_m, H_m, w_m, h_m, S_m):
     r"""
