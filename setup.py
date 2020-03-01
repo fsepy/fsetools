@@ -45,5 +45,4 @@ setuptools.setup(
     ],
     install_requires=requirements,
     include_package_data=True,
-    entry_points={"console_scripts": ["fsetools=fsetools.cli.__main__:main"]},
 )
