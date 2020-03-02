@@ -13,7 +13,8 @@ def main_plot(
         fig=None,
         critical_heat_flux: float = 12.6,
         contour_line_font_size: float = 12,
-        emitter_receiver_line_thickness: float = 5.
+        emitter_receiver_line_thickness: float = 5.,
+        **kwargs
 ):
     x1, x2 = param_dict['solver_domain']['x']
     y1, y2 = param_dict['solver_domain']['y']
@@ -40,7 +41,8 @@ def main_plot(
     cs = ax.contour(xx, yy, zz, levels=figure_levels_contour, colors=figure_colors_contour)
     cs_f = ax.contourf(xx, yy, zz, levels=figure_levels_contourf, colors=figure_colors_contourf)
 
-    ax.clabel(cs, inline=1, fontsize=contour_line_font_size, fmt='%1.1f kW')
+    if contour_line_font_size > 0:
+        ax.clabel(cs, inline=1, fontsize=contour_line_font_size, fmt='%1.1f kW')
 
     ax.grid(b=True, which='major', axis='both', color='k', alpha=0.1)
 
@@ -57,22 +59,23 @@ def main_plot(
 
     ax.set_aspect(1)
 
-    for i in range(len(param_dict['emitter_list'])):
-        ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'], lw=emitter_receiver_line_thickness, c='r', ls='--')
+    if emitter_receiver_line_thickness > 0:
+        for i in range(len(param_dict['emitter_list'])):
+            ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'], lw=emitter_receiver_line_thickness, c='r', ls='--')
 
-    try:
-        for i in range(len(param_dict['receiver_list'])):
-            ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'], lw=emitter_receiver_line_thickness, c='k', ls='--')
-    except KeyError:
-        pass
+        try:
+            for i in range(len(param_dict['receiver_list'])):
+                ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'], lw=emitter_receiver_line_thickness, c='k', ls='--')
+        except KeyError:
+            pass
 
     ax.set_xlim(*param_dict['solver_domain']['x'])
     ax.set_ylim(*param_dict['solver_domain']['y'])
 
-    # colour bar
+    # colour bar, only plot colorbar when figure object is provided to prevent double plotting
     if fig:
         cbar = fig.colorbar(cs_f)
-        cbar.ax.set_yticklabels([f'{i:.1f} $kW/m^{{2}}$' for i in figure_levels])
+        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.')+'\nkW/m²' for i in figure_levels])
 
     return fig, ax
 
@@ -394,7 +397,13 @@ def _test_main():
         assert 'height' in emitter
         assert 'width' in emitter
 
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    _, ax = main_plot(out, ax, fig)
+    fig.savefig('test.png')
+    plt.show()
+
 
 if __name__ == '__main__':
     _test_main()
-    _test_solve_phi()
+    # _test_solve_phi()
