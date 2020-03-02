@@ -4,15 +4,12 @@ from os.path import join, realpath
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
-from tqdm import tqdm
 
-from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
 from fsetools.etc.transforms2d import rotation_meshgrid, angle_between_two_vectors_2d
-
+from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
 
 
 def update_input_param(input_set: dict):
-
     x1, x2 = input_set['domain']['x']
     y1, y2 = input_set['domain']['y']
     delta = input_set['delta']
@@ -28,16 +25,15 @@ def update_input_param(input_set: dict):
 
 
 def update_emitter(dict_emitter: dict):
-
     emitter = dict_emitter
 
     emitter.update(
         dict(
             # width of the rectangle
-            width = np.sum
-                (np.square(emitter['x'][0] - emitter['x'][1]) + np.square(emitter['y'][0] - emitter['y'][1])) ** 0.5,
-            height = abs(emitter['z'][0] - emitter['z'][1]),
-            theta = np.arctan2(emitter['y'][1] - emitter['y'][0], emitter['x'][1] - emitter['x'][0])
+            width=np.sum
+                  (np.square(emitter['x'][0] - emitter['x'][1]) + np.square(emitter['y'][0] - emitter['y'][1])) ** 0.5,
+            height=abs(emitter['z'][0] - emitter['z'][1]),
+            theta=np.arctan2(emitter['y'][1] - emitter['y'][0], emitter['x'][1] - emitter['x'][0])
         )
     )
 
@@ -95,13 +91,13 @@ def solve_intersection_line_and_perpendicular_point(
 def _test_solve_intersection_line_and_perpendicular_point():
     x4, y4 = solve_intersection_line_and_perpendicular_point(
         xy1=(0, 0),
-        xy2=(10,10),
+        xy2=(10, 10),
         xy3=(10, 0)
     )
     print(x4, y4)
     x4, y4 = solve_intersection_line_and_perpendicular_point(
         (0, 0),
-        (10,5),
+        (10, 5),
         (10, 0)
     )
 
@@ -112,9 +108,8 @@ def solve_phi(
         yy: np.ndarray,
         zz: np.ndarray
 ) -> np.ndarray:
-
     # calculate the angle between a flat line (1, 0) and the emitter plane on z-plane
-    v1 = emitter['x'][1]-emitter['x'][0], emitter['y'][1]-emitter['y'][0]
+    v1 = emitter['x'][1] - emitter['x'][0], emitter['y'][1] - emitter['y'][0]
     v2 = (1, 0)
     theta_in_radians = angle_between_two_vectors_2d(
         v1=v1,
@@ -156,7 +151,7 @@ def solve_phi(
                     H_m=emitter_height,
                     w_m=0.5 * emitter_width + abs(emitter_x_centre - xx[i, j]),
                     h_m=zz[0],
-                    S_m=y-surface_level_y
+                    S_m=y - surface_level_y
                 )
 
     # check phi
@@ -168,16 +163,15 @@ def solve_phi(
 
 
 def _test_solve_phi():
-
     xx, yy = np.meshgrid(np.linspace(-20, 20, 100), np.linspace(-20, 20, 100))
 
     zz = solve_phi(
         emitter=update_emitter(
             dict(
-                    x=[-10, -10],
-                    y=[0, 10],
-                    z=[0, 3.5],
-                    heat_flux=84,
+                x=[-10, -10],
+                y=[0, 10],
+                z=[0, 3.5],
+                heat_flux=84,
             )
         ),
         xx=xx,
@@ -189,7 +183,6 @@ def _test_solve_phi():
     plt.show()
 
 
-
 def plot_heat_flux_on_ax(
         ax,
         xx: np.ndarray,
@@ -197,13 +190,12 @@ def plot_heat_flux_on_ax(
         zz: np.ndarray,
         levels: tuple = (0, 12.6, 20, 40, 60, 80, 200),
 ):
-
     levels_contour = levels
     colors_contour = ['r' if i == 12.6 else 'k' for i in levels_contour]
     levels_contourf = levels_contour
     colors_contourf = [cm.get_cmap('YlOrRd')(i / (len(levels_contour) - 1)) for i, _ in enumerate(levels_contour)]
     colors_contourf = [(r_, g_, b_, 0.65) for r_, g_, b_, a_ in colors_contourf]
-    colors_contourf[0] = (195/255,255/255,143/255,0.65)
+    colors_contourf[0] = (195 / 255, 255 / 255, 143 / 255, 0.65)
 
     # create axes
     cs = ax.contour(xx, yy, zz, levels=levels_contour, colors=colors_contour)
@@ -231,13 +223,10 @@ def plot_heat_flux_on_ax(
     # ax.get_yaxis().set_visible(False)
     ax.axis('off')
 
-
     return ax, (cs, cs_f)
 
 
-
 def main_plot(input_param_dict: dict, dir_cwd: str = None, save_figure: bool = True):
-
     for n_count, case_name in enumerate(sorted(input_param_dict.keys())):
         # ratio of physical dimension to base figure size
         if 'figsize_base' in input_param_dict[case_name]:
@@ -270,11 +259,13 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None, save_figure: bool = T
         )
 
         for i in range(len(input_param_dict[case_name]['emitter_list'])):
-            ax.plot(input_param_dict[case_name]['emitter_list'][i]['x'], input_param_dict[case_name]['emitter_list'][i]['y'], lw=5, c='r', ls='--')
+            ax.plot(input_param_dict[case_name]['emitter_list'][i]['x'],
+                    input_param_dict[case_name]['emitter_list'][i]['y'], lw=5, c='r', ls='--')
 
         try:
             for i in range(len(input_param_dict[case_name]['receiver_list'])):
-                ax.plot(input_param_dict[case_name]['receiver_list'][i]['x'], input_param_dict[case_name]['receiver_list'][i]['y'], lw=5, c='k', ls='--')
+                ax.plot(input_param_dict[case_name]['receiver_list'][i]['x'],
+                        input_param_dict[case_name]['receiver_list'][i]['y'], lw=5, c='k', ls='--')
         except KeyError:
             pass
 
@@ -304,7 +295,6 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None, save_figure: bool = T
 
 
 def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
-
     # update parameters for each input set
     for case_name in input_param_dict.keys():
         input_param_dict[case_name] = update_input_param(input_param_dict[case_name])
@@ -312,7 +302,8 @@ def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
     # update emitter parameters for each emitter in each input set
     for case_name in input_param_dict.keys():
         for i in range(len(input_param_dict[case_name]['emitter_list'])):
-            input_param_dict[case_name]['emitter_list'][i] = update_emitter(input_param_dict[case_name]['emitter_list'][i])
+            input_param_dict[case_name]['emitter_list'][i] = update_emitter(
+                input_param_dict[case_name]['emitter_list'][i])
 
     # calculation
     for case_name in input_param_dict.keys():
@@ -328,7 +319,7 @@ def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
             input_param_dict[case_name]['emitter_list'][i_emitter]['phi'] = phi
             heat_flux += phi * input_param_dict[case_name]['emitter_list'][i_emitter]['heat_flux']
 
-        heat_flux[heat_flux==0] = -1
+        heat_flux[heat_flux == 0] = -1
         input_param_dict[case_name]['heat_flux'] = heat_flux
 
     # make plots
@@ -336,7 +327,6 @@ def main(input_param_dict: typing.Dict[str, dict], dir_cwd: str = None):
 
 
 def _test_main():
-
     input_param_dict = dict(
         case_1=dict(
             emitter_list=[
