@@ -101,20 +101,20 @@ def update_input_param(input_param_dict: dict):
     return input_param_dict
 
 
-def solver_phi(
+def solver_phi_2d(
         emitter_xy1: typing.Union[list, tuple, np.ndarray],
         emitter_xy2: typing.Union[list, tuple, np.ndarray],
         emitter_z: typing.Union[list, tuple, np.ndarray],
         xx: typing.Union[list, tuple, np.ndarray],
         yy: typing.Union[list, tuple, np.ndarray],
-        zz: typing.Union[list, tuple, np.ndarray],
+        z: float,
 ) -> np.ndarray:
     """
 
     :param emitter:
     :param xx:
     :param yy:
-    :param zz:
+    :param z:
     :return:
     """
 
@@ -122,11 +122,6 @@ def solver_phi(
     v1 = np.subtract(emitter_xy2, emitter_xy1)
     v2 = (1, 0)
     theta_in_radians = angle_between_two_vectors_2d(v1=v1, v2=v2)
-
-    # since this is a 2d solver, the results can only shown on a single z plane. therefore, calculation domain in zz
-    # can only have one value.
-    if len(zz) != 1:
-        raise NotImplementedError('Multiple zz is not implemented.')
 
     # solver domain
     xx, yy = rotation_meshgrid(xx, yy, theta_in_radians)
@@ -159,7 +154,7 @@ def solver_phi(
                     W_m=emitter_width,
                     H_m=emitter_height,
                     w_m=0.5 * emitter_width + abs(emitter_x_centre - xx[i, j]),
-                    h_m=zz[0],
+                    h_m=z,
                     S_m=y - surface_level_y
                 )
 
@@ -187,13 +182,13 @@ def _test_solve_phi():
     y_emitter_centre = 0
     z_emitter_centre = 0
 
-    phi = solver_phi(
+    phi = solver_phi_2d(
         emitter_xy1=[-width / 2 + x_emitter_centre, y_emitter_centre],
         emitter_xy2=[width / 2 + x_emitter_centre, y_emitter_centre],
         emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
         xx=xx,
         yy=yy,
-        zz=[height / 2]
+        z=[height / 2]
     )
 
     # measure at 5 m from the emitter front
@@ -218,13 +213,13 @@ def _test_solve_phi():
     assert np.isclose(solved, answer, atol=1e-6)
 
     # measure at 5 m from the emitter front, offset 5 m x-axis and 2.5 m z-zxis (i.e. corner)
-    phi = solver_phi(
+    phi = solver_phi_2d(
         emitter_xy1=[-width / 2 + x_emitter_centre, y_emitter_centre],
         emitter_xy2=[width / 2 + x_emitter_centre, y_emitter_centre],
         emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
         xx=xx,
         yy=yy,
-        zz=[height / 2 - 2.5]
+        z=[height / 2 - 2.5]
     )
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 5, separation + y_emitter_centre)
     answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 5,
@@ -233,13 +228,13 @@ def _test_solve_phi():
     assert np.isclose(solved, answer, atol=1e-6)
 
     # measure at 5 m from the emitter front, offset 7.5 m x-axis and 5 m z-zxis (i.e. outside of the rectangle by 2.5 and 2.5 m)
-    phi = solver_phi(
+    phi = solver_phi_2d(
         emitter_xy1=[-width / 2 + x_emitter_centre, y_emitter_centre],
         emitter_xy2=[width / 2 + x_emitter_centre, y_emitter_centre],
         emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
         xx=xx,
         yy=yy,
-        zz=[height / 2 - 5]
+        z=[height / 2 - 5]
     )
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 7.5, separation + y_emitter_centre)
     answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 7.5,
@@ -296,6 +291,7 @@ def main(params_dict: dict):
     # ========================
     # prepare input parameters
     # ========================
+    z2, z1 = -np.inf, np.inf
 
     for emitter in params_dict['emitter_list']:
         emitter.update(
@@ -314,6 +310,11 @@ def main(params_dict: dict):
         if emitter['y'][0] == emitter['y'][1]:
             emitter['y'] = (emitter['y'][0], emitter['y'][1] + 1e-9)
 
+        if min(emitter['z']) < z1:
+            z1 = min(emitter['z'])
+        if max(emitter['z']) > z2:
+            z2 = max(emitter['z'])
+
     # ==============================
     # calculate configuration factor
     # ==============================
@@ -323,25 +324,50 @@ def main(params_dict: dict):
     delta = params_dict['solver_delta']
     xx, yy = np.arange(x1, x2 + 0.5 * delta, delta), np.arange(y1, y2 + 0.5 * delta, delta)
     xx, yy = np.meshgrid(xx, yy)
-    for i, emitter in enumerate(params_dict['emitter_list']):
-        phi = solver_phi(
-            emitter_xy1=(emitter['x'][0], emitter['y'][0]),
-            emitter_xy2=(emitter['x'][1], emitter['y'][1]),
-            emitter_z=emitter['z'],
-            xx=xx,
-            yy=yy,
-            zz=params_dict['solver_domain']['z'],
-        )
+    if params_dict['solver_domain']['z']:
+        if len(params_dict['solver_domain']['z']) == 2:
+            delta_z = 0.5
+            zz = np.arange(params_dict['solver_domain']['z'][0], params_dict['solver_domain']['z'][1] + 0.5 * delta_z, delta_z)
+        elif len(params_dict['solver_domain']['z']) == 1:
+            zz = params_dict['solver_domain']['z']
+        else:
+            raise ValueError('solver_domain:z length can only be 1 or 2.')
+    else:
+        zz = np.arange(z1, z2 + 0.5 * delta, delta)
 
-        emitter['phi'] = phi
+    n_calc = len(zz) * len(params_dict['emitter_list'])
+
+    for z in zz:
+        phi = np.zeros_like(xx)
+        for i, emitter in enumerate(params_dict['emitter_list']):
+            phi_ = solver_phi_2d(
+                emitter_xy1=(emitter['x'][0], emitter['y'][0]),
+                emitter_xy2=(emitter['x'][1], emitter['y'][1]),
+                emitter_z=emitter['z'],
+                xx=xx,
+                yy=yy,
+                z=z,
+            )
+            phi += phi_
+            if 'phi_dict' in emitter:
+                emitter['phi_dict'][f'{z:.3f}'] = phi_
+            else:
+                emitter['phi_dict'] = {f'{z:.3f}': phi_}
 
     # =============================
     # calculate resultant heat flux
     # =============================
 
-    heat_flux = np.zeros_like(params_dict['emitter_list'][0]['phi'], dtype=np.float64)
-    for i, emitter in enumerate(params_dict['emitter_list']):
-        heat_flux += (emitter['phi'] * emitter['heat_flux'])
+    for z in zz:
+        heat_flux = np.zeros_like(xx, dtype=np.float64)
+        for emitter in params_dict['emitter_list']:
+            heat_flux += emitter['heat_flux'] * emitter['phi_dict'][f'{z:.3f}']
+        if 'heat_flux_dict' in params_dict:
+            params_dict['heat_flux_dict'][f'{z:.3f}'] = heat_flux
+        else:
+            params_dict['heat_flux_dict'] = {f'{z:.3f}': heat_flux}
+
+    heat_flux = np.max(np.array([i for i in params_dict['heat_flux_dict'].values()]), axis=0)
     heat_flux[heat_flux == 0] = -1
     params_dict['heat_flux'] = heat_flux
 
@@ -360,10 +386,16 @@ def _test_main():
     param_dict = dict(
         emitter_list=[
             dict(
-                x=[-0.5, 0.5],
-                y=[-0.5, 0.5],
-                z=[-0.5, 0.5],
-                heat_flux=1,
+                x=[-5, 0],
+                y=[0, 0],
+                z=[0, 2],
+                heat_flux=100,
+            ),
+            dict(
+                x=[0, 5],
+                y=[0, 0],
+                z=[0, 4],
+                heat_flux=100,
             )
         ],
         receiver_list=[
@@ -373,9 +405,9 @@ def _test_main():
             )
         ],
         solver_domain=dict(
-            x=(-1, 1),
-            y=(-1, 1),
-            z=(1,)
+            x=(-10, 10),
+            y=(-1, 10),
+            z=None
         ),
         solver_delta=.2
     )
@@ -393,7 +425,7 @@ def _test_main():
     # check output elements
     print('assertion', list(out['emitter_list'][0].keys()))
     for emitter in out['emitter_list']:
-        assert 'phi' in emitter
+        assert 'phi_dict' in emitter
         assert 'height' in emitter
         assert 'width' in emitter
 

@@ -82,8 +82,7 @@ def phi_parallel_any_br187(W_m, H_m, w_m, h_m, S_m):
     :return:
     """
     phi = [
-        eq_A4_phi_parallel_corner(*P[0:-1], S_m, P[-1])
-        for P in four_planes(W_m, H_m, w_m, h_m)
+        eq_A4_phi_parallel_corner(*P[0:-1], S_m, P[-1]) for P in four_planes(W_m, H_m, w_m, h_m)
     ]
     return sum(phi)
 
