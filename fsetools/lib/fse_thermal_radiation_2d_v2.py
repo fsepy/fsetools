@@ -359,7 +359,7 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
             n_count += 1
 
     if QtCore_ProgressSignal:
-        QtCore_ProgressSignal.emit(101)
+        QtCore_ProgressSignal.emit(100)
 
     # =============================
     # calculate resultant heat flux
