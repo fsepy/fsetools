@@ -248,7 +248,7 @@ def _test_solve_phi():
     # plt.show()
 
 
-def main(params_dict: dict):
+def main(params_dict: dict, QtCore_ProgressSignal=None):
     """
 
     :param params_dict:
@@ -336,10 +336,13 @@ def main(params_dict: dict):
         zz = np.arange(z1, z2 + 0.5 * delta, delta)
 
     n_calc = len(zz) * len(params_dict['emitter_list'])
+    n_count = 0
 
     for z in zz:
         phi = np.zeros_like(xx)
         for i, emitter in enumerate(params_dict['emitter_list']):
+            if QtCore_ProgressSignal:
+                QtCore_ProgressSignal.emit(n_count / n_calc * 100)
             phi_ = solver_phi_2d(
                 emitter_xy1=(emitter['x'][0], emitter['y'][0]),
                 emitter_xy2=(emitter['x'][1], emitter['y'][1]),
@@ -353,6 +356,10 @@ def main(params_dict: dict):
                 emitter['phi_dict'][f'{z:.3f}'] = phi_
             else:
                 emitter['phi_dict'] = {f'{z:.3f}': phi_}
+            n_count += 1
+
+    if QtCore_ProgressSignal:
+        QtCore_ProgressSignal.emit(101)
 
     # =============================
     # calculate resultant heat flux
