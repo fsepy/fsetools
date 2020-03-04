@@ -9,7 +9,7 @@ def unit_vector(vector: np.ndarray):
     return vector / np.linalg.norm(vector)
 
 
-def angle_between_two_vectors_2d(v1: Union[list, tuple, np.ndarray], v2: Union[list, tuple, np.ndarray]) -> np.ndarray:
+def angle_between_two_vectors_2d(v1: Union[list, tuple, np.ndarray], v2: Union[list, tuple, np.ndarray]) -> float:
     """ Returns the angle in radians between vectors 'v1' and 'v2' """
     # v1_u = v1 / np.linalg.norm(v1)
     # v2_u = v2 / np.linalg.norm(v2)
@@ -42,16 +42,26 @@ def rotation_meshgrid(xx: np.ndarray, yy: np.ndarray, theta_in_radians: float):
     """
 
     # Clockwise, 2D rotation_meshgrid matrix
+    R = rotation_matrix(theta_in_radians)
+
+    return np.einsum('ji, mni -> jmn', R, np.dstack([xx, yy]))
+
+
+def rotation_matrix(theta_in_radians: float):
+
+    # Clockwise, 2D rotation_meshgrid matrix
+    
     R = np.array(
         [
             [np.cos(theta_in_radians), np.sin(theta_in_radians)],
             [-np.sin(theta_in_radians), np.cos(theta_in_radians)]]
     )
 
-    return np.einsum('ji, mni -> jmn', R, np.dstack([xx, yy]))
+    return R
 
 
-def _test_rotation():
+def _test_rotation_meshgrid():
+
     import matplotlib.pyplot as plt
 
     x_span = np.arange(-10, 11, 1)
@@ -274,5 +284,5 @@ if __name__ == "__main__":
     # _test_find_line_segment_intersection_1()
     # _test_find_line_segment_intersection_2()
     _test_points_in_ploy()
-    _test_rotation()
+    _test_rotation_meshgrid()
     _test_angle_between_two_vectors()

@@ -35,15 +35,10 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=[
         "fsetools",
-        "fsetools.cli",
         "fsetools.etc",
-        "fsetools.gui",
-        "fsetools.gui.layout",
-        "fsetools.gui.logic",
         "fsetools.lib",
         "fsetools.libstd",
     ],
     install_requires=requirements,
     include_package_data=True,
-    entry_points={"console_scripts": ["fsetools=fsetools.cli.__main__:main"]},
 )
