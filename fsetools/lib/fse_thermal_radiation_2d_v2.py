@@ -188,7 +188,7 @@ def _test_solve_phi():
         emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
         xx=xx,
         yy=yy,
-        z=[height / 2]
+        z=height / 2
     )
 
     # measure at 5 m from the emitter front
@@ -219,7 +219,7 @@ def _test_solve_phi():
         emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
         xx=xx,
         yy=yy,
-        z=[height / 2 - 2.5]
+        z=height / 2 - 2.5
     )
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 5, separation + y_emitter_centre)
     answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 5,
@@ -234,7 +234,7 @@ def _test_solve_phi():
         emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
         xx=xx,
         yy=yy,
-        z=[height / 2 - 5]
+        z=height / 2 - 5
     )
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 7.5, separation + y_emitter_centre)
     answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 7.5,
@@ -267,7 +267,7 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
                 solver_domain=dict(
                     x=(x1, x2),
                     y=(y1, y2),
-                    z=(z1,)
+                    z=z1
                 ),
                 delta=0.5,  # optional
             )
@@ -275,7 +275,7 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
             emitter_list
                 x1, y1      the first point of the line segment on z-plane.
                 x2, y2      the second point of the line segment on z-plane.
-                z1, z2      the bottom and top of the emitter, i.e. abs(z1-z2) is the emitter height.
+                z1          the bottom and top of the emitter, i.e. abs(z1-z2) is the emitter height.
                 heat_flux   the heat flux (thermal) radiating from the emitter.
             receiver_list
                 x1, y1      the first point of the line segment on z-plane.
@@ -445,4 +445,4 @@ def _test_main():
 
 if __name__ == '__main__':
     _test_main()
-    # _test_solve_phi()
+    _test_solve_phi()
