@@ -50,6 +50,7 @@ def rotation_meshgrid(xx: np.ndarray, yy: np.ndarray, theta_in_radians: float):
 def rotation_matrix(theta_in_radians: float):
 
     # Clockwise, 2D rotation_meshgrid matrix
+    
     R = np.array(
         [
             [np.cos(theta_in_radians), np.sin(theta_in_radians)],
@@ -60,6 +61,7 @@ def rotation_matrix(theta_in_radians: float):
 
 
 def _test_rotation_meshgrid():
+
     import matplotlib.pyplot as plt
 
     x_span = np.arange(-10, 11, 1)

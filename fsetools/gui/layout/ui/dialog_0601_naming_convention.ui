@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>411</width>
+    <height>356</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>15</y>
+      <width>380</width>
+      <height>291</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="minimumSize">
+          <size>
+           <width>121</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Date in YYMMDD (i.e. 201231) or YYYYMMDD (i.e. 20201231) format.</string>
+         </property>
+         <property name="statusTip">
+          <string>Date in YYMMDD (i.e. 201231) or YYYYMMDD (i.e. 20201231) format.</string>
+         </property>
+         <property name="text">
+          <string>Date</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEdit_1_date">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>70</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>20151021</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="minimumSize">
+          <size>
+           <width>121</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Revision indicator.</string>
+         </property>
+         <property name="statusTip">
+          <string>Revision indicator.</string>
+         </property>
+         <property name="text">
+          <string>Revision</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="comboBox_2_revision">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>Q00: First issue for internal review</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Q01: Reviewer's comments</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Q02: Authoriser's comments</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>D00: First issue to others for comment</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>D01: Sub-sequent external reviews</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>R00: First issue</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>R01: Second issue</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="minimumSize">
+          <size>
+           <width>121</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Project number.</string>
+         </property>
+         <property name="statusTip">
+          <string>Project number.</string>
+         </property>
+         <property name="text">
+          <string>Project No.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEdit_3_project_no">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>OX20001</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_17">
+         <property name="minimumSize">
+          <size>
+           <width>121</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Project stage.</string>
+         </property>
+         <property name="statusTip">
+          <string>Project stage.</string>
+         </property>
+         <property name="text">
+          <string>Project Stage</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="lineEdit_4_project_stage">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>90</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>WP1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_18">
+         <property name="minimumSize">
+          <size>
+           <width>121</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>File title in plain English.</string>
+         </property>
+         <property name="statusTip">
+          <string>File title in plain English.</string>
+         </property>
+         <property name="text">
+          <string>File Title</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_19">
+         <property name="minimumSize">
+          <size>
+           <width>121</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Document type.</string>
+         </property>
+         <property name="statusTip">
+          <string>Document type.</string>
+         </property>
+         <property name="text">
+          <string>Document Type</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QComboBox" name="comboBox_6_type">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>21</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>GA: General admin</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>MD: Marketing</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FP: Fee proposal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>LT: Letter</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DN: Design note</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>OF: Outline strategy</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DF: Detailed strategy</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>RF: Retrospective strategy</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FA: Fire risk assessment</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FS: Fire survey report</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FN: File note</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>MN: Meeting notes</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>CS: Calculation sheet</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SK: Sketch</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>DW: Drawing</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>XO: Expert opinion</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_20">
+         <property name="minimumSize">
+          <size>
+           <width>121</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Security status.</string>
+         </property>
+         <property name="statusTip">
+          <string>Security status.</string>
+         </property>
+         <property name="text">
+          <string>Security Status</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QComboBox" name="comboBox_7_security_status">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>21</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>CIC: Commercial in confidence</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WPC: Without prejudice and confidential</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>SDS: Secure document</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FID: Free issue document (no security status)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="lineEdit_5_title">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Outline fire strategy report</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBox_replace_spaces">
+       <property name="toolTip">
+        <string>Replace all spaces in the file name to underscore `_`.</string>
+       </property>
+       <property name="statusTip">
+        <string>Replace all spaces in the file name to underscore `_`.</string>
+       </property>
+       <property name="text">
+        <string>Replace Spaces with Underscore</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit_out_result">
+       <property name="toolTip">
+        <string>Composed file name.</string>
+       </property>
+       <property name="statusTip">
+        <string>Composed file name.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_copy">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>26</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Copy File Name (Press Enter)</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>411</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <tabstops>
+  <tabstop>lineEdit_1_date</tabstop>
+  <tabstop>comboBox_2_revision</tabstop>
+  <tabstop>lineEdit_3_project_no</tabstop>
+  <tabstop>lineEdit_4_project_stage</tabstop>
+  <tabstop>lineEdit_5_title</tabstop>
+  <tabstop>comboBox_6_type</tabstop>
+  <tabstop>comboBox_7_security_status</tabstop>
+  <tabstop>checkBox_replace_spaces</tabstop>
+  <tabstop>lineEdit_out_result</tabstop>
+  <tabstop>pushButton_copy</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

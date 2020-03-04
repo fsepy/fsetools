@@ -10,6 +10,7 @@ from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
 
 
 def update_input_param(input_set: dict):
+
     x1, x2 = input_set['domain']['x']
     y1, y2 = input_set['domain']['y']
     delta = input_set['delta']
@@ -25,6 +26,7 @@ def update_input_param(input_set: dict):
 
 
 def update_emitter(dict_emitter: dict):
+  
     emitter = dict_emitter
 
     emitter.update(
@@ -163,7 +165,8 @@ def solve_phi(
 
 
 def _test_solve_phi():
-    xx, yy = np.meshgrid(np.linspace(-20, 20, 100), np.linspace(-20, 20, 100))
+
+  xx, yy = np.meshgrid(np.linspace(-20, 20, 100), np.linspace(-20, 20, 100))
 
     zz = solve_phi(
         emitter=update_emitter(
@@ -190,6 +193,7 @@ def plot_heat_flux_on_ax(
         zz: np.ndarray,
         levels: tuple = (0, 12.6, 20, 40, 60, 80, 200),
 ):
+  
     levels_contour = levels
     colors_contour = ['r' if i == 12.6 else 'k' for i in levels_contour]
     levels_contourf = levels_contour
@@ -205,6 +209,9 @@ def plot_heat_flux_on_ax(
 
     ax.grid(b=True, which='major', axis='both')
     ax.set_aspect(aspect=1)
+
+    # colour bar
+    # fig.colorbar(cs_f)
 
     # axis labels
     # ax.set_xlabel('Building Facade')
@@ -238,6 +245,7 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None, save_figure: bool = T
         # create a figure
         fig = plt.figure(
             figsize=(figsize_base, figsize_base),
+
             frameon=False,
         )
 
@@ -266,6 +274,7 @@ def main_plot(input_param_dict: dict, dir_cwd: str = None, save_figure: bool = T
             for i in range(len(input_param_dict[case_name]['receiver_list'])):
                 ax.plot(input_param_dict[case_name]['receiver_list'][i]['x'],
                         input_param_dict[case_name]['receiver_list'][i]['y'], lw=5, c='k', ls='--')
+
         except KeyError:
             pass
 
