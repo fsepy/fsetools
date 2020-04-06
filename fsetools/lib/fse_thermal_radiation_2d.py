@@ -10,7 +10,6 @@ from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
 
 
 def update_input_param(input_set: dict):
-
     x1, x2 = input_set['domain']['x']
     y1, y2 = input_set['domain']['y']
     delta = input_set['delta']
@@ -26,7 +25,6 @@ def update_input_param(input_set: dict):
 
 
 def update_emitter(dict_emitter: dict):
-  
     emitter = dict_emitter
 
     emitter.update(
@@ -165,8 +163,7 @@ def solve_phi(
 
 
 def _test_solve_phi():
-
-  xx, yy = np.meshgrid(np.linspace(-20, 20, 100), np.linspace(-20, 20, 100))
+    xx, yy = np.meshgrid(np.linspace(-20, 20, 100), np.linspace(-20, 20, 100))
 
     zz = solve_phi(
         emitter=update_emitter(
@@ -193,7 +190,6 @@ def plot_heat_flux_on_ax(
         zz: np.ndarray,
         levels: tuple = (0, 12.6, 20, 40, 60, 80, 200),
 ):
-  
     levels_contour = levels
     colors_contour = ['r' if i == 12.6 else 'k' for i in levels_contour]
     levels_contourf = levels_contour
