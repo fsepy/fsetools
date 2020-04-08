@@ -1,10 +1,10 @@
 import typing
 
 import numpy as np
-from matplotlib import cm
 
 from fsetools.etc.transforms2d import rotation_meshgrid, angle_between_two_vectors_2d
-from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
+# from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
+from fsetools.lib.fse_thermal_radiation import phi_perpendicular_any_br187
 
 
 def main_plot(
@@ -26,31 +26,31 @@ def main_plot(
         figure_levels = param_dict['figure_levels']
     else:
         figure_levels = (0, 12.6, 20, 40, 60, 80, 200)
-    figure_levels = list(figure_levels) + [critical_heat_flux]
+    # figure_levels = list(figure_levels) + [critical_heat_flux]
     figure_levels = tuple(sorted(set(figure_levels)))
 
-    figure_levels_contour = figure_levels
-    figure_colors_contour = ['r' if i == critical_heat_flux else 'k' for i in figure_levels_contour]
-    figure_levels_contourf = figure_levels_contour
-    figure_colors_contourf = [cm.get_cmap('YlOrRd')(i / (len(figure_levels_contour) - 1)) for i, _ in
-                              enumerate(figure_levels_contour)]
-    figure_colors_contourf = [(r_, g_, b_, 0.65) for r_, g_, b_, a_ in figure_colors_contourf]
-    figure_colors_contourf[0] = (195 / 255, 255 / 255, 143 / 255, 0.65)
+    # figure_levels_contour = figure_levels
+    # figure_colors_contour = ['r' if i == critical_heat_flux else 'k' for i in figure_levels_contour]
+    # figure_levels_contourf = figure_levels_contour
+    # figure_colors_contourf = [cm.get_cmap('YlOrRd')(i / (len(figure_levels_contour) - 1)) for i, _ in
+    #                           enumerate(figure_levels_contour)]
+    # figure_colors_contourf = [(r_, g_, b_, a_) for r_, g_, b_, a_ in figure_colors_contourf]
+    # figure_colors_contourf[0] = (195 / 255, 255 / 255, 143 / 255, 0.65)
 
     # create axes
-    cs = ax.contour(xx, yy, zz, levels=figure_levels_contour, colors=figure_colors_contour)
-    cs_f = ax.contourf(xx, yy, zz, levels=figure_levels_contourf, colors=figure_colors_contourf)
+    # cs = ax.contour(xx, yy, zz, levels=figure_levels_contour, colors=figure_colors_contour)
+    cs_f = ax.contourf(xx, yy, zz, levels=figure_levels)
 
-    if contour_line_font_size > 0:
-        ax.clabel(cs, inline=1, fontsize=contour_line_font_size, fmt='%1.1f kW')
+    # if contour_line_font_size > 0:
+    #     ax.clabel(cs, inline=1, fontsize=contour_line_font_size, fmt='%1.1f kW')
 
     ax.grid(b=True, which='major', axis='both', color='k', alpha=0.1)
 
     # axis ticks
     ax.set_xticks(np.arange(np.amin(xx), np.amax(xx) + .5, 1))
-    ax.set_xticklabels('')
+    # ax.set_xticklabels('')
     ax.set_yticks(np.arange(np.amin(yy), np.amax(yy) + .5, 1))
-    ax.set_yticklabels('')
+    # ax.set_yticklabels('')
     ax.tick_params(axis=u'both', which=u'both', direction='in')
 
     # axis limits
@@ -61,11 +61,13 @@ def main_plot(
 
     if emitter_receiver_line_thickness > 0:
         for i in range(len(param_dict['emitter_list'])):
-            ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'], lw=emitter_receiver_line_thickness, c='r', ls='--')
+            ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'],
+                    lw=emitter_receiver_line_thickness, c='r', ls='--')
 
         try:
             for i in range(len(param_dict['receiver_list'])):
-                ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'], lw=emitter_receiver_line_thickness, c='k', ls='--')
+                ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'],
+                        lw=emitter_receiver_line_thickness, c='k', ls='--')
         except KeyError:
             pass
 
@@ -75,9 +77,35 @@ def main_plot(
     # colour bar, only plot colorbar when figure object is provided to prevent double plotting
     if fig:
         cbar = fig.colorbar(cs_f)
-        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.')+'\nkW/m²' for i in figure_levels])
+        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.') + '\nkW/m²' for i in figure_levels])
 
     return fig, ax
+
+
+def main_plot_plotly(
+        param_dict: dict,
+        critical_heat_flux: float = 12.6,
+        contour_line_font_size: float = 12,
+        emitter_receiver_line_thickness: float = 5.,
+        **kwargs
+):
+    x1, x2 = param_dict['solver_domain']['x']
+    y1, y2 = param_dict['solver_domain']['y']
+    delta = param_dict['solver_delta']
+    xx, yy = np.meshgrid(np.arange(x1, x2 + 0.5 * delta, delta), np.arange(y1, y2 + 0.5 * delta, delta))
+    zz = param_dict['heat_flux']
+
+    import plotly.graph_objects as go
+
+    fig = go.Figure(data=
+    go.Contour(
+        z=zz,
+        x=np.arange(x1, x2 + 0.5 * delta, delta),  # horizontal axis
+        y=np.arange(y1, y2 + 0.5 * delta, delta)  # vertical axis
+    ))
+    fig.show()
+
+    return
 
 
 def update_input_param(input_param_dict: dict):
@@ -150,7 +178,7 @@ def solver_phi_2d(
         for j in range(xx.shape[1]):
             y = yy[i, j]
             if y > surface_level_y:
-                vv[i, j] = phi_parallel_any_br187(
+                vv[i, j] = phi_perpendicular_any_br187(
                     W_m=emitter_width,
                     H_m=emitter_height,
                     w_m=0.5 * emitter_width + abs(emitter_x_centre - xx[i, j]),
@@ -193,22 +221,23 @@ def _test_solve_phi():
 
     # measure at 5 m from the emitter front
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre, 0.5 * height + y_emitter_centre,
-                                    separation)
+    answer = phi_perpendicular_any_br187(width, height, 0.5 * width + x_emitter_centre, 0.5 * height + y_emitter_centre,
+                                         separation)
     print('assertion values', solved, answer)
     assert np.isclose(solved, answer, atol=1e-6)
 
     # measure at 5 m from the emitter front, offset 5 m x-axis (i.e. edge centre)
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 5, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 5, 0.5 * height + y_emitter_centre,
-                                    separation)
+    answer = phi_perpendicular_any_br187(width, height, 0.5 * width + x_emitter_centre - 5,
+                                         0.5 * height + y_emitter_centre,
+                                         separation)
     print('assertion values', solved, answer)
     assert np.isclose(solved, answer, atol=1e-6)
 
     # measure at 5 m from the emitter back
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre, 0.5 * height + y_emitter_centre,
-                                    separation)
+    answer = phi_perpendicular_any_br187(width, height, 0.5 * width + x_emitter_centre, 0.5 * height + y_emitter_centre,
+                                         separation)
     print('assertion values', solved, answer)
     assert np.isclose(solved, answer, atol=1e-6)
 
@@ -222,8 +251,8 @@ def _test_solve_phi():
         z=height / 2 - 2.5
     )
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 5, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 5,
-                                    0.5 * height + y_emitter_centre - 2.5, separation)
+    answer = phi_perpendicular_any_br187(width, height, 0.5 * width + x_emitter_centre - 5,
+                                         0.5 * height + y_emitter_centre - 2.5, separation)
     print('assertion values', solved, answer)
     assert np.isclose(solved, answer, atol=1e-6)
 
@@ -237,8 +266,8 @@ def _test_solve_phi():
         z=height / 2 - 5
     )
     solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 7.5, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 7.5,
-                                    0.5 * height + y_emitter_centre - 5., separation)
+    answer = phi_perpendicular_any_br187(width, height, 0.5 * width + x_emitter_centre - 7.5,
+                                         0.5 * height + y_emitter_centre - 5., separation)
     print('assertion values', solved, answer)
     assert np.isclose(solved, answer, atol=1e-6)
 
@@ -326,8 +355,11 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
     xx, yy = np.meshgrid(xx, yy)
     if params_dict['solver_domain']['z']:
         if len(params_dict['solver_domain']['z']) == 2:
-            delta_z = 0.5
-            zz = np.arange(params_dict['solver_domain']['z'][0], params_dict['solver_domain']['z'][1] + 0.5 * delta_z, delta_z)
+            if params_dict['solver_domain']['z'][0] == params_dict['solver_domain']['z'][1]:
+                zz = [params_dict['solver_domain']['z'][0]]
+            else:
+                zz = np.arange(params_dict['solver_domain']['z'][0], params_dict['solver_domain']['z'][1] + 0.5 * delta,
+                               delta)
         elif len(params_dict['solver_domain']['z']) == 1:
             zz = params_dict['solver_domain']['z']
         else:
@@ -393,30 +425,43 @@ def _test_main():
     param_dict = dict(
         emitter_list=[
             dict(
-                x=[-5, 0],
+                x=[0, 5],
                 y=[0, 0],
                 z=[0, 2],
                 heat_flux=100,
             ),
             dict(
-                x=[0, 5],
-                y=[0, 0],
-                z=[0, 4],
+                x=[5, 5],
+                y=[0, 2],
+                z=[0, 2],
                 heat_flux=100,
-            )
+            ),
+            dict(
+                x=[5, 0],
+                y=[2, 2],
+                z=[0, 2],
+                heat_flux=100,
+            ),
+            dict(
+                x=[0, 0],
+                y=[2, 0],
+                z=[0, 2],
+                heat_flux=50,
+            ),
         ],
         receiver_list=[
-            dict(
-                x=[-0.5, 0.5],
-                y=[-0.5, -0.5],
-            )
+            # dict(
+            #     x=[-0.5, 0.5],
+            #     y=[-0.5, -0.5],
+            # )
         ],
         solver_domain=dict(
-            x=(-10, 10),
-            y=(-1, 10),
-            z=None
+            x=(0, 5),
+            y=(0, 2),
+            z=(2, 2)
         ),
-        solver_delta=.2
+        solver_delta=.025,
+        figure_levels=np.arange(40, 100 + 5, 5)
     )
 
     out = main(param_dict)
@@ -436,13 +481,15 @@ def _test_main():
         assert 'height' in emitter
         assert 'width' in emitter
 
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots()
-    _, ax = main_plot(out, ax, fig)
-    fig.savefig('test.png')
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # fig, ax = plt.subplots()
+    # _, ax = main_plot(out, ax, fig)
+    # fig.savefig('test.png')
+    # plt.show()
+
+    main_plot_plotly(out)
 
 
 if __name__ == '__main__':
     _test_main()
-    _test_solve_phi()
+    # _test_solve_phi()
