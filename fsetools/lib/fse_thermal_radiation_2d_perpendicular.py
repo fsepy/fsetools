@@ -417,6 +417,8 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
 
 
 def _test_main():
+    import plotly.graph_objects as go
+
     # ======
     # test 0
     # ======
@@ -481,13 +483,19 @@ def _test_main():
         assert 'height' in emitter
         assert 'width' in emitter
 
-    # import matplotlib.pyplot as plt
-    # fig, ax = plt.subplots()
-    # _, ax = main_plot(out, ax, fig)
-    # fig.savefig('test.png')
-    # plt.show()
+    x1, x2 = param_dict['solver_domain']['x']
+    y1, y2 = param_dict['solver_domain']['y']
+    delta = param_dict['solver_delta']
+    zz = param_dict['heat_flux']
 
-    main_plot_plotly(out)
+    fig = go.Figure(data=
+    go.Contour(
+        z=zz,
+        x=np.arange(x1, x2 + 0.5 * delta, delta),  # horizontal axis
+        y=np.arange(y1, y2 + 0.5 * delta, delta)  # vertical axis
+    ))
+    fig.show()
+
 
 
 if __name__ == '__main__':
