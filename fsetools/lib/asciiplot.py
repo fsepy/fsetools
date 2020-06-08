@@ -6,8 +6,16 @@ import numpy as np
 
 
 class AsciiPlot:
+    """
+    ┏━━━┓
+    ┫   ┃
+    ┗━┳━┛
+    """
 
-    def __init__(self, size: Tuple[float, float] = (80, 35)):
+    def __init__(
+            self,
+            size: Tuple[float, float] = (80, 35)
+    ):
         self.__size = None
         self.__xlim = None
         self.__ylim = None
@@ -30,13 +38,41 @@ class AsciiPlot:
                 ylim[0] -= ylim[0] * 0.1
                 ylim[1] += ylim[1] * 0.11
 
+        # ------------------
+        # Make y-axis string
+        # ------------------
         yaxis_size = (None, self.size[1] - 2)
         self.__plot_yaxis = self.__make_yaxis(ylim, yaxis_size)
+
+        # ------------------
+        # Make x-axis string
+        # ------------------
         xaxis_size = (self.size[0] - self.__plot_yaxis.shape[1], None)
         self.__plot_xaxis = self.__make_xaxis(xlim, xaxis_size)
-        canvas_size = (self.size[0] - self.__plot_yaxis.shape[1], self.size[1] - self.__plot_xaxis.shape[0])
+
+        # -----------------
+        # Make canvas frame
+        # -----------------
+        canvas_frame_size = (
+            self.size[0] - self.__plot_yaxis.shape[1],
+            self.size[1] - self.__plot_xaxis.shape[0]
+        )
+        self.__plot_canvas_frame = self._make_canvas_frame(canvas_frame_size)
+
+        # ------------------
+        # Make canvas string
+        # ------------------
+        canvas_size = (
+            self.size[0] - self.__plot_yaxis.shape[1] - 5,
+            self.size[1] - self.__plot_xaxis.shape[0] - 5
+        )
         self.__plot_canvas = self._make_canvas(x, y, xlim, ylim, canvas_size)
-        self.__plot = self.__assemble(self.__plot_canvas, self.__plot_xaxis, self.__plot_yaxis)
+
+        # ------------------------------
+        # Assemble all figure components
+        # ------------------------------
+        self.__plot = self.__assemble(self.__plot_canvas_frame, self.__plot_canvas, self.__plot_xaxis,
+                                      self.__plot_yaxis)
 
         return self
 
@@ -63,6 +99,21 @@ class AsciiPlot:
     @staticmethod
     def __list2str(v: Union[list, np.ndarray]) -> str:
         return '\n'.join([''.join([str(j) for j in i]) for i in v])
+
+    @staticmethod
+    def _make_canvas_frame(
+            size: tuple = (81, 41)
+    ):
+        mat_canvas_frame = np.full(shape=size, fill_value=' ', dtype='<U1')
+        mat_canvas_frame[0, :] = '━'
+        mat_canvas_frame[-1, :] = '━'
+        mat_canvas_frame[:, -1] = '┃'
+        mat_canvas_frame[:, 0] = '┃'
+        mat_canvas_frame[0, 0] = '┏'
+        mat_canvas_frame[-1, 0] = '┗'
+        mat_canvas_frame[0, -1] = '┓'
+        mat_canvas_frame[-1, -1] = '┛'
+        return mat_canvas_frame
 
     @staticmethod
     def _make_canvas(
@@ -179,39 +230,44 @@ class AsciiPlot:
 
         return mat_xaxis
 
-    @staticmethod
-    def __assemble(mat_plot_canvas, mat_xaxis, mat_yaxis) -> np.ndarray:
+    def __assemble(self, mat_plot_canvas_frame, mat_plot_canvas, mat_xaxis, mat_yaxis) -> np.ndarray:
         mat_canvas = np.full_like(mat_plot_canvas, fill_value=' ', dtype='<U1')
         mat_canvas[mat_plot_canvas > 0] = '*'
 
         # construct figure matrix
         mat_figure = np.full(
-            # shape=(mat_plot_canvas.shape[0] + mat_xaxis.shape[0], mat_yaxis.shape[1] + mat_plot_canvas.shape[1]),
-            shape=(mat_plot_canvas.shape[0] + mat_xaxis.shape[0], mat_plot_canvas.shape[1] + mat_yaxis.shape[1]),
-            fill_value=' ', dtype='<U1')
+            shape=self.size[::-1],
+            fill_value=' ', dtype='<U1'
+        )
 
+        # -----------------------------
+        # assign canvas frame to figure
+        # -----------------------------
+        i, j = 0, mat_yaxis.shape[1]
+        mat_figure[i:i + mat_plot_canvas_frame.shape[0], j:j + mat_plot_canvas_frame.shape[1]] = mat_plot_canvas_frame[
+                                                                                                 ::-1, :]
+
+        # -----------------------
         # assign canvas to figure
-        j1 = mat_yaxis.shape[1]
-        j2 = mat_yaxis.shape[1] + mat_plot_canvas.shape[1]
-        i1 = 0
-        i2 = mat_plot_canvas.shape[0]
-        mat_figure[i1:i2, j1:j2] = mat_canvas[::-1, :]
+        # -----------------------
+        i, j = 0, mat_yaxis.shape[1]
+        # mat_figure[i:i+mat_canvas.shape[0], j:j+mat_canvas.shape[1]] = mat_canvas[::-1, :]
 
+        # ----------------------
         # assign yaxis to figure
-        j1 = 0
-        j2 = mat_yaxis.shape[1]
-        i1 = 0
-        i2 = mat_yaxis.shape[0]
-        mat_figure[i1:i2, j1:j2] = mat_yaxis[::-1, :]
+        # ----------------------
+        i, j = 0, 0
+        mat_figure[i:i + mat_yaxis.shape[0], j:mat_yaxis.shape[1]] = mat_yaxis[::-1, :]
 
+        # ----------------------
         # assign xaxis to figure
-        j1 = mat_yaxis.shape[1]
-        j2 = mat_yaxis.shape[1] + mat_xaxis.shape[1]
-        i1 = mat_canvas.shape[0]
-        i2 = mat_canvas.shape[0] + mat_xaxis.shape[0]
-        mat_figure[i1:i2, j1:j2] = mat_xaxis[:, :]
+        # ----------------------
+        i, j = mat_figure.shape[0] - 2, mat_yaxis.shape[1]
+        mat_figure[i:i + mat_xaxis.shape[0], j:j + mat_xaxis.shape[1]] = mat_xaxis[:, :]
 
+        # -------------
         # final touches
+        # -------------
         i = mat_yaxis.shape[0]
         j = mat_yaxis.shape[1] - 1
         mat_figure[i, j] = '┗'
