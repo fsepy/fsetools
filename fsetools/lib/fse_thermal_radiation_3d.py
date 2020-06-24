@@ -465,18 +465,18 @@ def heat_flux_to_temperature(heat_flux: float, exposed_temperature: float = 293.
     return ((heat_flux / sigma / epsilon) + exposed_temperature ** 4) ** 0.25
 
 
-def temperature_to_heat_flux(temperature: float, ambient_temperature: float = 293.15):
+def temperature_to_heat_flux(t2: float, t1: float = 293.15):
     """Function returns hot surface heat flux for a given temperature.
 
-    :param temperature: [K] emitter temperature.
-    :param ambient_temperature: [K] ambient/receiver temperature, 20 deg.C by default.
+    :param t2: [K] emitter temperature.
+    :param t1: [K] ambient/receiver temperature, 20 deg.C by default.
     :return heat_flux: [K] calculated emitter temperature based on black body radiation model.
     """
 
     epsilon = 1.0  # radiation view factor
     sigma = 5.67e-8  # [W/m2/K4] stefan-boltzmann constant
 
-    heat_flux = epsilon * sigma * (temperature ** 4 - ambient_temperature ** 4)
+    heat_flux = epsilon * sigma * (t2 ** 4 - t1 ** 4)
 
     return heat_flux
 
