@@ -1,4 +1,4 @@
-# fseutil
+# fsetools
 
 [![Build Status](https://travis-ci.com/fsepy/fsetools.svg?branch=master)](https://travis-ci.com/fsepy/fsetools)
 
@@ -31,11 +31,13 @@ Documentation is work in progress.
 
 ### Command line interface
 
-Once `fsetools` is installed, CLI help can be summoned using the following command:
+Once `fsetools` is installed, CLI help can be summoned using the following command in a terminal:
 
 ```shell
 (base) C:\Users\Fu>fsetools -h
 ```
+
+Remember to change to the correct Python environment if appropriate.
 
 ## Authors
 
