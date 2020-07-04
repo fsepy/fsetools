@@ -61,11 +61,13 @@ def main_plot(
 
     if emitter_receiver_line_thickness > 0:
         for i in range(len(param_dict['emitter_list'])):
-            ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'], lw=emitter_receiver_line_thickness, c='r', ls='--')
+            ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'],
+                    lw=emitter_receiver_line_thickness, c='r', ls='--')
 
         try:
             for i in range(len(param_dict['receiver_list'])):
-                ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'], lw=emitter_receiver_line_thickness, c='k', ls='--')
+                ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'],
+                        lw=emitter_receiver_line_thickness, c='k', ls='--')
         except KeyError:
             pass
 
@@ -75,7 +77,7 @@ def main_plot(
     # colour bar, only plot colorbar when figure object is provided to prevent double plotting
     if fig:
         cbar = fig.colorbar(cs_f)
-        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.')+'\nkW/m²' for i in figure_levels])
+        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.') + '\nkW/m²' for i in figure_levels])
 
     return fig, ax
 
@@ -267,7 +269,7 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
                 solver_domain=dict(
                     x=(x1, x2),
                     y=(y1, y2),
-                    z=z1
+                    z=(z1,)
                 ),
                 delta=0.5,  # optional
             )
@@ -275,7 +277,7 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
             emitter_list
                 x1, y1      the first point of the line segment on z-plane.
                 x2, y2      the second point of the line segment on z-plane.
-                z1          the bottom and top of the emitter, i.e. abs(z1-z2) is the emitter height.
+                z1, z2      the bottom and top of the emitter, i.e. abs(z1-z2) is the emitter height.
                 heat_flux   the heat flux (thermal) radiating from the emitter.
             receiver_list
                 x1, y1      the first point of the line segment on z-plane.
@@ -327,7 +329,8 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
     if params_dict['solver_domain']['z']:
         if len(params_dict['solver_domain']['z']) == 2:
             delta_z = 0.5
-            zz = np.arange(params_dict['solver_domain']['z'][0], params_dict['solver_domain']['z'][1] + 0.5 * delta_z, delta_z)
+            zz = np.arange(params_dict['solver_domain']['z'][0], params_dict['solver_domain']['z'][1] + 0.5 * delta_z,
+                           delta_z)
         elif len(params_dict['solver_domain']['z']) == 1:
             zz = params_dict['solver_domain']['z']
         else:
@@ -361,9 +364,9 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
     if QtCore_ProgressSignal:
         QtCore_ProgressSignal.emit(100)
 
-    # =============================
-    # calculate resultant heat flux
-    # =============================
+    # =============================================
+    # calculate resultant heat flux of all emitters
+    # =============================================
 
     for z in zz:
         heat_flux = np.zeros_like(xx, dtype=np.float64)
@@ -377,9 +380,6 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
     heat_flux = np.max(np.array([i for i in params_dict['heat_flux_dict'].values()]), axis=0)
     heat_flux[heat_flux == 0] = -1
     params_dict['heat_flux'] = heat_flux
-
-    # make plots
-    # main_plot(params_dict)
 
     return params_dict
 
@@ -426,8 +426,11 @@ def _test_main():
     y1, y2 = out['solver_domain']['y']
     delta = out['solver_delta']
     xx, yy = np.meshgrid(np.arange(x1, x2 + 0.5 * delta, delta), np.arange(y1, y2 + 0.5 * delta, delta))
+    assert 'heat_flux' in out
     print('assertion', out['heat_flux'].shape, xx.shape, yy.shape)
     assert out['heat_flux'].shape == xx.shape == yy.shape
+
+    assert 'heat_flux_dict' in out
 
     # check output elements
     print('assertion', list(out['emitter_list'][0].keys()))
@@ -438,9 +441,10 @@ def _test_main():
 
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
-    _, ax = main_plot(out, ax, fig)
-    fig.savefig('test.png')
+    _, ax = main_plot(out, ax, fig, heat_flux_dict_key='4.000')
     plt.show()
+
+    print(out['heat_flux_dict'].keys())
 
 
 if __name__ == '__main__':
