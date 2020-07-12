@@ -447,7 +447,7 @@ def __test_external_fire_length_1():
     A_f = 14.88
     A_t = D * W
     O = 0.03
-    D_W_ratio = D/W
+    D_W_ratio = D / W
     # todo W/H
 
     # ----------------------------------
@@ -610,7 +610,7 @@ def __test_external_fire_temperature_1():
         O=O,
         A_v=A_v,
         h_eq=h_eq,
-        D_W_ratio=D/W
+        D_W_ratio=D / W
     )
     print('{:>10.10}: {:<.2f}'.format('Q', Q))
 
@@ -702,24 +702,120 @@ def __test_external_fire_temperature_1():
 
 
 def __test_project_1cw():
-    W = 37
-    L = 24
+    W = 50
+    L = 30
+    H = 3.5
     h_eq = 3
-    w_t = 13.3
+    w_t = 10
     L_x = 1.2
-    A_v = w_t * h_eq  # todo
-    u = 1  # todo
+    u = 3  # todo
+    q_f_k = 511
+    W_c = 10  # todo
+    L_c = 10  # todo
+
+    A_v = 100  # todo
+    A_v_1 = 30  # todo
 
     A_f = W * L
+    A_t = 2 * (W * L + L * H + H * W)
+    tau_F = 1200
     T_0 = 273.15
+
+    is_central_core = False
+    is_windows_on_more_than_one_wall = True
+
+    is_sprinklered = True
+    is_sprinkler_independent_water_supplies = True
+    is_automatic_fire_detection = True
+    is_detection_by_heat = False
+    is_detection_by_smoke = True
+    is_automatic_transmission_to_fire_brigade = False
+    is_onsite_fire_brigade = False
+    is_offsite_fire_brigade = True
+    is_safe_access_routes = True
+    is_fire_fighting_devices = True
+    is_smoke_exhaust_system = True
 
     str_fmt = '{:>10.10}: {:<.2f}'
 
-    print('{:>10.10}: {:<.2f}'.format('A_v', A_v))
-    print('{:>10.10}: {:<.2f}'.format('A_f', A_f))
+    print(str_fmt.format('A_v', A_v))
+    print(str_fmt.format('A_f', A_f))
 
-    Q = L * 13.3 * 0.29921
-    Q = 20
+    O = A_v / A_t * (h_eq ** 0.5)
+    print(str_fmt.format('O', O))
+
+    # ----------------------------------
+    # Calculate design fire load density
+    # ----------------------------------
+    delta_q1 = table_e1_delta_q1(A_f=A_f)
+    delta_q2 = table_e1_delta_q2(occupancy='office')
+    delta_n = table_e2_delta_n(
+        is_sprinklered=is_sprinklered,
+        is_sprinkler_indipendent_water_supplies=is_sprinkler_independent_water_supplies,
+        is_automatic_fire_detection=is_automatic_fire_detection,
+        is_detection_by_heat=is_detection_by_heat,
+        is_detection_by_smoke=is_detection_by_smoke,
+        is_automatic_transmission_to_fire_brigade=is_automatic_transmission_to_fire_brigade,
+        is_onsite_fire_brigade=is_onsite_fire_brigade,
+        is_offsite_fire_brigade=is_offsite_fire_brigade,
+        is_safe_access_routes=is_safe_access_routes,
+        is_fire_fighting_devices=is_fire_fighting_devices,
+        is_smoke_exhaust_system=is_smoke_exhaust_system
+    )
+    print(str_fmt.format('delta', delta_q1 * delta_q2 * delta_n))
+
+    q_f_d = equation_e1_design_fire_load_density(
+        q_f_k=q_f_k,
+        m=0.8,
+        delta_q1=delta_q1,
+        delta_q2=delta_q2,
+        delta_n=delta_n
+    )
+    print('{:>10.10}: {:<.2f}'.format('q_f_d', q_f_d))
+
+    if is_central_core and is_windows_on_more_than_one_wall:
+        D_W_ratio = clause_b_2_4_D_W_ratio(
+            W_1=W,
+            W_2=L,
+            L_c=L_c,
+            W_c=W_c,
+            A_v_1=A_v_1,
+            A_v=A_v,
+            is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
+            is_central_core=is_central_core
+        )
+    elif is_windows_on_more_than_one_wall:
+        D_W_ratio = clause_b_2_3_D_W_ratio(
+            W_1=W,
+            W_2=L,
+            A_v_1=A_v_1,
+            A_v=A_v,
+            is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
+            is_central_core=is_central_core
+        )
+    else:
+        D_W_ratio = clause_b_2_2_D_W_ratio(
+            W_1=W,
+            W_2=L,
+            is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
+            is_central_core=is_central_core,
+        )
+
+    # ---------------------------
+    # Calculate heat release rate
+    # ---------------------------
+    Q = equation_b4_heat_release_rate(
+        A_f=A_f,
+        q_f_d=q_f_d,
+        tau_F=tau_F,
+        O=O,
+        A_v=A_v,
+        h_eq=h_eq,
+        D_W_ratio=D_W_ratio
+    )
+    print('{:>10.10}: {:<.2f}'.format('Q', Q))
+    # Q = L * 13.3 * 0.29921
+    # Q = 20
     print(str_fmt.format('Q', Q))
 
     L_L = clause_b_4_2_3_flame_vertical_projection(
