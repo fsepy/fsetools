@@ -5,30 +5,41 @@ from fsetools.libstd.bs_en_1991_1_2_2002_annex_e import equation_e1_design_fire_
     table_e1_delta_q2, table_e2_delta_n
 
 SYMBOLS = dict(
-    d_f=("flame thickness", "m"),
-    w_t=("opening width", "m"),
-    h_eq=("opening height", "m"),
-    L_1=("flame length (angled)", "m"),
-    L_L=("flame length (vertical)", "m"),
-    L_f=("flame length (total)", "m"),
-    L_H=("distance between `L_L` and wall", "m"),
-    T_0=("ambient temperature", "K"),
-    T_w=("flame temperature at window opening", "K"),
-    T_z=("flame temperature external", "K"),
-    L_x=("axis length from the window to the point of measurement", "m"),
-    d_ow=("distance between this opening edge to other openings' edge", "m"),
+    L=("depth of the fire compartment or diameter of the fire", "m"),
     W=("width of wall containing windows", "m"),
-    D=("depth of the fire compartment or diameter of the fire", "m"),
-    O=("opening factor, h_eq ** 0.5 * A_v / A_t", "m**0.5"),
+    h_eq=("opening height", "m"),
+    w_t=("opening width", "m"),
+    A_v=("total vertical opening area", "m**2"),
+    A_v_1=("sum of window areas on wall 1", "m**2"),
+    W_1=("width of wall 1, assumed to contain the greatest window area", "m"),
+    W_2=("width of the wall perpendicular to wall 1 in the fire compartment", "m"),
+    L_c=("length of the core", "m"),
+    W_c=("width of the core", "m"),
     tau_F=("free burning fire duration", "s"),
+    d_ow=("distance between this opening edge to other openings' edge", "m"),
+    L_x=("axis length from the window to the point of measurement", "m"),
+
+    T_0=("ambient temperature", "K"),
+
+    O=("opening factor, h_eq ** 0.5 * A_v / A_t", "m**0.5"),
+    Q=("the rate of heat release rate", "MW"),
     q_f_d=("design fire load density related to the floor area A_t", "MJ/m**2"),
     q_f_k=("characteristic fire load density related to the floor area to A_t", "MJ/m**2"),
+
+    L_1=("flame length (angled)", "m"),
+    L_L=("flame length (vertical)", "m"),
+    L_H=("distance between `L_L` and wall", "m"),
+    L_f=("flame length (total)", "m"),
+    d_f=("flame thickness", "m"),
+    T_w=("flame temperature at window opening", "K"),
+    T_z=("flame temperature external", "K"),
     alpha_c=("convection coefficient of external flame", "W/m**2/K"),
-    Q=("the rate of heat release rate", "MW"),
     epsilon_f=("emissivity of flames", "-")
 )
 
 """
+SYMBOLS
+=======
 d_f      [m]         flame thickness
 w_t      [m]         opening width
 h_eq     [m]         opening height
@@ -50,21 +61,64 @@ q_f_k    [MJ/m**2]   characteristic fire load density related to the floor area 
 alpha_c  [W/m**2/K]  convection coefficient of external flame
 Q        [MW]        the rate of heat release rate
 
-Table E.4 in BS EN 1991-1-2:2002, page 50
 Fire load densities q_f_k [MJ/m2] for different occupancies
-| Occupancy Average        | Average | 80 % fractile |
-|--------------------------|---------|---------------|
-| Dwelling                 | 780     | 948           |
-| Hospital (room)          | 230     | 280           |
-| Hotel (room)             | 310     | 377           |
-| Library                  | 1500    | 1824          |
-| Office                   | 420     | 511           |
-| Classroom of a school    | 285     | 347           |
-| Shopping centre          | 600     | 730           |
-| Theatre (cinema)         | 300     | 365           |
-| Transport (public space) | 100     | 122           |
-Gumbel distribution
+Table E.4 in BS EN 1991-1-2:2002, page 50
+===========================================================
+| Occupancy Average        | Average | 80 % fractile* |
+|--------------------------|---------|----------------|
+| Dwelling                 | 780     | 948            |
+| Hospital (room)          | 230     | 280            |
+| Hotel (room)             | 310     | 377            |
+| Library                  | 1500    | 1824           |
+| Office                   | 420     | 511            |
+| Classroom of a school    | 285     | 347            |
+| Shopping centre          | 600     | 730            |
+| Theatre (cinema)         | 300     | 365            |
+| Transport (public space) | 100     | 122            |
+*Gumbel II distribution
 """
+
+
+def clause_b_2_2_D_W_ratio(
+        W_1,
+        W_2,
+        is_windows_on_more_than_one_wall: bool = False,
+        is_central_core: bool = False
+):
+    assert is_windows_on_more_than_one_wall is False and is_central_core is False
+    # equation B.1
+    D_W_ratio = W_2 / W_1
+    return D_W_ratio
+
+
+def clause_b_2_3_D_W_ratio(
+        W_1,
+        W_2,
+        A_v_1,
+        A_v,
+        is_windows_on_more_than_one_wall: bool = True,
+        is_central_core: bool = False
+):
+    assert is_windows_on_more_than_one_wall and is_central_core is False
+    # equation B.2
+    D_W_ratio = (W_2 / W_1) * (A_v_1 / A_v)
+    return D_W_ratio
+
+
+def clause_b_2_4_D_W_ratio(
+        W_1,
+        W_2,
+        L_c,
+        W_c,
+        A_v_1,
+        A_v,
+        is_windows_on_more_than_one_wall: bool = True,
+        is_central_core: bool = True
+):
+    assert is_windows_on_more_than_one_wall and is_central_core
+    # equation B.3
+    D_W_ratio = ((W_2 - L_c) * A_v_1) / ((W_1 - W_c) * A_v)
+    return D_W_ratio
 
 
 def equation_b4_heat_release_rate(
@@ -74,14 +128,13 @@ def equation_b4_heat_release_rate(
         O,
         A_v,
         h_eq,
-        D,
-        W,
+        D_W_ratio,
         *_,
         **__,
 ):
     """Equation B.4. The rate of burning or the rate of heat release"""
     a = (A_f * q_f_d) / tau_F
-    b = 3.15 * (1 - e ** (-0.036 / O)) * A_v * (h_eq / (D / W)) ** 0.5
+    b = 3.15 * (1 - e ** (-0.036 / O)) * A_v * (h_eq / (D_W_ratio)) ** 0.5
     Q = min(a, b)
     return Q
 
@@ -315,7 +368,11 @@ def clause_b_4_2_7_flame_temperature_at_opening(
         T_0
 ):
     # equation B.24, page 38
-    assert L_f * (A_v ** 0.5) / Q < 1
+    try:
+        assert L_f * (A_v ** 0.5) / Q < 1
+    except AssertionError:
+        raise ValueError(f'Condition L_f * (A_v ** 0.5) / Q = {L_f * (A_v ** 0.5) / Q:.2f} < 1 not satisfied')
+
     T_w = 520 / (1 - 0.3325 * L_f * (A_v ** 0.5) / Q) + T_0
     return T_w
 
@@ -390,6 +447,7 @@ def __test_external_fire_length_1():
     A_f = 14.88
     A_t = D * W
     O = 0.03
+    D_W_ratio = D/W
     # todo W/H
 
     # ----------------------------------
@@ -432,7 +490,8 @@ def __test_external_fire_length_1():
         A_v=A_v,
         h_eq=h_eq,
         D=D,
-        W=W
+        W=W,
+        D_W_ratio=D_W_ratio
     )
 
     # --------------------------------------------
@@ -551,10 +610,37 @@ def __test_external_fire_temperature_1():
         O=O,
         A_v=A_v,
         h_eq=h_eq,
-        D=D,
-        W=W
+        D_W_ratio=D/W
     )
     print('{:>10.10}: {:<.2f}'.format('Q', Q))
+
+    # if is_central_core and is_windows_on_more_than_one_wall:
+    #     D_W_ratio = clause_b_2_4_D_W_ratio(
+    #         W_1=W,
+    #         W_2=L,
+    #         L_c=L_c,
+    #         W_c=W_c,
+    #         A_v_1=A_v_1,
+    #         A_v=A_v,
+    #         is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
+    #         is_central_core=is_central_core
+    #     )
+    # elif is_windows_on_more_than_one_wall:
+    #     D_W_ratio = clause_b_2_3_D_W_ratio(
+    #         W_1=W,
+    #         W_2=L,
+    #         A_v_1=A_v_1,
+    #         A_v=A_v,
+    #         is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
+    #         is_central_core=is_central_core
+    #     )
+    # else:
+    #     D_W_ratio = clause_b_2_2_D_W_ratio(
+    #         W_1=W,
+    #         W_2=L,
+    #         is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
+    #         is_central_core=is_central_core,
+    #     )
 
     # --------------------------------------------
     # Calculate external flame vertical projection
@@ -614,68 +700,27 @@ def __test_external_fire_temperature_1():
     )
     print('{:>10.10}: {:<.2f}'.format('T_x', T_x - 273.15))
 
-    pass
 
-
-def __test_forced_draught():
-
-    W = 50
-    D = 70
-    H = 3
-    h_eq = 2.75
-    w_t = 50
-    q_f_k = 511
+def __test_project_1cw():
+    W = 37
+    L = 24
+    h_eq = 3
+    w_t = 13.3
     L_x = 1.2
+    A_v = w_t * h_eq  # todo
+    u = 1  # todo
 
-    A_f = W * D
-    tau_F = 1200
-    A_v = w_t * h_eq
+    A_f = W * L
     T_0 = 273.15
-    u = 6  # check
 
-    is_sprinklered = True
-    is_sprinkler_independent_water_supplies = True
-    is_automatic_fire_detection = True
-    is_detection_by_heat = False
-    is_detection_by_smoke = False
-    is_automatic_transmission_to_fire_brigade = True
-    is_onsite_fire_brigade = False
-    is_offsite_fire_brigade = True
-    is_safe_access_routes = True
-    is_fire_fighting_devices = True
-    is_smoke_exhaust_system = True
+    str_fmt = '{:>10.10}: {:<.2f}'
 
-    delta_q1 = table_e1_delta_q1(A_f=A_f)
-    delta_q2 = table_e1_delta_q2(occupancy='office')
-    delta_n = table_e2_delta_n(
-        is_sprinklered=is_sprinklered,
-        is_sprinkler_indipendent_water_supplies=is_sprinkler_independent_water_supplies,
-        is_automatic_fire_detection=is_automatic_fire_detection,
-        is_detection_by_heat=is_detection_by_heat,
-        is_detection_by_smoke=is_detection_by_smoke,
-        is_automatic_transmission_to_fire_brigade=is_automatic_transmission_to_fire_brigade,
-        is_onsite_fire_brigade=is_onsite_fire_brigade,
-        is_offsite_fire_brigade=is_offsite_fire_brigade,
-        is_safe_access_routes=is_safe_access_routes,
-        is_fire_fighting_devices=is_fire_fighting_devices,
-        is_smoke_exhaust_system=is_smoke_exhaust_system
-    )
+    print('{:>10.10}: {:<.2f}'.format('A_v', A_v))
+    print('{:>10.10}: {:<.2f}'.format('A_f', A_f))
 
-    q_f_d = equation_e1_design_fire_load_density(
-        q_f_k=q_f_k,
-        m=0.8,
-        delta_q1=delta_q1,
-        delta_q2=delta_q2,
-        delta_n=delta_n
-    )
-
-    Q = clause_b_4_2_1_heat_release_rate(
-        A_f=A_f,
-        q_f_d=q_f_d,
-        tau_F=tau_F,
-    )
-
-    Q = 30
+    Q = L * 13.3 * 0.29921
+    Q = 20
+    print(str_fmt.format('Q', Q))
 
     L_L = clause_b_4_2_3_flame_vertical_projection(
         h_eq=h_eq,
@@ -683,17 +728,20 @@ def __test_forced_draught():
         A_v=A_v,
         u=u
     )
+    print(str_fmt.format('L_L', L_L))
 
     L_H = clause_b_4_2_4_flame_horizontal_projection(
         h_eq=h_eq,
         L_L=L_L,
         u=u
     )
+    print(str_fmt.format('L_H', L_H))
 
     L_f = clause_b_4_2_6_flame_length(
         L_L=L_L,
         L_H=L_H
     )
+    print(str_fmt.format('L_f', L_f))
 
     T_w = clause_b_4_2_7_flame_temperature_at_opening(
         A_v=A_v,
@@ -701,23 +749,23 @@ def __test_forced_draught():
         L_f=L_f,
         T_0=T_0
     )
+    print(str_fmt.format('T_w', T_w))
 
-    clause_b_4_2_9_flame_temperature_along_axis(
+    T_x = clause_b_4_2_9_flame_temperature_along_axis(
         L_x=L_x,
         Q=Q,
         A_v=A_v,
         T_w=T_w,
         T_0=T_0
     )
+    print(str_fmt.format('T_x', T_x))
 
 
 if __name__ == '__main__':
-    l1, l2 = max([len(i) for i in SYMBOLS.keys()]), max([len(v[1]) for k, v in SYMBOLS.items()])
-    print_str = [f'{k:{l1:d}.{l1:d}}  {f"[{v[1]}]":{l2 + 2:d}.{l2 + 2:d}}  {v[0]:<}' for k, v in SYMBOLS.items()]
-    print('\n'.join(print_str))
-
+    # l1, l2 = max([len(i) for i in SYMBOLS.keys()]), max([len(v[1]) for k, v in SYMBOLS.items()])
+    # print_str = [f'{k:{l1:d}.{l1:d}}  {f"[{v[1]}]":{l2 + 2:d}.{l2 + 2:d}}  {v[0]:<}' for k, v in SYMBOLS.items()]
+    # print('\n'.join(print_str))
+    #
     # __test_external_fire_length_1()
     # __test_external_fire_temperature_1()
-    __test_forced_draught()
-
-    pass
+    __test_project_1cw()
