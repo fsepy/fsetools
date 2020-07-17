@@ -15,7 +15,9 @@ def equation_e1_design_fire_load_density(
 
 
 def table_e1_delta_q1(
-        A_f
+        A_f,
+        *_,
+        **__,
 ):
     if A_f <= 25:
         delta_q1 = 1.1
@@ -33,7 +35,9 @@ def table_e1_delta_q1(
 
 
 def table_e1_delta_q2(
-        occupancy: Union[str, int]
+        occupancy: Union[str, int],
+        *_,
+        **__,
 ):
     occupancy = occupancy.lower().strip()
 
@@ -55,7 +59,7 @@ def table_e1_delta_q2(
 
 def table_e2_delta_n(
         is_sprinklered: bool,
-        is_sprinkler_indipendent_water_supplies: Union[bool, int],
+        is_sprinkler_independent_water_supplies: Union[bool, int],
 
         is_automatic_fire_detection: bool,
         is_detection_by_heat: bool,
@@ -67,13 +71,15 @@ def table_e2_delta_n(
 
         is_safe_access_routes: bool,
         is_fire_fighting_devices: bool,
-        is_smoke_exhaust_system: bool
+        is_smoke_exhaust_system: bool,
+        *_,
+        **__,
 
 ):
     delta_n1 = 0.61 if is_sprinklered else 1
-    if is_sprinklered and is_sprinkler_indipendent_water_supplies == 1:
+    if is_sprinklered and is_sprinkler_independent_water_supplies == 1:
         delta_n2 = 0.87
-    elif is_sprinklered and is_sprinkler_indipendent_water_supplies == 2:
+    elif is_sprinklered and is_sprinkler_independent_water_supplies == 2:
         delta_n2 = 0.7
     else:
         delta_n2 = 1
