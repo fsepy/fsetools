@@ -220,8 +220,8 @@ def clause_b_4_1_3_L_L(
 def clause_b_4_1_6_L_H(
         h_eq,
         w_t,
-        d_ow,
         L_L,
+        d_ow: float = None,
         is_wall_above_opening: bool = True,
         *_,
         **__,
@@ -235,6 +235,8 @@ def clause_b_4_1_6_L_H(
                 f'L_H=\\frac{{{h_eq:.2f}}}{{3}}',
                 f'L_H={L_H:.2f}\\ \\left[m\\right]',
             ]
+        elif d_ow is None:
+            raise ValueError(f'`d_ow` is required if `h_eq <= 1.25 * w_t` ({h_eq} <= {1.25 * w_t})')
         elif h_eq > 1.25 * w_t and d_ow > 4 * w_t:
             # Equation B.9, page 36
             L_H = 0.3 * h_eq * (h_eq / w_t) ** 0.54
