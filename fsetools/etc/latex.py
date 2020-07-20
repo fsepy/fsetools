@@ -5,6 +5,10 @@ from pytexit import py2tex
 
 
 def py2tex_modified(exps: Union[List, str]):
+
+    if isinstance(exps, tuple):
+        exps = list(exps)
+
     if isinstance(exps, list):
         for i in range(len(exps)):
             try:

@@ -1,6 +1,8 @@
+import json
 import subprocess
+import webbrowser
 
-from pylatex import NoEscape, Document, Package, Section
+from pylatex import NoEscape, Document, Package, Section, Enumerate
 
 from fsetools.etc.latex import make_table, make_alginat_equations, py2tex_modified
 from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import *
@@ -69,14 +71,31 @@ class ExternalFlame:
         # Section 1 Introduction
         # ----------------------
         section_1 = Section(title='Introduction')
-        section_1.append(
-            r'The external flame dimensions and temperature are calculated as per the method described in "BS EN 1991-1-2:2002: Eurocode 1 - Actions on structures - General actions - Actions on structures exposed to fire".')
-        section_1.append(NoEscape(r'\par'))
-        section_1.append(
-            'Symbols and abbreviations shown in this document are consistent with the referenced document unless specifically stated and therefore is not repeated herein.')
+        section_1.append(NoEscape(
+            r'Calculation documented herein follows Annex B in '
+            r'"BS EN 1991-1-2:2002: Eurocode 1 - Actions on structures - General actions - Actions on structures '
+            r'exposed to fire". This method allows the determination of (a) the maximum temperatures of a compartment'
+            r'fire; (b) the size and temperatures of the flame from openings; and (c) the thermal radiation and '
+            r'convection parameters.'))
         section_1.append(NoEscape(r'\par'))
         section_1.append(NoEscape(
-            'Numerical values shown in this document are rounded as appropriate for readability. However, the calculations are carried out based on unrounded numerical values with \\href{https://docs.python.org/3/tutorial/floatingpoint.html}{high precision}.'
+            'This method considers steady-state conditions for various parameters and is only valid when the following '
+            'conditions are met:'))
+        section_1_enumerate_1 = Enumerate()
+        section_1_enumerate_1.add_item(NoEscape('Fire load $q_{fd}$ is greater than 200 ${MJ}\\cdot m^{-2}$; and'))
+        section_1_enumerate_1.add_item(NoEscape(
+            'The size of the fire compartment should not exceed 70 $m$ in length, 18 $m$ in width and 5 $m$ in height.'
+        ))
+        section_1.append(section_1_enumerate_1)
+        section_1.append(NoEscape(r'\par'))
+        section_1.append(NoEscape(
+            'Symbols and abbreviations shown in this document are consistent with the referenced document unless '
+            'specifically stated and therefore is not repeated herein.'))
+        section_1.append(NoEscape(r'\par'))
+        section_1.append(NoEscape(
+            'Numerical values shown in this document are rounded as appropriate for readability, however, calculations '
+            'are carried out based on unrounded numerical values with '
+            '\\href{https://docs.python.org/3/tutorial/floatingpoint.html}{high precision}.'
         ))
         doc.append(section_1)
 
@@ -85,7 +104,7 @@ class ExternalFlame:
         # ----------------
         section_2 = Section(title='Inputs')
         symbols = ['D', 'W', 'H', 'A_f', 'h_eq', 'w_t', 'A_v', 'd_ow', 'DW_ratio', 'q_fk', 'q_fd', 'L_x', 'tau_F',
-                   'Omega', 'O', 'Q', 'T_f', 'L_L', 'L_H', 'L_f', 'T_w', 'T_z']
+                   'Omega', 'O', 'Q', 'd_eq', 'T_f', 'L_L', 'L_H', 'L_f', 'T_w', 'T_z']
         [symbols.remove(i) for i in list(set(symbols) - set(input_kwargs))]
         units = [UNITS[symbol] for symbol in symbols]
         values = [input_kwargs[symbol] for symbol in symbols]
@@ -226,17 +245,12 @@ if __name__ == '__main__':
         H=3.3,
         h_eq=3.35,
         w_t=20.87371141,  # travelling fire maximum length
-        # W_1=85.8,
-        # W_2=25.1,
-        # L_L=0.5,
-        # A_v1=200,
         L_L=3,
         d_ow=1e10,
         q_fd=870,
         d_eq=0.8,
         u=6,
         Q=80,  # override
-        # d_f=2/3*3.35,
         L_x=1,
         tau_F=1200,
         rho_g=0.45,
@@ -248,11 +262,21 @@ if __name__ == '__main__':
         is_central_core=False,
     )
 
-    external_flame_report_1.make_pdf(
-        fp_pdf=r'E:\projects\1CW\WP4\ec_external_flame-2_forced_draught.pdf',
-        # fp_pdf_viewer=r'C:\Program Files\SumatraPDF\SumatraPDF.exe',
-        fp_pdf_viewer=r'C:\Users\ian\AppData\Local\SumatraPDF\SumatraPDF.exe'
-    )
-    # external_flame_report_1.make_tex(
-    #     r'E:\projects\1CW\WP4\ec_external_flame-1_forced_draught.tex'
-    # )
+    try:
+        external_flame_report_1.make_pdf(
+            fp_pdf=r'ec_ext_flame_01_forced_draught.pdf',
+            fp_pdf_viewer=r'C:\Users\ian\AppData\Local\SumatraPDF\SumatraPDF.exe'
+        )
+    except:
+        import requests
+
+        external_flame_report_1.make_tex(fp_tex=r'ec_ext_flame_01_forced_draught.tex', )
+        fileio_response = requests.post(
+            "https://file.io",
+            files={
+                'file': (
+                    'ec_ext_flame_01_forced_draught.tex', open('ec_ext_flame_01_forced_draught.tex', 'rb'))
+            }
+        )
+        texurl = json.loads(fileio_response.text)['link']
+        webbrowser.open(f"https://www.overleaf.com/docs?snip_uri={texurl}")
