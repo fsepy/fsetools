@@ -439,7 +439,6 @@ def _test_main():
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
     _, ax = main_plot(out, ax, fig)
-    fig.savefig('test.png')
     plt.show()
 
 
