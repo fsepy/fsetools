@@ -2,6 +2,12 @@ from math import e
 from typing import Tuple
 
 """
+Module description
+todo
+"""
+
+
+"""
 Symbols in accordance with Clause 1.6 in EC 1991-1-2:2002 unless specified in comments
 dict(symbol=list(unit, description) ...)
 """
@@ -10,7 +16,7 @@ SYMBOLS = dict(
     W=("m", "width of wall containing window(s) ($W_1$)"),
     H=("m", "height of the fire compartment or distance between the fire source and the ceiling"),
     # modified based on EC 1991-1-2:2002, added compartment height
-    h_eq=("m", "weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\left(A_{v,i}h_i\\right)/A_v$"),
+    h_eq=("m", "weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$"),
     w_t=("m", "sum of window widths on all walls (${\\textstyle \\sum_{i}}w_i$)"),
     A_f=("m**2", "floor area of the fire compartment"),
     A_t=("m**2", "total area of enclosure (walls, ceiling and floor, including openings)"),
@@ -23,7 +29,7 @@ SYMBOLS = dict(
     tau_F=("s", "free burning fire duration"),
     d_ow=("m", "distance to any other window as per Clause B.9 (6) Eurocode 1991-1-2:2002"),
     DW_ratio=("-", "the $D/W$ as per Clause B.2 (2) to (4) Eurocode 1991-1-2:2002"),
-    # DW_ratio not in EC 1991-1-2:2002, added for convenience of external flame __calculation
+    # DW_ratio not in EC 1991-1-2:2002, added for convenience of external flame calculation
     d_eq=("m", "geometrical characteristic of an external structural element (diameter or side)"),
     L_x=("m", "axis length from the window to the point of measurement"),
     Omega=("-", "$\\frac{A_f\\cdot q_{fd}}{\\sqrt{A_v\\cdot A_t}}$"),
@@ -68,6 +74,35 @@ Table E.4 in BS EN 1991-1-2:2002, page 50
 """
 
 
+def clause_1_6_Omega(
+        A_f:float,
+        A_t:float,
+        A_v:float,
+        q_fd:float,
+        *_,
+        **__
+):
+    """
+    Clause 1.6, page 19
+
+    todo
+    :param A_f:
+    :param A_t:
+    :param A_v:
+    :param q_fd:
+    :param _:
+    :param __:
+    :return:
+    """
+    Omega = A_f * q_fd / (A_v * A_t) ** 0.5
+    _latex = [
+        'Omega = \\frac{A_f * q_{fd}} {\\sqrt{A_v \\cdot A_t}}',
+        f'Omega = \\frac{{{A_f:.2f} * {q_fd:.2f}}} {{\\sqrt{{{A_v:.2f}\\cdot {A_t:.2f}}}}}',
+        f'Omega = {Omega:.2f}\\ \\left[{{MJ}}\\right]',
+    ]
+    return dict(Omega=Omega, _latex=_latex)
+
+
 def clause_b_2_2_DW_ratio(
         W_1,
         W_2,
@@ -76,8 +111,18 @@ def clause_b_2_2_DW_ratio(
         *_,
         **__,
 ):
+    """
+    Equation B.1, page 33
+
+    :param W_1:
+    :param W_2:
+    :param is_windows_on_more_than_one_wall:
+    :param is_central_core:
+    :param _:
+    :param __:
+    :return:
+    """
     assert is_windows_on_more_than_one_wall is False and is_central_core is False
-    # equation B.1
     DW_ratio = W_2 / W_1
     _latex = [
         '{DW}_{ratio}=\\frac{W_2}{W_1}',
@@ -97,6 +142,19 @@ def clause_b_2_3_DW_ratio(
         *_,
         **__,
 ):
+    """
+    Equation B.2, page 33
+
+    :param W_1:
+    :param W_2:
+    :param A_v1:
+    :param A_v:
+    :param is_windows_on_more_than_one_wall:
+    :param is_central_core:
+    :param _:
+    :param __:
+    :return:
+    """
     assert is_windows_on_more_than_one_wall and is_central_core is False
     # equation B.2
     DW_ratio = (W_2 / W_1) * (A_v1 / A_v)
@@ -120,8 +178,22 @@ def clause_b_2_4_DW_ratio(
         *_,
         **__,
 ):
+    """
+    Equation B.3, page 33
+
+    :param W_1:
+    :param W_2:
+    :param L_c:
+    :param W_c:
+    :param A_v1:
+    :param A_v:
+    :param is_windows_on_more_than_one_wall:
+    :param is_central_core:
+    :param _:
+    :param __:
+    :return:
+    """
     assert is_windows_on_more_than_one_wall and is_central_core
-    # equation B.3
     DW_ratio = ((W_2 - L_c) * A_v1) / ((W_1 - W_c) * A_v)
 
     _latex = [
@@ -143,7 +215,20 @@ def clause_b_4_1_1_Q(
         *_,
         **__,
 ):
-    """Equation B.4. The rate of burning or the rate of heat release"""
+    """
+    Equation B.4, page 34. The rate of burning or the rate of heat release.
+
+    :param A_f:
+    :param q_fd:
+    :param tau_F:
+    :param O:
+    :param A_v:
+    :param h_eq:
+    :param DW_ratio:
+    :param _:
+    :param __:
+    :return:
+    """
     a = (A_f * q_fd) / tau_F
     b = 3.15 * (1 - e ** (-0.036 / O)) * A_v * (h_eq / (DW_ratio)) ** 0.5
     Q = min(a, b)
@@ -163,7 +248,16 @@ def clause_b_4_1_2_T_f(
         *_,
         **__,
 ):
-    # Equation B.5, page 35
+    """
+    Equation B.5, page 35
+
+    :param O:
+    :param Omega:
+    :param T_0:
+    :param _:
+    :param __:
+    :return:
+    """
     a = 6000 * (1 - e ** (-0.1 / O))
     b = O ** 0.5
     c = (1 - e ** (-0.00286 * Omega))
@@ -347,19 +441,19 @@ def clause_b_4_1_10_T_z(
     return dict(T_z=T_z, _latex=_latex)
 
 
-def clause_b_4_1_11_epsilon(
+def clause_b_4_1_11_epsilon_f(
         d_f,
         *_,
         **__,
 ):
-    e_t = 1 - e ** (-0.3 * d_f)
+    epsilon_f = 1 - e ** (-0.3 * d_f)
 
     _latex = [
-        'e_t=1-e^{-0.3d_f}',
-        f'e_t=1-e^{{-0.3\\cdot {d_f:.2f}}}',
-        f'e_t={e_t:.2f}\\ \\left[-\\right]',
+        '\\varepsilon_f=1-e^{-0.3d_f}',
+        f'\\varepsilon_f=1-e^{{-0.3\\cdot {d_f:.2f}}}',
+        f'\\varepsilon_f={epsilon_f:.2f}\\ \\left[-\\right]',
     ]
-    return dict(e_t=e_t, _latex=_latex)
+    return dict(epsilon_f=epsilon_f, _latex=_latex)
 
 
 def clause_b_4_1_12_alpha_c(
