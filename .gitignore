@@ -134,6 +134,8 @@ dmypy.json
 
 # Dev files
 /.coverage
+fsetools/lib/*.tex
+fsetools/lib/*.pdf
 
 # build files
 buildscript/build
