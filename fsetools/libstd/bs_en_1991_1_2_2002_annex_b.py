@@ -6,7 +6,6 @@ Module description
 todo
 """
 
-
 """
 Symbols in accordance with Clause 1.6 in EC 1991-1-2:2002 unless specified in comments
 dict(symbol=list(unit, description) ...)
@@ -33,6 +32,7 @@ SYMBOLS = dict(
     d_eq=("m", "geometrical characteristic of an external structural element (diameter or side)"),
     L_x=("m", "axis length from the window to the point of measurement"),
     Omega=("-", "$\\frac{A_f\\cdot q_{fd}}{\\sqrt{A_v\\cdot A_t}}$"),
+    u=("m/s", "wind speed"),
 
     T_0=("K", "ambient temperature"),
 
@@ -75,10 +75,10 @@ Table E.4 in BS EN 1991-1-2:2002, page 50
 
 
 def clause_1_6_Omega(
-        A_f:float,
-        A_t:float,
-        A_v:float,
-        q_fd:float,
+        A_f: float,
+        A_t: float,
+        A_v: float,
+        q_fd: float,
         *_,
         **__
 ):
@@ -96,9 +96,9 @@ def clause_1_6_Omega(
     """
     Omega = A_f * q_fd / (A_v * A_t) ** 0.5
     _latex = [
-        'Omega = \\frac{A_f * q_{fd}} {\\sqrt{A_v \\cdot A_t}}',
-        f'Omega = \\frac{{{A_f:.2f} * {q_fd:.2f}}} {{\\sqrt{{{A_v:.2f}\\cdot {A_t:.2f}}}}}',
-        f'Omega = {Omega:.2f}\\ \\left[{{MJ}}\\right]',
+        '\\Omega = \\frac{A_f \\cdot q_{fd}} {\\sqrt{A_v \\cdot A_t}}',
+        f'\\Omega = \\frac{{{A_f:.2f}\\cdot {q_fd:.2f}}} {{\\sqrt{{{A_v:.2f}\\cdot {A_t:.2f}}}}}',
+        f'\\Omega = {Omega:.2f}\\ \\left[{{MJ}}\\right]',
     ]
     return dict(Omega=Omega, _latex=_latex)
 
@@ -320,40 +320,47 @@ def clause_b_4_1_6_L_H(
         *_,
         **__,
 ):
+    _latex = [
+        f'L_H = '
+        f'\\begin{{cases}}'
+        f'\\frac{{{{1}}}}{{3}}\\cdot h_{{eq}},                                                  & \\text{{if }} h_{{eq}}\\leq 1.25\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq <= 1.25 * w_t}\\right]\\\\'
+        f'0.3\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{w_t}}\\right)}}^{{0.54}},       & \\text{{if }} h_{{eq}}>1.25\\cdot w_t \\text{{ and }} d_{{ow}}>4\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and d_ow > 4 * w_t}\\right]\\\\'
+        f'0.454\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{2w_t}}\\right)}}^{{0.54}},    & \\text{{otherwise if wall exist above window}}\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and not d_ow > 4 * w_t}\\right]\\\\'
+        f'0.6\\cdot h_{{eq}}\\cdot \left(\\frac{{L_L}}{{h_{{eq}}}}\\right)^\\frac{{1}}{{3}},    & \\text{{if no wall exist above window}}\\ \\left[{not is_wall_above_opening}\\right]\\\\'
+        f'\\end{{cases}}'
+    ]
+
     if is_wall_above_opening:
         if h_eq <= 1.25 * w_t:
             # Equation B.8, page 36
             L_H = h_eq / 3
-            _latex = [
-                'L_H=\\frac{h_{eq}}{3}',
-                f'L_H=\\frac{{{h_eq:.2f}}}{{3}}',
+            _latex.extend([
+                'L_H=\\frac{{1}}{3}\\cdot h_{eq}',
+                f'L_H=\\frac{{1}}{{3}}\\cdot {h_eq:.2f}',
                 f'L_H={L_H:.2f}\\ \\left[m\\right]',
-            ]
+            ])
         elif d_ow is None:
             raise ValueError(f'`d_ow` is required if `h_eq <= 1.25 * w_t` ({h_eq} <= {1.25 * w_t})')
         elif h_eq > 1.25 * w_t and d_ow > 4 * w_t:
             # Equation B.9, page 36
             L_H = 0.3 * h_eq * (h_eq / w_t) ** 0.54
-            _latex = [
-                'L_H=0.3h_{eq} {\\left(\\frac{h_{eq}}{w_t}\\right)}^{0.54}',
+            _latex.extend([
                 f'L_H=0.3\\cdot {h_eq:.2f} {{\\left(\\frac{{{h_eq:.2f}}}{{{w_t:.2f}}}\\right)}}^{{0.54}}',
                 f'L_H={L_H:.2f}\\ \\left[m\\right]',
-            ]
+            ])
         else:
             # Equation B.10, page 36
             L_H = 0.454 * h_eq * (h_eq / (2 * w_t)) ** 0.54
-            _latex = [
-                'L_H=0.454h_{eq} {\\left(\\frac{h_{eq}}{2w_t}\\right)}^{0.54}',
+            _latex.extend([
                 f'L_H=0.454\\cdot {h_eq:.2f} {{\\left(\\frac{{{h_eq:.2f}}}{{2\\cdot {w_t:.2f}\\right)}}^{{0.54}}',
                 f'L_H={L_H:.2f}\\ \\left[m\\right]',
-            ]
+            ])
     else:
-        L_H = 0.6 * h_eq * (L_L / h_eq) ** 1 / 3
-        _latex = [
-            'L_H=\\frac{0.6h_{eq} {\\left(\\frac{L_L}{h_{eq}}\\right)}^1}{3}',
-            f'L_H=\\frac{{0.6\\cdot {h_eq:.2f} {{\\left(\\frac{{{L_L:.2f}}}{{{h_eq:.2f}}}\\right)}}^1}}{{3}}',
+        L_H = 0.6 * h_eq * (L_L / h_eq) ** (1 / 3)
+        _latex.extend([
+            f'0.6\\cdot {h_eq:.2f}\\cdot \left(\\frac{{{L_L:.2f}}}{{{h_eq:.2f}}}\\right)^\\frac{{1}}{{3}}',
             f'L_H={L_H:.2f}\\ \\left[m\\right]',
-        ]
+        ])
 
     return dict(L_H=L_H, _latex=_latex)
 
@@ -521,18 +528,20 @@ def clause_b_4_2_1_Q(
 
 
 def clause_b_4_2_2_T_f(
-        omega,
+        Omega,
         T_0,
         *_,
         **__,
 ):
     """equation B.19, page 37"""
-    T_f = 1200 * (1 - e ** (-0.00228 * omega)) + T_0
+    T_f = 1200 * (1 - e ** (-0.00228 * Omega)) + T_0
     _latex = [
-        'T_f=1200\\left(1-e^{-0.00228\\omega}\\right)+T_0'
-        f'T_f=1200\\left(1-e^{{-0.00228\\cdot{omega}}}\\right)+{T_0}'
+        'T_f=1200\\left(1-e^{-0.00228\\Omega}\\right)+T_0',
+        f'T_f=1200\\left(1-e^{{-0.00228\\cdot{Omega:.2f}}}\\right)+{T_0}',
+        f'T_f={T_f:.2f}\\ \\left[K\\right]',
+        f'T_f={T_f - 273.15:.2f}\\ \\left[^\\circ C\\right]',
     ]
-    return T_f
+    return dict(T_f=T_f, _latex=_latex)
 
 
 def clause_b_4_2_3_d_f(
@@ -707,7 +716,7 @@ def clause_b_4_2_11_alpha_c(
     return dict(alpha_c=alpha_c, _latex=_latex)
 
 
-def __test_external_fire_1(raise_error=True):
+def _test_external_fire_no_forced_draught_1(raise_error=True):
     """
     Test against analysis carried in report '190702-R00-SC19024-WP1-Flame Projection Calculations-DN-CIC'.
     Wall above opening and no balcony above opening.
@@ -773,4 +782,4 @@ def __test_external_fire_1(raise_error=True):
 
 
 if __name__ == '__main__':
-    __test_external_fire_1()
+    _test_external_fire_no_forced_draught_1()
