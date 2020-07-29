@@ -116,7 +116,7 @@ def table_e2_delta_n(
 
 
 def _test(is_assertion=True):
-    A_f = 500
+    A_f = 1500
     q_fk = 870
     m = 0.8
     is_sprinklered = True
@@ -146,7 +146,9 @@ def _test(is_assertion=True):
         is_fire_fighting_devices=is_fire_fighting_devices,
         is_smoke_exhaust_system=is_smoke_exhaust_system
     )
-    print(str_fmt.format('delta', delta_q1 * delta_q2 * delta_n))
+    print(str_fmt.format('delta_q1', delta_q1))
+    print(str_fmt.format('delta_q2', delta_q2))
+    print(str_fmt.format('delta_n', delta_n))
 
     q_fd = equation_e1_design_fire_load_density(
         q_fk=q_fk,

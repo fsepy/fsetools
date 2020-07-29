@@ -11,45 +11,46 @@ Symbols in accordance with Clause 1.6 in EC 1991-1-2:2002 unless specified in co
 dict(symbol=list(unit, description) ...)
 """
 SYMBOLS = dict(
-    D=("m", "depth of the fire compartment or diameter of the fire"),
-    W=("m", "width of wall containing window(s) ($W_1$)"),
-    H=("m", "height of the fire compartment or distance between the fire source and the ceiling"),
+    D=('m', 'depth of the fire compartment or diameter of the fire'),
+    W=('m', 'width of wall containing window(s) ($W_1$)'),
+    H=('m', 'height of the fire compartment or distance between the fire source and the ceiling'),
     # modified based on EC 1991-1-2:2002, added compartment height
-    h_eq=("m", "weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$"),
-    w_t=("m", "sum of window widths on all walls (${\\textstyle \\sum_{i}}w_i$)"),
-    A_f=("m**2", "floor area of the fire compartment"),
-    A_t=("m**2", "total area of enclosure (walls, ceiling and floor, including openings)"),
-    A_v=("m**2", "total area of vertical openings on all walls (${\\textstyle \\sum_{i}A_{v,i}}$)"),
-    A_v1=("m**2", "sum of window areas on wall 1"),
-    W_1=("m", "width of wall 1, assumed to contain the greatest window area"),
-    W_2=("m", "width of the wall perpendicular to wall 1 in the fire compartment"),
-    L_c=("m", "length of the core"),
-    W_c=("m", "width of the core"),
-    tau_F=("s", "free burning fire duration"),
-    d_ow=("m", "distance to any other window as per Clause B.9 (6) Eurocode 1991-1-2:2002"),
-    DW_ratio=("-", "the $D/W$ as per Clause B.2 (2) to (4) Eurocode 1991-1-2:2002"),
+    h_eq=('m', 'weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
+    w_t=('m', 'sum of window widths on all walls (${\\textstyle \\sum_{i}}w_i$)'),
+    A_f=('m**2', 'floor area of the fire compartment'),
+    A_t=('m**2', 'total area of enclosure (walls, ceiling and floor, including openings)'),
+    A_v=('m**2', 'total area of vertical openings on all walls (${\\textstyle \\sum_{i}A_{v,i}}$)'),
+    A_v1=('m**2', 'sum of window areas on wall 1'),
+    W_1=('m', 'width of wall 1, assumed to contain the greatest window area'),
+    W_2=('m', 'width of the wall perpendicular to wall 1 in the fire compartment'),
+    L_c=('m', 'length of the core'),
+    W_c=('m', 'width of the core'),
+    tau_F=('s', 'free burning fire duration'),
+    d_ow=('m', 'distance to any other window as per Clause B.9 (6) BS EN 1991-1-2:2002'),
+    DW_ratio=('-', 'the $D/W$ as per Clause B.2 (2) to (4) Eurocode 1991-1-2:2002'),
     # DW_ratio not in EC 1991-1-2:2002, added for convenience of external flame calculation
-    d_eq=("m", "geometrical characteristic of an external structural element (diameter or side)"),
-    L_x=("m", "axis length from the window to the point of measurement"),
-    Omega=("-", "$\\frac{A_f\\cdot q_{fd}}{\\sqrt{A_v\\cdot A_t}}$"),
-    u=("m/s", "wind speed"),
+    d_eq=('m', 'geometrical characteristic of an external structural element (diameter or side)'),
+    L_x=('m', 'axis length from the window to the point of measurement'),
+    Omega=('-', '$\\frac{A_f\\cdot q_{fd}}{\\sqrt{A_v\\cdot A_t}}$'),
+    u=('m/s', 'wind speed'),
 
-    T_0=("K", "ambient temperature"),
+    T_0=('K', 'ambient temperature'),
 
-    O=("m**0.5", r"opening factor, $\sqrt{h_{eq}} \cdot \frac{A_v}{A_t}$"),
-    Q=("MW", "the rate of heat release rate"),
-    q_fd=("MJ/m**2", "design fire load density related to the floor area $A_t$"),
-    q_fk=("MJ/m**2", "characteristic fire load density related to the floor area to $A_t$"),
-    T_f=("K", "temperature of the fire compartment"),
-    L_1=("m", "flame length (angled)"),
-    L_L=("m", "flame height (from the upper part of the window)"),
-    L_H=("m", "horizontal projection of the flame (from the facade)"),
-    L_f=("m", "flame length along axis"),
-    d_f=("m", "flame thickness"),
-    T_w=("K", "flame temperature at the window"),
-    T_z=("K", "flame temperature along the axis"),
-    alpha_c=("W/(m**2*K)", "coefficient of heat transfer by convection"),
-    epsilon_f=("-", "emissivity of flames, of the fire"),
+    O=('m**0.5', r'opening factor, $\sqrt{h_{eq}} \cdot \frac{A_v}{A_t}$'),
+    Q=('MW', 'the rate of heat release rate'),
+    q_fd=('MJ/m**2', 'design fire load density related to the floor area $A_t$'),
+    q_fk=('MJ/m**2', 'characteristic fire load density related to the floor area to $A_t$'),
+    T_f=('K', 'temperature of the fire compartment'),
+    L_1=('m', 'flame length (angled)'),
+    L_L=('m', 'flame height (from the upper part of the window)'),
+    L_H=('m', 'horizontal projection of the flame (from the facade)'),
+    L_f=('m', 'flame length along axis'),
+    d_f=('m', 'flame thickness'),
+    w_f=('m', 'flame width'),
+    T_w=('K', 'flame temperature at the window'),
+    T_z=('K', 'flame temperature along the axis'),
+    alpha_c=('W/(m**2*K)', 'coefficient of heat transfer by convection'),
+    epsilon_f=('-', 'emissivity of flames, of the fire'),
 )
 
 UNITS = {k: v[0] for k, v in SYMBOLS.items()}
@@ -124,8 +125,16 @@ def clause_b_2_2_DW_ratio(
     """
     assert is_windows_on_more_than_one_wall is False and is_central_core is False
     DW_ratio = W_2 / W_1
+
     _latex = [
-        '{DW}_{ratio}=\\frac{W_2}{W_1}',
+        f'{{DW}}_{{ratio}} = \n'
+        f'\\begin{{dcases}}\n'
+        f'  \\dfrac{{W_2}}{{W_1}},                                                     & \\text{{if there are windows in only wall 1}} \\ \\left[{True}\\right]\\\\\n'
+        f'  \\dfrac{{W_2}}{{W_1}}\\cdot \\dfrac{{A_{{v1}}}}{{A_v}},                    & \\text{{if there are windows on more than one wall}} \\ \\left[{False}\\right]\\\\\n'
+        f'  \\dfrac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}},  & \\text{{if there is a core in the fire compartment}}\\ \\left[{False}\\right]\n'
+        f'\\end{{dcases}}',
+
+        f'{{DW}}_{{ratio}}=\\frac{{W_2}}{{W_1}}',
         f'{{DW}}_{{ratio}}=\\frac{{{W_2:.2f}}}{{{W_1:.2f}}}',
         f'{{DW}}_{{ratio}}={DW_ratio:.2f}',
     ]
@@ -159,7 +168,14 @@ def clause_b_2_3_DW_ratio(
     # equation B.2
     DW_ratio = (W_2 / W_1) * (A_v1 / A_v)
     _latex = [
-        '{DW}_{ratio}=\\frac{W_2}{W_1}\\cdot \\frac{A_{v1}}{A_v}',
+        f'{{DW}}_{{ratio}} = \n'
+        f'\\begin{{dcases}}\n'
+        f'  \\dfrac{{W_2}}{{W_1}},                                                     & \\text{{if there are windows in only wall 1}} \\ \\left[{True}\\right]\\\\\n'
+        f'  \\dfrac{{W_2}}{{W_1}}\\cdot \\dfrac{{A_{{v1}}}}{{A_v}},                    & \\text{{if there are windows on more than one wall}} \\ \\left[{False}\\right]\\\\\n'
+        f'  \\dfrac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}},  & \\text{{if there is a core in the fire compartment}}\\ \\left[{False}\\right]\n'
+        f'\\end{{dcases}}',
+
+        f'{{DW}}_{{ratio}}=\\frac{{W_2}}{{W_1}}\\cdot \\frac{{A_{{v1}}}}{{A_v}}',
         f'{{DW}}_{{ratio}}=\\frac{{{W_2:.2f}}}{{{W_1:.2f}}}\\cdot \\frac{{{A_v1:.2f}}}{{{A_v:.2f}}}',
         f'{{DW}}_{{ratio}}={DW_ratio:.2f}',
     ]
@@ -197,7 +213,14 @@ def clause_b_2_4_DW_ratio(
     DW_ratio = ((W_2 - L_c) * A_v1) / ((W_1 - W_c) * A_v)
 
     _latex = [
-        '{DW}_{ratio}=\\frac{\\left(W_2-L_c\\right) A_{v1}}{\\left(W_1-W_c\\right) A_v}',
+        f'{{DW}}_{{ratio}} = \n'
+        f'\\begin{{dcases}}\n'
+        f'  \\dfrac{{W_2}}{{W_1}},                                                     & \\text{{if there are windows in only wall 1}} \\ \\left[{True}\\right]\\\\\n'
+        f'  \\dfrac{{W_2}}{{W_1}}\\cdot \\dfrac{{A_{{v1}}}}{{A_v}},                    & \\text{{if there are windows on more than one wall}} \\ \\left[{False}\\right]\\\\\n'
+        f'  \\dfrac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}},  & \\text{{if there is a core in the fire compartment}}\\ \\left[{False}\\right]\n'
+        f'\\end{{dcases}}',
+
+        f'{{DW}}_{{ratio}}=\\frac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}}',
         f'{{DW}}_{{ratio}}=\\frac{{\\left({W_2:.2f}-{L_c:.2f}\\right) {A_v1:.2f}}}{{\\left({W_1:.2f}-{W_c:.2f}\\right)\\cdot {A_v:.2f}}}',
         f'{{DW}}_{{ratio}}={DW_ratio:.2f}',
     ]
@@ -322,12 +345,12 @@ def clause_b_4_1_6_L_H(
 ):
     _latex = [
         f'L_H = '
-        f'\\begin{{cases}}'
+        f'\\begin{{dcases}}'
         f'\\frac{{{{1}}}}{{3}}\\cdot h_{{eq}},                                                  & \\text{{if }} h_{{eq}}\\leq 1.25\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq <= 1.25 * w_t}\\right]\\\\'
         f'0.3\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{w_t}}\\right)}}^{{0.54}},       & \\text{{if }} h_{{eq}}>1.25\\cdot w_t \\text{{ and }} d_{{ow}}>4\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and d_ow > 4 * w_t}\\right]\\\\'
         f'0.454\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{2w_t}}\\right)}}^{{0.54}},    & \\text{{otherwise if wall exist above window}}\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and not d_ow > 4 * w_t}\\right]\\\\'
         f'0.6\\cdot h_{{eq}}\\cdot \left(\\frac{{L_L}}{{h_{{eq}}}}\\right)^\\frac{{1}}{{3}},    & \\text{{if no wall exist above window}}\\ \\left[{not is_wall_above_opening}\\right]\\\\'
-        f'\\end{{cases}}'
+        f'\\end{{dcases}}'
     ]
 
     if is_wall_above_opening:
@@ -374,26 +397,32 @@ def clause_b_4_1_7_L_f(
         *_,
         **__,
 ):
-    # assert is_wall_above_opening is True and \
+    _latex = [
+        f'L_f = '
+        f'\\begin{{dcases}}'
+        f'L_L+\\frac{{h_{{eq}}}}{{2}},                                                                                  & \\text{{if wall exist above window and }} h_{{eq}}\\le 1.25\\cdot w_t \\ \\left[{is_wall_above_opening and h_eq <= 1.25 * w_t}\\right]\\\\'
+        f'\\left({{L_L}}^2 + \\left(L_H-\\frac{{h_{{eq}}}}{{3}}\\right)^2\\right)^{{0.5}} +\\frac{{h_{{eq}}}}{{2}},     & \\text{{if no wall exist above window or }} h_{{eq}}>1.25\\cdot w_t \\ \\left[{not is_wall_above_opening or h_eq > 1.25 * w_t}\\right]'
+        f'\\end{{dcases}}'
+    ]
 
     if is_wall_above_opening and h_eq <= 1.25 * w_t:
         # equation B.12
         L_f = L_L + h_eq / 2
-        _latex = [
-            'L_f=L_L+\\frac{h_{eq}}{2}',
+        _latex.extend([
+            f'L_f=L_L+\\frac{{h_{{eq}}}}{{2}}',
             f'L_f={L_L:.2f}+\\frac{{{h_eq:.2f}}}{{2}}',
             f'L_f={L_f:.2f}\\ \\left[m\\right]',
-        ]
+        ])
     elif is_wall_above_opening is False or h_eq > 1.25 * w_t:
         # equation B.13
-        a = (L_L ** 2 * (L_H - h_eq / 3) ** 2) ** 0.5
+        a = (L_L ** 2 + (L_H - h_eq / 3) ** 2) ** 0.5
         b = h_eq / 2
-        L_f = a * b
-        _latex = [
-            'L_f={\\left({L_L}^2 {\\left(L_H-\\frac{h_{eq}}{3}\\right)}^2\\right)}^{0.5} \\frac{h_{eq}}{2}',
-            f'L_f={{\\left({{{L_L:.2f}}}^2 {{\\left({L_H:.2f}-\\frac{{{h_eq:.2f}}}{{3}}\\right)}}^2\\right)}}^{{0.5}} \\frac{{{h_eq:.2f}}}{{2}}',
+        L_f = a + b
+        _latex.extend([
+            f'L_f=\\left({{L_L}}^2 + \\left(L_H-\\frac{{h_{{eq}}}}{{3}}\\right)^2\\right)^{{0.5}} +\\frac{{h_{{eq}}}}{{2}}',
+            f'L_f=\\left({{{L_L:.2f}}}^2 + \\left({L_H:.2f}-\\frac{{{h_eq:.2f}}}{{3}}\\right)^2\\right)^{{0.5}} +\\frac{{{h_eq:.2f}}}{{2}}',
             f'L_f={L_f:.2f}\\ \\left[m\\right]',
-        ]
+        ])
     else:
         raise ValueError('No conditions are met when calculating `L_f`')
 
@@ -512,16 +541,16 @@ def clause_b_4_1_14_modification_to_flame_with_no_wall_above_opening(
 
 def clause_b_4_2_1_Q(
         A_f,
-        q_f_d,
+        q_fd,
         tau_F,
         *_,
         **__,
 ):
     """equation B.18, page 37"""
-    Q = (A_f * q_f_d) / tau_F
+    Q = (A_f * q_fd) / tau_F
     _latex = [
-        'Q=\\frac{A_f\\cdot q_{f,d}}{\\tau_F}',
-        f'Q=\\frac{{{A_f:.2f}\\cdot {q_f_d:.2f}}}{{{tau_F:.2f}}}',
+        'Q=\\frac{A_f\\cdot q_{fd}}{\\tau_F}',
+        f'Q=\\frac{{{A_f:.2f}\\cdot {q_fd:.2f}}}{{{tau_F:.2f}}}',
         f'Q={Q:.2f}\\ [MW]'
     ]
     return dict(Q=Q, _latex=_latex)
@@ -714,6 +743,27 @@ def clause_b_4_2_11_alpha_c(
     ]
 
     return dict(alpha_c=alpha_c, _latex=_latex)
+
+
+def clause_b_5_1_phi_f(
+        C_1, C_2, C_3, C_4,
+        phi_f_1, phi_f_2, phi_f_3, phi_f_4,
+        d_1, d_2,
+        *_, **__
+):
+    a = (C_1 * phi_f_1 + C_2 * phi_f_2) * d_1
+    b = (C_3 * phi_f_3 + C_4 * phi_f_4) * d_2
+    c = (C_1 + C_2) * d_1
+    d = (C_3 + C_4) * d_2
+    phi_f = (a + b) / (c + d)
+
+    _latex = [
+        f'\\phi_f=\\frac{{\\left(C_1 \\phi_{{f,1}}+C_2 \\phi_{{f,2}}\\right) d_1+\\left(C_3 \\phi_{{f,3}}+C_4 \\phi_{{f,4}}\\right) d_2}}{{\\left(C_1+C_2\\right) d_1+\\left(C_3+C_4\\right) d_2}}',
+        f'\\phi_f=\\frac{{\\left({C_1:.2f}\\cdot {phi_f_1:.2f}+{C_2:.2f}\\cdot {phi_f_2}\\right) {d_1:.2f}+\\left({C_3:.2f} \\cdot {phi_f_3:.2f}+{C_4:.2f}\\cdot {phi_f_4:.2f}\\right) {d_2:.2f}}}{{\\left({C_1:.2f}+{C_2:.2f}\\right) {d_1:.2f}+\\left({C_3:.2f}+{C_4:.2f}\\right) {d_2:.2f}}}',
+        f'\\phi_f={phi_f:.2f}\\ \\left[-\\right]',
+    ]
+
+    return dict(phi_f=phi_f, _latex=_latex)
 
 
 def _test_external_fire_no_forced_draught_1(raise_error=True):
