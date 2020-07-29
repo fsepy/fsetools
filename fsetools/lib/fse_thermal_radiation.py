@@ -73,6 +73,7 @@ def linear_solver(
 
     return None  # this shouldn't be possible, should always terminate within the while loop above
 
+
 def phi_parallel_any_br187(W_m, H_m, w_m, h_m, S_m):
     r"""
     :param W_m:
