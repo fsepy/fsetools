@@ -1,11 +1,11 @@
+from operator import itemgetter
 from typing import List, Union
 
 from pylatex import Alignat, NoEscape, LongTable, MultiColumn
 from pytexit import py2tex
 
 
-def py2tex_modified(exps: Union[List, str]):
-
+def py2tex_modified(exps: Union[List, tuple, str]):
     if isinstance(exps, tuple):
         exps = list(exps)
 
@@ -71,24 +71,42 @@ def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: Li
     return table_symbols_content
 
 
-def make_table(n_cols: int, headers: List, *args):
-    table = LongTable(' '.join('l' * n_cols))
-    table.add_hline()
-    table.add_row(headers)
-    table.add_hline()
-    table.end_table_header()
-    table.add_hline()
-    table.add_row((MultiColumn(n_cols, align='r', data='Continued on Next Page'),))
-    table.add_hline()
-    table.end_table_footer()
-    # table.add_hline()
-    # table.add_row((MultiColumn(n_cols, align='r', data=''),))
-    # table.add_hline()
-    table.end_table_last_footer()
+def make_summary_table(symbols: list, units: dict, descriptions: dict, values: dict):
+    def make_table(headers: List, *args):
+        table = LongTable('|l| l| l| p{10cm}|')
+        table.add_hline()
+        table.add_row([NoEscape(f'\\textbf{{\\textcolor{{black}}{{{i}}}}}') for i in headers])
+        table.add_hline()
+        table.end_table_header()
+        table.add_hline()
+        table.add_row((MultiColumn(4, align='r', data='Continued on next page'),))
+        # table.add_hline()
+        table.end_table_footer()
+        # table.add_hline()
+        # table.add_row((MultiColumn(n_cols, align='r', data=''),))
+        # table.add_hline()
+        table.end_table_last_footer()
 
-    for i in range(len(args[0])):
-        table.add_row([NoEscape(j[i]) for j in args])
+        for i in range(len(args[0])):
+            table.add_row([NoEscape(j[i]) for j in args])
+            table.add_hline()
 
-    table.add_hline()
+        return table
 
+    for i in list(set(symbols) - set(values)):
+        symbols.remove(i)
+
+    units = [units[symbol] for symbol in symbols]
+    values = [values[symbol] for symbol in symbols]
+    descriptions = [descriptions[symbol] for symbol in symbols]
+
+    true_values = [i for i, v in enumerate(values) if isinstance(v, (float, int))]
+
+    table = make_table(
+        ['Symbol', 'Unit', 'Value', 'Description'],
+        py2tex_modified(itemgetter(*true_values)(symbols)),
+        py2tex_modified(itemgetter(*true_values)(units)),
+        [f'{value:g}' for value in itemgetter(*true_values)(values)],
+        [description[0].upper() + description[1:] for description in itemgetter(*true_values)(descriptions)],
+    )
     return table
