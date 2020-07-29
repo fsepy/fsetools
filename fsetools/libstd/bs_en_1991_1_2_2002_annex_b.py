@@ -289,7 +289,7 @@ def clause_b_4_1_2_T_f(
 
     _latex = [
         'T_f=6000\\left(1-e^{\\frac{-0.1}{O}}\\right) O^{0.5} \\left(1-e^{-0.00286\\Omega}\\right) + T_0',
-        f'T_f=6000\\left(1-e^{{\\frac{{-0.1}}{{{O:.2f}}}}}\\right) {O:.2f}^{{0.5}} \\left(1-e^{{-0.00286\cdot {Omega:.2f}}}\\right) + {T_0:.2f}',
+        f'T_f=6000\\left(1-e^{{\\frac{{-0.1}}{{{O:.2f}}}}}\\right) {O:.2f}^{{0.5}} \\left(1-e^{{-0.00286\\cdot {Omega:.2f}}}\\right) + {T_0:.2f}',
         f'T_f={T_f:.2f}\\ \\left[K\\right]',
         f'T_f={T_f - 273.15:.2f}\\ \\left[^\\circ C\\right]',
     ]
