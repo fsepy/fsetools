@@ -327,7 +327,7 @@ def clause_b_4_1_3_L_L(
 
     _latex = [
         'L_L=\\operatorname{max}\\left(0, h_{eq} \\left(2.37{\\left(\\frac{Q}{A_v \\rho_g {\\left(h_{eq} g\\right)}^{0.5}}\\right)}^{\\frac{2}{3}}-1\\right)\\right)',
-        f'L_L=\\operatorname{{max}}\\left(0, {h_eq:.2f} \\left(2.37{{\\left(\\frac{{{Q:.2f}}}{{{A_v:.2f}\cdot {rho_g:.2f} {{\\left({h_eq:.2f}\cdot {g:.2f}\\right)}}^{{0.5}}}}\\right)}}^{{\\frac{{2}}{{3}}}}-1\\right)\\right)',
+        f'L_L=\\operatorname{{max}}\\left(0, {h_eq:.2f} \\left(2.37{{\\left(\\frac{{{Q:.2f}}}{{{A_v:.2f}\\cdot {rho_g:.2f} {{\\left({h_eq:.2f}\\cdot {g:.2f}\\right)}}^{{0.5}}}}\\right)}}^{{\\frac{{2}}{{3}}}}-1\\right)\\right)',
         f'L_L=\\operatorname{{max}}\\left(0, {b:.2f}\\right)',
         f'L_L={L_L:.2f}\\ \\left[m\\right]',
     ]
@@ -349,7 +349,7 @@ def clause_b_4_1_6_L_H(
         f'\\frac{{{{1}}}}{{3}}\\cdot h_{{eq}},                                                  & \\text{{if }} h_{{eq}}\\leq 1.25\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq <= 1.25 * w_t}\\right]\\\\'
         f'0.3\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{w_t}}\\right)}}^{{0.54}},       & \\text{{if }} h_{{eq}}>1.25\\cdot w_t \\text{{ and }} d_{{ow}}>4\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and d_ow > 4 * w_t}\\right]\\\\'
         f'0.454\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{2w_t}}\\right)}}^{{0.54}},    & \\text{{otherwise if wall exist above window}}\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and not d_ow > 4 * w_t}\\right]\\\\'
-        f'0.6\\cdot h_{{eq}}\\cdot \left(\\frac{{L_L}}{{h_{{eq}}}}\\right)^\\frac{{1}}{{3}},    & \\text{{if no wall exist above window}}\\ \\left[{not is_wall_above_opening}\\right]\\\\'
+        f'0.6\\cdot h_{{eq}}\\cdot \\left(\\frac{{L_L}}{{h_{{eq}}}}\\right)^\\frac{{1}}{{3}},    & \\text{{if no wall exist above window}}\\ \\left[{not is_wall_above_opening}\\right]\\\\'
         f'\\end{{dcases}}'
     ]
 
@@ -381,7 +381,7 @@ def clause_b_4_1_6_L_H(
     else:
         L_H = 0.6 * h_eq * (L_L / h_eq) ** (1 / 3)
         _latex.extend([
-            f'0.6\\cdot {h_eq:.2f}\\cdot \left(\\frac{{{L_L:.2f}}}{{{h_eq:.2f}}}\\right)^\\frac{{1}}{{3}}',
+            f'0.6\\cdot {h_eq:.2f}\\cdot \\left(\\frac{{{L_L:.2f}}}{{{h_eq:.2f}}}\\right)^\\frac{{1}}{{3}}',
             f'L_H={L_H:.2f}\\ \\left[m\\right]',
         ])
 
