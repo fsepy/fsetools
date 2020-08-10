@@ -3,11 +3,14 @@ import subprocess
 import webbrowser
 from abc import ABC, abstractmethod
 
-import requests
-from pylatex import NoEscape, Document, Package
+try:
+    import requests
+    from pylatex import NoEscape, Document, Package
+except ModuleNotFoundError:
+    pass
 
 
-class ReportBaseClass(ABC):
+class ReportBase(ABC):
     def __init__(self):
         super().__init__()
 
@@ -53,7 +56,7 @@ class ReportBaseClass(ABC):
     def make_document_template(sec_title_prefix: str = None, *_, **__):
         doc = Document(
             indent=False,
-            geometry_options={'left': '0.99in', 'right': '0.99in', 'top': '1in', 'bottom': '1in'}
+            geometry_options={'left': '0.99in', 'right': '0.99in', 'top': '1.5in', 'bottom': '1.5in'}
         )
         doc.packages.append(Package('xcolor'))
         doc.packages.append(Package('sectsty'))
@@ -74,7 +77,7 @@ class ReportBaseClass(ABC):
         return doc
 
 
-class ReportClass(ReportBaseClass):
+class Report(ReportBase):
     def __init__(self, sections: list, sec_title_prefix: str):
         self.sections: list = sections
         self.sec_title_prefix: str = sec_title_prefix
