@@ -1,4 +1,4 @@
-from math import e
+from math import e, sqrt
 from typing import Tuple
 
 """
@@ -11,46 +11,47 @@ Symbols in accordance with Clause 1.6 in EC 1991-1-2:2002 unless specified in co
 dict(symbol=list(unit, description) ...)
 """
 SYMBOLS = dict(
-    D=('m', 'depth of the fire compartment or diameter of the fire'),
-    W=('m', 'width of wall containing window(s) ($W_1$)'),
-    H=('m', 'height of the fire compartment or distance between the fire source and the ceiling'),
+    D=('m', 'the depth of the fire compartment or diameter of the fire'),
+    W=('m', 'the width of wall containing window(s) ($W_1$)'),
+    H=('m', 'the height of the fire compartment or distance between the fire source and the ceiling'),
     # modified based on EC 1991-1-2:2002, added compartment height
-    h_eq=('m', 'weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
-    w_t=('m', 'sum of window widths on all walls (${\\textstyle \\sum_{i}}w_i$)'),
-    A_f=('m**2', 'floor area of the fire compartment'),
-    A_t=('m**2', 'total area of enclosure (walls, ceiling and floor, including openings)'),
-    A_v=('m**2', 'total area of vertical openings on all walls (${\\textstyle \\sum_{i}A_{v,i}}$)'),
+    h_eq=(
+    'm', 'the weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
+    w_t=('m', 'the sum of window widths on all walls (${\\textstyle \\sum_{i}}w_i$)'),
+    A_f=('m**2', 'the floor area of the fire compartment'),
+    A_t=('m**2', 'the total area of enclosure (walls, ceiling and floor, including openings)'),
+    A_v=('m**2', 'the total area of vertical openings on all walls (${\\textstyle \\sum_{i}A_{v,i}}$)'),
     A_v1=('m**2', 'sum of window areas on wall 1'),
-    W_1=('m', 'width of wall 1, assumed to contain the greatest window area'),
-    W_2=('m', 'width of the wall perpendicular to wall 1 in the fire compartment'),
-    L_c=('m', 'length of the core'),
-    W_c=('m', 'width of the core'),
-    tau_F=('s', 'free burning fire duration'),
-    d_ow=('m', 'distance to any other window as per Clause B.9 (6) BS EN 1991-1-2:2002'),
+    W_1=('m', 'the width of wall 1, assumed to contain the greatest window area'),
+    W_2=('m', 'the width of the wall perpendicular to wall 1 in the fire compartment'),
+    L_c=('m', 'the length of the core'),
+    W_c=('m', 'the width of the core'),
+    tau_F=('s', 'the free burning fire duration'),
+    d_ow=('m', 'the distance to any other window as per Clause B.9 (6) BS EN 1991-1-2:2002'),
     DW_ratio=('-', 'the $D/W$ as per Clause B.2 (2) to (4) Eurocode 1991-1-2:2002'),
     # DW_ratio not in EC 1991-1-2:2002, added for convenience of external flame calculation
-    d_eq=('m', 'geometrical characteristic of an external structural element (diameter or side)'),
-    L_x=('m', 'axis length from the window to the point of measurement'),
+    d_eq=('m', 'the geometrical characteristic of an external structural element (diameter or side)'),
+    L_x=('m', 'the axis length from the window to the point of measurement'),
     Omega=('-', '$\\frac{A_f\\cdot q_{fd}}{\\sqrt{A_v\\cdot A_t}}$'),
-    u=('m/s', 'wind speed'),
+    u=('m/s', 'the wind speed'),
 
-    T_0=('K', 'ambient temperature'),
+    T_0=('K', 'the ambient temperature'),
 
-    O=('m**0.5', r'opening factor, $\sqrt{h_{eq}} \cdot \frac{A_v}{A_t}$'),
+    O=('m**0.5', r'the opening factor, $\sqrt{h_{eq}} \cdot \frac{A_v}{A_t}$'),
     Q=('MW', 'the rate of heat release rate'),
-    q_fd=('MJ/m**2', 'design fire load density related to the floor area $A_t$'),
-    q_fk=('MJ/m**2', 'characteristic fire load density related to the floor area to $A_t$'),
-    T_f=('K', 'temperature of the fire compartment'),
-    L_1=('m', 'flame length (angled)'),
-    L_L=('m', 'flame height (from the upper part of the window)'),
-    L_H=('m', 'horizontal projection of the flame (from the facade)'),
-    L_f=('m', 'flame length along axis'),
-    d_f=('m', 'flame thickness'),
-    w_f=('m', 'flame width'),
-    T_w=('K', 'flame temperature at the window'),
-    T_z=('K', 'flame temperature along the axis'),
-    alpha_c=('W/(m**2*K)', 'coefficient of heat transfer by convection'),
-    epsilon_f=('-', 'emissivity of flames, of the fire'),
+    q_fd=('MJ/m**2', 'the design fire load density related to the floor area $A_t$'),
+    q_fk=('MJ/m**2', 'the characteristic fire load density related to the floor area to $A_t$'),
+    T_f=('K', 'the temperature of the fire compartment'),
+    L_1=('m', 'the flame length (angled)'),
+    L_L=('m', 'the flame height (from the upper part of the window)'),
+    L_H=('m', 'the horizontal projection of the flame (from the facade)'),
+    L_f=('m', 'the flame length along axis'),
+    d_f=('m', 'the flame thickness'),
+    w_f=('m', 'the flame width'),
+    T_w=('K', 'the flame temperature at the window'),
+    T_z=('K', 'the flame temperature along the axis'),
+    alpha_c=('W/(m**2*K)', 'the coefficient of heat transfer by convection'),
+    epsilon_f=('-', 'the emissivity of flames, of the fire'),
 )
 
 UNITS = {k: v[0] for k, v in SYMBOLS.items()}
@@ -499,11 +500,11 @@ def clause_b_4_1_12_alpha_c(
         *_,
         **__,
 ):
-    alpha_c = 4.67 * (1 / d_eq) ** 0.5 * (Q / A_v) ** 0.6
+    alpha_c = 4.67 * (1 / d_eq) ** 0.4 * (Q / A_v) ** 0.6
 
     _latex = [
-        '\\alpha_c=4.67{\\left(\\frac{1}{d_{eq}}\\right)}^{0.5} {\\left(\\frac{Q}{A_v}\\right)}^{0.6}',
-        f'\\alpha_c=4.67{{\\left(\\frac{{1}}{{{d_eq:.2f}}}\\right)}}^{{0.5}} {{\\left(\\frac{{{Q:.2f}}}{{{A_v:.2f}}}\\right)}}^{{0.6}}',
+        '\\alpha_c=4.67{\\left(\\frac{1}{d_{eq}}\\right)}^{0.4} {\\left(\\frac{Q}{A_v}\\right)}^{0.6}',
+        f'\\alpha_c=4.67{{\\left(\\frac{{1}}{{{d_eq:.2f}}}\\right)}}^{{0.4}} {{\\left(\\frac{{{Q:.2f}}}{{{A_v:.2f}}}\\right)}}^{{0.6}}',
         f'\\alpha_c={alpha_c:.2f}\\ \\left[\\frac{{W}}{{m^2\\cdot K}}\\right]',
     ]
     return dict(alpha_c=alpha_c, _latex=_latex)
@@ -677,7 +678,7 @@ def clause_b_4_2_7_T_w(
 
     _latex = [
         'T_w=520\\cdot\\left(1-\\frac{0.3325\\cdot L_f\\cdot A_v^{0.5}}{Q}\\right)^{-1}+T_0',
-        f'T_w=520\\cdot\\left(1-\\frac{{0.3325\\cdot {L_f:.2f}\\cdot {A_v:.2f}^{{0.5}}}}{Q:.2f}\\right)^{{-1}}+{T_0:.2f}',
+        f'T_w=520\\cdot\\left(1-\\frac{{0.3325\\cdot {L_f:.2f}\\cdot {A_v:.2f}^{{0.5}}}}{{{Q:.2f}}}\\right)^{{-1}}+{T_0:.2f}',
         f'T_w={T_w:.2f}\\ \\left[K\\right]',
         f'T_w={T_w - 273.15:.2f}\\ \\left[^\\circ C\\right]',
     ]
