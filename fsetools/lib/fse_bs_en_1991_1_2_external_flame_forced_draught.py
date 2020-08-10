@@ -1,12 +1,12 @@
 from pylatex import NoEscape, Section
 
 from fsetools.lib.fse_bs_en_1991_1_2_external_flame import ExternalFlame as ExternalFlame
-from fsetools.lib.fse_latex_report_template import ReportBaseClass
+from fsetools.lib.fse_latex_report_template import ReportBase
 from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import *
 from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import clause_b_4_5_l, clause_b_1_3_2_d
 
 
-class ExternalFlameForcedDraught(ReportBaseClass):
+class ExternalFlameForcedDraught(ReportBase):
     def __init__(
             self,
             D: float,
@@ -48,11 +48,20 @@ class ExternalFlameForcedDraught(ReportBaseClass):
             sections.append(Section(title=f'{section_title}'))
         else:
             sections.append(Section(title='Thermal actions for external members (forced draught)'))
-        sections.append(ExternalFlame.section_1_introduction())
+        sections.append(self.section_1_introduction())
         sections.append(ExternalFlame.section_2_inputs(self.input_kwargs))
         sections.append(ExternalFlame.section_3_calculation(self.output_kwargs))
         sections.append(ExternalFlame.section_4_summary(self.output_kwargs))
         return sections
+
+    @staticmethod
+    def section_1_introduction():
+        sec = ExternalFlame.section_1_introduction()
+        sec[-1] = NoEscape(
+            'This assessment is specific to forced draught condition in accordance with '
+            'Clause B.4.2 in BS EN 1991-1-2.'
+        )
+        return sec
 
     @staticmethod
     def __calculation(**input_kwargs):
@@ -129,7 +138,15 @@ class ExternalFlameForcedDraught(ReportBaseClass):
         # Calculate flame temperature beyond window
         if 'T_z' not in input_kwargs:
             if 'L_x' not in input_kwargs:
-                __ = clause_b_4_5_l(**input_kwargs)
+                # __ = clause_b_4_5_l(**input_kwargs)
+                __ = clause_b_4_5_l(
+                    h_eq=input_kwargs['h_eq'],
+                    L_H=input_kwargs['L_H'],
+                    L_L=input_kwargs['L_L'],
+                    d_fw=input_kwargs['d_fw'],
+                    d_1=input_kwargs['d_1_column'],  # note this variable name is different
+                    is_forced_draught=input_kwargs['is_forced_draught']
+                )
                 __['L_x'] = __.pop('l')
                 input_kwargs.update(__)
                 _latex_equation_header.append(
@@ -137,6 +154,24 @@ class ExternalFlameForcedDraught(ReportBaseClass):
                 _latex_equation_content.append(input_kwargs['_latex'])
             input_kwargs.update(**clause_b_4_2_9_T_z(**input_kwargs))
             _latex_equation_header.append('Clause B.4.2 (9), the flame temperature along the axis is:')
+            _latex_equation_content.append(input_kwargs['_latex'])
+
+        # Calculate T_z_1 and T_z_2
+        # T_z_1 is only used for estimating beam element in BS EN 1993-1-2 Annex B
+        if not all([i in input_kwargs for i in ['T_z_1', 'T_z_2']]):
+            def L_x_1_and_2(L_L, L_H, d_1, d_fw, *_, **__):
+                return sqrt((d_fw + 0.5 * d_1) ** 2 + ((d_fw + 0.5 * d_1) * (L_L / L_H)) ** 2)
+
+            L_x = input_kwargs.pop('L_x')  # reserve L_x from input_kwargs
+            # input_kwargs['L_x'] = L_x_1_and_2(**input_kwargs)
+            input_kwargs['L_x'] = L_x_1_and_2(*[input_kwargs[i] for i in ['L_L', 'L_H', 'd_1_beam', 'd_fw']])
+            __ = clause_b_4_1_10_T_z(**input_kwargs)
+            __['T_z_1'] = __.pop('T_z')
+            __['T_z_2'] = __['T_z_1']
+            input_kwargs.update(__)
+            input_kwargs['L_x'] = L_x  # revert L_x in input_kwargs to the reserved value
+            _latex_equation_header.append(
+                'Clause B.4.1 (10), the flame temperature along the axis at $L_{x,1}$ and $L_{x,2}$ is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # DEPRECIATED, NOT NECESSARY WITHOUT `d_f` WHICH IS DEFINED IN BS EN 1993-1-2
@@ -151,18 +186,41 @@ class ExternalFlameForcedDraught(ReportBaseClass):
         #     _latex_equation_header.append('Clause B.4.2 (10), the emissivity of flames is:')
         #     _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate convective heat transfer coefficient
-        if 'alpha_c' not in input_kwargs:
+        # Calculate alpha_c, for column
+        if 'alpha_c_column' not in input_kwargs:
             if 'd_eq' not in input_kwargs:
-                __ = clause_b_1_3_2_d(**input_kwargs)
+                __ = clause_b_1_3_2_d(d_1=input_kwargs['d_1_column'], d_2=input_kwargs['d_2_column'])
                 __['d_eq'] = __.pop('d')
                 input_kwargs.update(**__)
-                _latex_equation_header.append(
-                    'BS EN 1993-1-2 Clause B.1.3 (2), the geometrical characteristic of an external structural element $d$ ($d_{eq}$ in BS EN 1991-1-2) is:')
-                _latex_equation_content.append(input_kwargs['_latex'])
-            input_kwargs.update(**clause_b_4_2_11_alpha_c(**input_kwargs))
-            _latex_equation_header.append('Clause B.4.2 (11), the convective heat transfer coefficient is:')
+                # _latex_equation_header.append(
+                #     'BS EN 1993-1-2 Clause B.1.3 (2), the geometrical characteristic of an external column $d$ ($d_{eq}$ in BS EN 1991-1-2) is:')
+                # _latex_equation_content.append(input_kwargs['_latex'])
+            __ = clause_b_4_2_11_alpha_c(**input_kwargs)
+            __['alpha_c_column'] = __.pop('alpha_c')
+            input_kwargs.update(**__)
+            _latex_equation_header.append(
+                'Clause B.4.2 (11), the connective heat transfer coefficient for the external column is:')
             _latex_equation_content.append(input_kwargs['_latex'])
+            input_kwargs.pop(
+                'd_eq')  # delete temporary `d_eq` from `input_kwargs`, `d_eq` will be calculated again later.
+
+        # Calculate alpha_c, for beam
+        if 'alpha_c_beam' not in input_kwargs:
+            if 'd_eq' not in input_kwargs:
+                __ = clause_b_1_3_2_d(d_1=input_kwargs['d_1_beam'], d_2=input_kwargs['d_2_beam'])
+                __['d_eq'] = __.pop('d')
+                input_kwargs.update(**__)
+                # _latex_equation_header.append(
+                #     'BS EN 1993-1-2 Clause B.1.3 (2), the geometrical characteristic of an external beam $d$ ($d_{eq}$ in BS EN 1991-1-2) is:')
+                # _latex_equation_content.append(input_kwargs['_latex'])
+            __ = clause_b_4_2_11_alpha_c(**input_kwargs)
+            __['alpha_c_beam'] = __.pop('alpha_c')
+            input_kwargs.update(**__)
+            _latex_equation_header.append(
+                'Clause B.4.2 (11), the connective heat transfer coefficient for the external beam is:')
+            _latex_equation_content.append(input_kwargs['_latex'])
+            input_kwargs.pop(
+                'd_eq')  # delete temporary `d_eq` from `input_kwargs`, `d_eq` will be calculated again later.
 
         input_kwargs.update(
             _latex_equation_header=_latex_equation_header,
