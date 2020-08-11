@@ -149,35 +149,42 @@ class ExternalSteelTemperatureEngulfedBeam(ReportBase):
             _latex_equation_header.append('Clause B.5.1.1 (2), the flame thickness $\\lambda_3$ is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
+        # a helper function to calculate L_x_1 and L_x_2
+        def L_x_1_and_2(L_L, L_H, d_1, d_fw):
+            return sqrt((d_fw + 0.5 * d_1) ** 2 + ((d_fw + 0.5 * d_1) * (L_L / L_H)) ** 2)
+
         # Calculate T_z_1
         if 'T_z_1' not in input_kwargs:
-            def L_x_1(d_fw, d_1, d_aw, *_, **__, ):
-                return (d_fw + 0.5 * d_1) * sqrt(2) + d_aw
+            if input_kwargs['is_forced_draught']:
+                input_kwargs['L_x'] = L_x_1_and_2(*[input_kwargs[i] for i in ['L_L', 'L_H', 'd_1', 'd_fw']])
+            else:
+                def L_x_1(d_fw, d_1, d_aw):
+                    return (d_fw + 0.5 * d_1) * sqrt(2) + d_aw
 
-            input_kwargs['L_x'] = L_x_1(*[input_kwargs[i] for i in ['d_fw', 'd_1', 'd_aw']])
+                input_kwargs['L_x'] = L_x_1(*[input_kwargs[i] for i in ['d_fw', 'd_1', 'd_aw']])
             __ = clause_b_4_1_10_T_z(T_w=input_kwargs['T_o'], **input_kwargs)
             __['T_z_1'] = __.pop('T_z')
-
             input_kwargs.update(__)
             _latex_equation_header.append(
-                'Clause B.4.1 (10), the flame temperature along the axis at $L_{x,1}$ (as per BS EN 1993-1-2) is:')
+                'BS EN 1991-1-2 Clause B.4.1 (10), the flame temperature along the axis at $L_{x,1}$ is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate T_z_2
         # T_z_2 is only used for estimating beam element in BS EN 1993-1-2 Annex B
         if 'T_z_2' not in input_kwargs:
-            def L_x_2(d_fw, d_1, d_2, d_aw, *_, **__):
-                return (d_fw + 0.5 * d_1) * sqrt(2) + d_aw + d_2
+            input_kwargs['L_x'] = L_x_1_and_2(*[input_kwargs[i] for i in ['L_L', 'L_H', 'd_1', 'd_fw']])
+            if input_kwargs['is_forced_draught']:
+                input_kwargs['L_x'] = L_x_1_and_2(*[input_kwargs[i] for i in ['L_L', 'L_H', 'd_1', 'd_fw']])
+            else:
+                def L_x_2(d_fw, d_1, d_2, d_aw, *_, **__):
+                    return (d_fw + 0.5 * d_1) * sqrt(2) + d_aw + d_2
 
-            L_x = input_kwargs.pop('L_x')
-            # input_kwargs['L_x'] = L_x_2(**input_kwargs)
-            input_kwargs['L_x'] = L_x_2(*[input_kwargs[i] for i in ['d_fw', 'd_1', 'd_2', 'd_aw']])
+                input_kwargs['L_x'] = L_x_2(**input_kwargs)
             __ = clause_b_4_1_10_T_z(T_w=input_kwargs['T_o'], **input_kwargs)
             __['T_z_2'] = __.pop('T_z')
             input_kwargs.update(__)
-            input_kwargs['L_x'] = L_x
             _latex_equation_header.append(
-                'Clause B.4.1 (10), the flame temperature along the axis at $L_{x,2}$ (as per BS EN 1993-1-2) is:')
+                'BS EN 1991-1-2 Clause B.4.1 (10), the flame temperature along the axis at $L_{x,2}$ is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate phi_f_1 ... phi_f_4

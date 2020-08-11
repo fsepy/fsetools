@@ -1,4 +1,4 @@
-from math import e, sqrt
+from math import e
 from typing import Tuple
 
 """
@@ -772,12 +772,6 @@ def _test_external_fire_no_forced_draught_1(raise_error=True):
     Test against analysis carried in report '190702-R00-SC19024-WP1-Flame Projection Calculations-DN-CIC'.
     Wall above opening and no balcony above opening.
     """
-    # calculate flame external temperature at:
-    #       (1) vertical distance above opening top edge
-    #       (2) horizontal distance away from wall
-
-    UNITS = {k: v[1] for k, v in SYMBOLS.items()}
-    DESCRIPTIONS = {k: v[0] for k, v in SYMBOLS.items()}
 
     # compulsory user defined parameters
     w_t = 1.82

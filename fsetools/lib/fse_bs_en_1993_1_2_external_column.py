@@ -54,7 +54,7 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
         sec.append(NoEscape(
             'The determination of the temperature of the compartment fire, the dimensions and temperature of the '
             'flames projecting from the openings, and the radiation and convection parameters should be performed '
-            'according to annex B of BS EN 1991-1-2.\\par'))
+            'according to Annex B of BS EN 1991-1-2.\\par'))
 
         sec.append(NoEscape(
             'Units, symbols and abbreviations are consistent with BS EN 1991-1-3 unless stated.\\par'))
@@ -155,7 +155,9 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
                     'Clause B.4 (5), the distance $l$ ($L_x$ in BS EN 1991-1-2) from the opening is:')
                 _latex_equation_content.append(input_kwargs['_latex'])
             input_kwargs.update(clause_b_4_1_10_T_z(T_w=input_kwargs['T_o'], **input_kwargs))
-            _latex_equation_header.append('Clause B.4.1 (10), the flame temperature along the axis at $L_x$ is:')
+            _latex_equation_header.append(
+                'BS EN 1991-1-2 Clause B.4.1 (10), the flame temperature along the axis at $L_x$ is:'
+            )
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate epsilon_z_1 ... epsilon_z_4

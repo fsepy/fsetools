@@ -2,10 +2,10 @@ from fsetools.lib.fse_eurocode_external_steel import external_fire_and_steel_bea
 
 if __name__ == '__main__':
     input_params = dict(
-        D=20.88,  # original depth 85.5, shortened to match travelling fire width
+        D=20.9,  # original depth 85.5, shortened to match travelling fire width
         W=25.1,  # the dimension with opening
         H=3.3,
-        w_t=20.88,  # travelling fire maximum length
+        w_t=20.9,  # travelling fire maximum length
         h_eq=3.3,
         q_fd=400,
         Q=80,

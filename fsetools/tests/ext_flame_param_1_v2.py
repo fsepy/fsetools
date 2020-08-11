@@ -8,6 +8,7 @@ if __name__ == '__main__':
         w_t=8.3,
         h_eq=3.3,
         q_fd=200,
+        # Q=80,
         d_1_column=0.4,
         d_2_column=0.7,
         d_1_beam=0.4,
