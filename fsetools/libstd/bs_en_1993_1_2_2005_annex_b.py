@@ -105,7 +105,51 @@ def clause_b_1_3_3_T_m(
     return dict(T_m=T_m, _latex=_latex)
 
 
-def clause_b_1_3_3_T_m_i(
+def clause_b_1_3_3_T_m_i_beam(
+        I_z_1, I_z_2, I_z_3, I_z_4,
+        I_f_1, I_f_2, I_f_3, I_f_4,
+        alpha,
+        T_z_1, T_z_2,
+        sigma: float = 5.67e-11,
+        *_,
+        **__
+):
+    """
+
+    :param I_z:
+    :param I_f:
+    :param alpha:
+    :param sigma:
+    :return:
+    """
+
+    def func(
+            T_m_,
+            I_z_,
+            I_f_,
+            alpha_,
+            T_z_,
+            sigma_: float = 56.7e-11
+    ):
+        return I_z_ + I_f_ + alpha_ * T_z_ - sigma_ * T_m_ ** 4 - alpha_ * T_m_
+
+    T_m_1 = bisect(func, 0.001, 5000, (I_z_1, I_f_1, alpha, T_z_1, sigma))
+    T_m_2 = bisect(func, 0.001, 5000, (I_z_2, I_f_2, alpha, T_z_2, sigma))
+    T_m_3 = bisect(func, 0.001, 5000, (I_z_3, I_f_3, alpha, (T_z_1 + T_z_2) / 2, sigma))
+    T_m_4 = bisect(func, 0.001, 5000, (I_z_4, I_f_4, alpha, (T_z_1 + T_z_2) / 2, sigma))
+
+    _latex = (
+        f'\\sigma\\cdot T_{{m,i}}^4 + \\alpha\\cdot T_{{m,i}} = I_{{z,i}} + I_{{f,i}} + \\alpha\\cdot T_{{z,i}}',
+        f'\\left( {sigma:.2E}\\right) T_{{m,1}}^4+{alpha:.2f}T_{{m,1}}={I_z_1:.2f}+{I_f_1:.2f}+{alpha:.2f}\\cdot {T_z_1:.2f}\\Rightarrow T_{{m,1}}={T_m_1:.2f}\\ \\left[K\\right]={T_m_1 - 273.15:.2f} \\left[^\\circ C\\right]',
+        f'\\left( {sigma:.2E}\\right) T_{{m,2}}^4+{alpha:.2f}T_{{m,2}}={I_z_2:.2f}+{I_f_2:.2f}+{alpha:.2f}\\cdot {T_z_2:.2f}\\Rightarrow T_{{m,2}}={T_m_2:.2f}\\ \\left[K\\right]={T_m_2 - 273.15:.2f} \\left[^\\circ C\\right]',
+        f'\\left( {sigma:.2E}\\right) T_{{m,3}}^4+{alpha:.2f}T_{{m,3}}={I_z_3:.2f}+{I_f_3:.2f}+{alpha:.2f}\\cdot {(T_z_1+T_z_2)/2:.2f}\\Rightarrow T_{{m,3}}={T_m_3:.2f}\\ \\left[K\\right]={T_m_3 - 273.15:.2f} \\left[^\\circ C\\right]',
+        f'\\left( {sigma:.2E}\\right) T_{{m,4}}^4+{alpha:.2f}T_{{m,4}}={I_z_4:.2f}+{I_f_4:.2f}+{alpha:.2f}\\cdot {(T_z_1+T_z_2)/2:.2f}\\Rightarrow T_{{m,4}}={T_m_4:.2f}\\ \\left[K\\right]={T_m_4 - 273.15:.2f} \\left[^\\circ C\\right]',
+    )
+
+    return dict(T_m_1=T_m_1, T_m_2=T_m_2, T_m_3=T_m_3, T_m_4=T_m_4, _latex=_latex)
+
+
+def clause_b_1_3_3_T_m_i_column(
         I_z_1, I_z_2, I_z_3, I_z_4,
         I_f_1, I_f_2, I_f_3, I_f_4,
         alpha,

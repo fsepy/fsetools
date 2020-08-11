@@ -212,7 +212,7 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
 
         # Calculate T_m_1 ... T_m_4
         if not all([i in input_kwargs for i in ['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
-            input_kwargs.update(clause_b_1_3_3_T_m_i(**input_kwargs))
+            input_kwargs.update(clause_b_1_3_3_T_m_i_column(**input_kwargs))
             _latex_equation_header.append(
                 'Clause B.1.3 (3), the temperature of the steel member for each of its faces 1, 2, 3, and 4 are:')
             _latex_equation_content.append(input_kwargs['_latex'])

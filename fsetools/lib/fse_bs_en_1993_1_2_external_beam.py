@@ -150,19 +150,15 @@ class ExternalSteelTemperatureEngulfedBeam(ReportBase):
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate T_z_1
-        # T_z_1 is only used for estimating beam element in BS EN 1993-1-2 Annex B
         if 'T_z_1' not in input_kwargs:
             def L_x_1(d_fw, d_1, d_aw, *_, **__, ):
                 return (d_fw + 0.5 * d_1) * sqrt(2) + d_aw
 
-            # L_x = input_kwargs.pop('L_x')
-            # input_kwargs['L_x'] = L_x_1(**input_kwargs)
             input_kwargs['L_x'] = L_x_1(*[input_kwargs[i] for i in ['d_fw', 'd_1', 'd_aw']])
             __ = clause_b_4_1_10_T_z(T_w=input_kwargs['T_o'], **input_kwargs)
             __['T_z_1'] = __.pop('T_z')
 
             input_kwargs.update(__)
-            # input_kwargs['L_x'] = L_x
             _latex_equation_header.append(
                 'Clause B.4.1 (10), the flame temperature along the axis at $L_{x,1}$ (as per BS EN 1993-1-2) is:')
             _latex_equation_content.append(input_kwargs['_latex'])
@@ -270,7 +266,7 @@ class ExternalSteelTemperatureEngulfedBeam(ReportBase):
 
         # Calculate T_m_1 ... T_m_4
         if not all([i in input_kwargs for i in ['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
-            input_kwargs.update(clause_b_1_3_3_T_m_i(**input_kwargs))
+            input_kwargs.update(clause_b_1_3_3_T_m_i_beam(**input_kwargs))
             _latex_equation_header.append(
                 'Clause B.1.3 (3), the temperature of the steel member for each of its faces 1, 2, 3, and 4 are:')
             _latex_equation_content.append(input_kwargs['_latex'])
