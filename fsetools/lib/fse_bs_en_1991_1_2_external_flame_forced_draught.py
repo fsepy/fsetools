@@ -58,7 +58,7 @@ class ExternalFlameForcedDraught(ReportBase):
     def section_1_introduction():
         sec = ExternalFlame.section_1_introduction()
         sec[-1] = NoEscape(
-            'This assessment is specific to forced draught condition in accordance with '
+            'This assessment is specific to \\textit{forced draught} condition in accordance with '
             'Clause B.4.2 in BS EN 1991-1-2.'
         )
         return sec

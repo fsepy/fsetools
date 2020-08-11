@@ -49,7 +49,7 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
             'Calculation documented herein follows Annex B in '
             '"Eurocode 3: Design of steel structures — Part 1-2: General rules — Structural fire design" '
             '(BS EN 1991-1-3). '
-            'This method allows the determination of the average temperature of an external steel member.\\par'))
+            'This method allows the determination of the temperatures of an external steel member.\\par'))
 
         sec.append(NoEscape(
             'The determination of the temperature of the compartment fire, the dimensions and temperature of the '

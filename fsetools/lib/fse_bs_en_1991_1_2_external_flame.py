@@ -62,7 +62,7 @@ class ExternalFlame(ReportBase):
         sec.append(NoEscape(
             'Calculation documented herein follows Annex B in '
             '"Eurocode 1: Actions on structures – Part 1-2: General actions – Actions on structures exposed to fire" '
-            '(BS EN 1991-1-2). This method allows the determination of (a) the maximum temperatures of a compartment'
+            '(BS EN 1991-1-2). This method allows the determination of (a) the maximum temperatures of a compartment '
             'fire; (b) the size and temperatures of the flame from openings; and (c) the thermal radiation and '
             'convection parameters.\\par'))
 
@@ -86,7 +86,7 @@ class ExternalFlame(ReportBase):
         ))
 
         sec.append(NoEscape(
-            'This assessment is specific to no forced draught condition in accordance with '
+            'This assessment is specific to \\textit{no forced draught} condition in accordance with '
             'Clause B.4.1 in BS EN 1991-1-2.'
         ))
 
