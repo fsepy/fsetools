@@ -2,6 +2,7 @@ import json
 import subprocess
 import webbrowser
 from abc import ABC, abstractmethod
+from sys import platform
 
 try:
     import requests
@@ -25,8 +26,11 @@ class ReportBase(ABC):
             fp_pdf = fp_pdf[:-4]
         doc = self.make_latex()
         doc.generate_pdf(filepath=fp_pdf, clean=clean, clean_tex=clean_tex)
-        if fp_pdf_viewer:
-            subprocess.Popen([fp_pdf_viewer, fp_pdf + '.pdf'])
+        if platform == 'darwin':
+            subprocess.Popen(['open', fp_pdf + '.pdf'])
+        else:
+            if fp_pdf_viewer:
+                subprocess.Popen([fp_pdf_viewer, fp_pdf + '.pdf'])
 
     def make_pdf_web(self, fp_tex: str):
         if fp_tex.endswith('.tex'):
