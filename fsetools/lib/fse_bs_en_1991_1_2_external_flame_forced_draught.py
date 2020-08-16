@@ -1,4 +1,9 @@
-from pylatex import NoEscape, Section
+from math import sqrt
+
+try:
+    from pylatex import NoEscape, Section
+except ModuleNotFoundError:
+    pass
 
 from fsetools.lib.fse_bs_en_1991_1_2_external_flame import ExternalFlame as ExternalFlame
 from fsetools.lib.fse_latex_report_template import ReportBase
@@ -9,29 +14,22 @@ from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import clause_b_4_5_l, clause_b
 class ExternalFlameForcedDraught(ReportBase):
     def __init__(
             self,
-            D: float,
-            W: float,
-            H: float,
+            A_f: float,
+            A_t: float,
             h_eq: float,
             w_t: float,
-            A_v: float,
             **kwargs
     ):
         super().__init__()
 
         # derived values below
-        if 'A_v' not in kwargs:
-            A_v = w_t * h_eq
-        if 'A_f' not in kwargs:
-            A_f = D * W
-        if 'A_t' not in kwargs:
-            A_t = 2 * (D * W + W * H + H * D)
-        if 'O' not in kwargs:
-            O = h_eq ** 0.5 * A_v / (2 * (D * W + W * H + H * D))
+        A_v = w_t * h_eq
+        O = h_eq ** 0.5 * A_v / A_t
 
         input_kwargs = locals()
         input_kwargs.pop('self')
         input_kwargs.pop('kwargs')
+        input_kwargs.pop('__class__')
         input_kwargs.update(**kwargs)
         self.input_kwargs = input_kwargs
         self.output_kwargs = self.__calculation(**input_kwargs)
@@ -232,26 +230,28 @@ class ExternalFlameForcedDraught(ReportBase):
 
 def _test_1():
     test_object_1 = ExternalFlameForcedDraught(
-        D=85.8,
-        W=25.1,
-        H=3.3,
+        q_fd=400,
+        Q=80,  # override
+        W_1=25.1,
+        W_2=85.8,
+        A_f=85.8 * 25.1,
+        A_t=2 * (85.8 * 25.1 + 25.1 * 3.3 + 3.3 * 85.8),
         h_eq=3.3,
         w_t=20.87,  # travelling fire maximum length
-        q_fd=400,
+        A_v=61.1 * 3.3,
+        L_x=0.1,
         u=6,
-        Q=80,  # override
         tau_F=1200,
         rho_g=0.45,
         g=9.81,
         T_0=293.15,
-        A_v=61.1 * 3.3,
+        T_z_1=None,
+        T_z_2=None,
         is_wall_above_opening=True,
         is_windows_on_more_than_one_wall=False,
         is_central_core=False,
-        is_forced_draught=True,
-        lambda_3=1,
-        d_1=0.8,
-        d_2=0.42
+        alpha_c_column=None,
+        alpha_c_beam=None,
     )
 
     print(f'{test_object_1.output_kwargs["T_f"]:.5f} == 1450.36828')

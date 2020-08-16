@@ -9,29 +9,21 @@ from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import clause_b_1_3_2_d
 class ExternalFlame(ReportBase):
     def __init__(
             self,
-            D: float,
-            W: float,
-            H: float,
+            A_f: float,
+            A_t: float,
             h_eq: float,
             w_t: float,
-            A_v: float,
             **kwargs
     ):
         super().__init__()
 
-        # derived values below
-        if 'A_v' not in kwargs:
-            A_v = w_t * h_eq
-        if 'A_f' not in kwargs:
-            A_f = D * W
-        if 'A_t' not in kwargs:
-            A_t = 2 * (D * W + W * H + H * D)
-        if 'O' not in kwargs:
-            O = h_eq ** 0.5 * A_v / (2 * (D * W + W * H + H * D))
+        A_v = w_t * h_eq
+        O = h_eq ** 0.5 * A_v / A_t
 
         input_kwargs = locals()
         input_kwargs.pop('self')
         input_kwargs.pop('kwargs')
+        input_kwargs.pop('__class__')
         input_kwargs.update(**kwargs)
         self.input_kwargs = input_kwargs
         self.output_kwargs = self.__calculation(**input_kwargs)
@@ -96,7 +88,7 @@ class ExternalFlame(ReportBase):
     def section_2_inputs(input_kwargs: dict):
         section_2 = Subsection(title='Inputs')
         symbols = [
-            'D', 'W', 'H', 'A_f', 'h_eq', 'w_t', 'A_v', 'd_ow', 'DW_ratio', 'q_fk', 'q_fd', 'L_x', 'tau_F', 'u',
+            'W_1', 'W_2', 'A_f', 'h_eq', 'w_t', 'A_v', 'd_ow', 'DW_ratio', 'q_fk', 'q_fd', 'L_x', 'tau_F', 'u',
             'Omega', 'O', 'Q', 'd_eq', 'T_f', 'L_L', 'L_H', 'L_f', 'T_w', 'T_z'
         ]
         section_2.append(make_summary_table(
@@ -156,8 +148,7 @@ class ExternalFlame(ReportBase):
                             _latex_equation_header.append(NoEscape('Clause B.2 (4), the ratio of $D/W$ is:'))
                             _latex_equation_content.append(input_kwargs['_latex'])
                         except (AssertionError, TypeError):
-                            raise ValueError(
-                                'Failed to calculate `DW_ratio`')  # optional as only required to calculate Q
+                            raise ValueError('Failed to calculate `DW_ratio`')
             input_kwargs.update(clause_b_4_1_1_Q(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (1), the heat release rate is:')
             _latex_equation_content.append(input_kwargs['_latex'])
@@ -197,25 +188,10 @@ class ExternalFlame(ReportBase):
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate flame temperature beyond window
-        # if 'T_z' not in input_kwargs:
-        #     if 'L_x' not in input_kwargs:
-        #         # __ = clause_b_4_5_l(**input_kwargs)
-        #         __ = clause_b_4_5_l(
-        #             h_eq=input_kwargs['h_eq'],
-        #             L_H=input_kwargs['L_H'],
-        #             L_L=input_kwargs['L_L'],
-        #             d_fw=input_kwargs['d_fw'],
-        #             d_1=input_kwargs['d_1_column'],  # note this variable name is different
-        #             is_forced_draught=input_kwargs['is_forced_draught']
-        #         )
-        #         __['L_x'] = __.pop('l')
-        #         input_kwargs.update(__)
-        #         _latex_equation_header.append(
-        #             'BS EN 1993-1-2 Clause B.4 (5), the distance $l$ ($L_x$ in BS EN 1991-1-2) from the opening is:')
-        #         _latex_equation_content.append(input_kwargs['_latex'])
-        #     input_kwargs.update(clause_b_4_1_10_T_z(**input_kwargs))
-        #     _latex_equation_header.append('Clause B.4.1 (10), the flame temperature along the axis at $L_x$ is:')
-        #     _latex_equation_content.append(input_kwargs['_latex'])
+        if 'T_z' not in input_kwargs:
+            input_kwargs.update(clause_b_4_1_10_T_z(**input_kwargs))
+            _latex_equation_header.append('Clause B.4.1 (10), the flame temperature along the axis at $L_x$ is:')
+            _latex_equation_content.append(input_kwargs['_latex'])
         #
         # # Calculate T_z_1
         # # T_z_1 is only used for estimating beam element in BS EN 1993-1-2 Annex B
@@ -306,17 +282,16 @@ class ExternalFlame(ReportBase):
 
 def _test_1():
     test_object_1 = ExternalFlame(
-        D=85.8,
-        W=25.1,
-        H=3.3,
-        A_f=85.8 * 25.1,
-        h_eq=3.3,
-        w_t=20.88,  # travelling fire maximum length
-        A_v=61.1 * 3.3,
-        q_fd=400,
-        Q=80,  # override
-        W_1=25.1,
+        q_fd=40000,
+        # Q=80,
+        W_1=20.9,
         W_2=85.8,
+        A_f=85.8 * 20.9,
+        A_t=2 * (85.8 * 20.88 + 20.88 * 3.3 + 3.3 * 85.8),
+        h_eq=3.3,
+        w_t=20.88,
+        A_v=61.1 * 3.3,
+        L_x=0.1,
         tau_F=1200,
         rho_g=0.45,
         g=9.81,
@@ -324,11 +299,13 @@ def _test_1():
         is_wall_above_opening=True,
         is_windows_on_more_than_one_wall=False,
         is_central_core=False,
-        is_forced_draught=False,
-        lambda_3=1,
-        d_1=0.8,
-        d_2=0.42,
+        alpha_c_column=None,
+        alpha_c_beam=None,
     )
+
+    print(test_object_1.output_kwargs)
+
+    # test_object_1.make_pdf_web(fp_tex='test.tex')
 
     print(f'{test_object_1.output_kwargs["T_f"]:.5f} == 1207.71692')
     assert abs(test_object_1.output_kwargs['T_f'] - 1207.71692) < 1e-4

@@ -442,7 +442,7 @@ def clause_b_4_1_8_T_w(
     try:
         assert L_f * w_t / Q < 1
     except AssertionError:
-        raise AssertionError(f'Condition not satisfied L_f * w_t / Q = {L_f * w_t / Q:.2f} < 1')
+        raise AssertionError(f'Condition not satisfied L_f*w_t/Q<1 in Clause B.4.1(8) ({L_f:.2f}*{w_t:.2f}/{Q:.2f}={L_f*w_t/Q:.2f}!<{1})')
 
     T_w = 520 / (1 - 0.4725 * (L_f * w_t / Q)) + T_0
 
