@@ -85,7 +85,7 @@ def clause_1_6_Omega(
         **__
 ):
     """
-    Clause 1.6, page 19
+    Clause 1.6, page 20
 
     todo
     :param A_f:
@@ -382,7 +382,7 @@ def clause_b_4_1_6_L_H(
     else:
         L_H = 0.6 * h_eq * (L_L / h_eq) ** (1 / 3)
         _latex.extend([
-            f'0.6\\cdot {h_eq:.2f}\\cdot \\left(\\frac{{{L_L:.2f}}}{{{h_eq:.2f}}}\\right)^\\frac{{1}}{{3}}',
+            f'L_H=0.6\\cdot {h_eq:.2f}\\cdot \\left(\\frac{{{L_L:.2f}}}{{{h_eq:.2f}}}\\right)^\\frac{{1}}{{3}}',
             f'L_H={L_H:.2f}\\ \\left[m\\right]',
         ])
 
@@ -410,7 +410,6 @@ def clause_b_4_1_7_L_f(
         # equation B.12
         L_f = L_L + h_eq / 2
         _latex.extend([
-            f'L_f=L_L+\\frac{{h_{{eq}}}}{{2}}',
             f'L_f={L_L:.2f}+\\frac{{{h_eq:.2f}}}{{2}}',
             f'L_f={L_f:.2f}\\ \\left[m\\right]',
         ])
@@ -420,7 +419,6 @@ def clause_b_4_1_7_L_f(
         b = h_eq / 2
         L_f = a + b
         _latex.extend([
-            f'L_f=\\left({{L_L}}^2 + \\left(L_H-\\frac{{h_{{eq}}}}{{3}}\\right)^2\\right)^{{0.5}} +\\frac{{h_{{eq}}}}{{2}}',
             f'L_f=\\left({{{L_L:.2f}}}^2 + \\left({L_H:.2f}-\\frac{{{h_eq:.2f}}}{{3}}\\right)^2\\right)^{{0.5}} +\\frac{{{h_eq:.2f}}}{{2}}',
             f'L_f={L_f:.2f}\\ \\left[m\\right]',
         ])

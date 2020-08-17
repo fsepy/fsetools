@@ -9,16 +9,19 @@ from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import clause_b_1_3_2_d
 class ExternalFlame(ReportBase):
     def __init__(
             self,
-            A_f: float,
-            A_t: float,
             h_eq: float,
             w_t: float,
+            A_t: float,
             **kwargs
     ):
         super().__init__()
 
         A_v = w_t * h_eq
-        O = h_eq ** 0.5 * A_v / A_t
+        try:
+            O = h_eq ** 0.5 * A_v / A_t
+        except TypeError:
+            # this happens when A_t is not provided
+            O = None
 
         input_kwargs = locals()
         input_kwargs.pop('self')
@@ -274,8 +277,7 @@ class ExternalFlame(ReportBase):
             input_kwargs.pop(
                 'd_eq')  # delete temporary `d_eq` from `input_kwargs`, `d_eq` will be calculated again later.
 
-        input_kwargs.update(_latex_equation_header=_latex_equation_header,
-                            _latex_equation_content=_latex_equation_content)
+        input_kwargs.update(_latex_equation_header=_latex_equation_header, _latex_equation_content=_latex_equation_content)
 
         return input_kwargs
 

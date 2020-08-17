@@ -14,17 +14,20 @@ from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import clause_b_4_5_l, clause_b
 class ExternalFlameForcedDraught(ReportBase):
     def __init__(
             self,
-            A_f: float,
-            A_t: float,
             h_eq: float,
             w_t: float,
+            A_t: float,
             **kwargs
     ):
         super().__init__()
 
         # derived values below
         A_v = w_t * h_eq
-        O = h_eq ** 0.5 * A_v / A_t
+        try:
+            O = h_eq ** 0.5 * A_v / A_t
+        except TypeError:
+            # this happens when A_t is not provided
+            O = None
 
         input_kwargs = locals()
         input_kwargs.pop('self')
@@ -158,7 +161,7 @@ class ExternalFlameForcedDraught(ReportBase):
         # T_z_1 is only used for estimating beam element in BS EN 1993-1-2 Annex B
         if not all([i in input_kwargs for i in ['T_z_1', 'T_z_2']]):
             def L_x_1_and_2(L_L, L_H, d_1, d_fw, *_, **__):
-                return sqrt((d_fw + 0.5 * d_1) ** 2 + ((d_fw + 0.5 * d_1) * (L_L / L_H)) ** 2)
+                return ((d_fw + 0.5 * d_1) ** 2 + ((d_fw + 0.5 * d_1) * (L_L / L_H)) ** 2) ** 0.5
 
             L_x = input_kwargs.pop('L_x')  # reserve L_x from input_kwargs
             # input_kwargs['L_x'] = L_x_1_and_2(**input_kwargs)
