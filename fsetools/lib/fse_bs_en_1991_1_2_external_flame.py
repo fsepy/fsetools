@@ -283,37 +283,35 @@ class ExternalFlame(ReportBase):
 
 
 def _test_1():
+    """
+    Test against results documented in 190702-R00-SC19024-WP1-Flame Projection Calculations-DN-CIC, dated 2nd July 2019, prepared by OFR (GM)
+    """
+
     test_object_1 = ExternalFlame(
-        q_fd=40000,
-        # Q=80,
-        W_1=20.9,
-        W_2=85.8,
-        A_f=85.8 * 20.9,
-        A_t=2 * (85.8 * 20.88 + 20.88 * 3.3 + 3.3 * 85.8),
-        h_eq=3.3,
-        w_t=20.88,
-        A_v=61.1 * 3.3,
-        L_x=0.1,
+        q_fd=870,
+        W_1=1.82,
+        W_2=5.46,
+        A_f=14.88,
+        A_t=70.3,
+        h_eq=1.1,
+        w_t=1.82,
         tau_F=1200,
-        rho_g=0.45,
-        g=9.81,
         T_0=293.15,
         is_wall_above_opening=True,
         is_windows_on_more_than_one_wall=False,
         is_central_core=False,
         alpha_c_column=None,
         alpha_c_beam=None,
+        T_f=None,
+        T_w=None,
+        T_z=None,
     )
 
-    print(test_object_1.output_kwargs)
+    print(f'{test_object_1.output_kwargs["L_L"]:.5f} == 1.33691')
+    assert abs(test_object_1.output_kwargs['L_L'] - 1.33691) < 1e-4
 
-    # test_object_1.make_pdf_web(fp_tex='test.tex')
-
-    print(f'{test_object_1.output_kwargs["T_f"]:.5f} == 1207.71692')
-    assert abs(test_object_1.output_kwargs['T_f'] - 1207.71692) < 1e-4
-
-    print(f'{test_object_1.output_kwargs["T_w"]:.5f} == 1113.08870')
-    assert abs(test_object_1.output_kwargs['T_w'] - 1113.08870) < 1e-4
+    print(f'{test_object_1.output_kwargs["L_H"]:.5f} == 0.36667')
+    assert abs(test_object_1.output_kwargs['L_H'] - 0.36667) < 1e-4
 
 
 if __name__ == '__main__':
