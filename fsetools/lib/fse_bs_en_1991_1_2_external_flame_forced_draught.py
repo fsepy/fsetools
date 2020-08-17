@@ -1,11 +1,9 @@
-from math import sqrt
-
 try:
     from pylatex import NoEscape, Section
 except ModuleNotFoundError:
     pass
 
-from fsetools.lib.fse_bs_en_1991_1_2_external_flame import ExternalFlame as ExternalFlame
+from fsetools.lib.fse_bs_en_1991_1_2_external_flame import ExternalFlame
 from fsetools.lib.fse_latex_report_template import ReportBase
 from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import *
 from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import clause_b_4_5_l, clause_b_1_3_2_d
