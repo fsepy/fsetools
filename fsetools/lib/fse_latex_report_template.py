@@ -31,6 +31,8 @@ class ReportBase(ABC):
         else:
             if fp_pdf_viewer:
                 subprocess.Popen([fp_pdf_viewer, fp_pdf + '.pdf'])
+            else:
+                subprocess.Popen([fp_pdf + '.pdf'], shell=True)
 
     def make_pdf_web(self, fp_tex: str):
         if fp_tex.endswith('.tex'):

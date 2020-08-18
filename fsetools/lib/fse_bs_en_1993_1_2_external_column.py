@@ -4,17 +4,24 @@ from pylatex import NoEscape, Section, Subsection
 
 from fsetools.etc.latex import make_alginat_equations, make_summary_table
 from fsetools.lib.fse_latex_report_template import ReportBase
-from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import clause_b_4_1_10_T_z
+from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import clause_b_4_1_10_T_z, clause_b_4_1_12_alpha_c
 from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import *
 
 
 class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
     def __init__(
             self,
+            w_t: float,
+            h_eq: float,
+            d_1: float,
+            d_2: float,
             **kwargs
     ):
         super().__init__()
         # derived values below
+
+        A_v = w_t * h_eq
+        d_eq = (d_1 + d_2) / 2
 
         input_kwargs = locals()
         input_kwargs.pop('self')
@@ -193,12 +200,6 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
             _latex_equation_header.append('Clause B.1.4 (1), the radiative heat flux from an opening is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate a_z
-        if 'a_z' not in input_kwargs:
-            input_kwargs.update(clause_b_4_6_a_z(**input_kwargs))
-            _latex_equation_header.append('Clause B.4 (6), the absorptivity of the flames is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
-
         # Calculate I_f_1 ... I_f_4
         if not all([i in input_kwargs for i in ['I_f_1', 'I_f_2', 'I_f_3', 'I_f_4']]):
             input_kwargs.update(clause_b_1_3_5_I_f_i(**input_kwargs))
@@ -208,9 +209,23 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
 
         # Calculate I_f
         if 'I_f' not in input_kwargs:
+            # Calculate a_z
+            if 'a_z' not in input_kwargs:
+                input_kwargs.update(clause_b_4_6_a_z(**input_kwargs))
+                _latex_equation_header.append('Clause B.4 (6), the absorptivity of the flames is:')
+                _latex_equation_content.append(input_kwargs['_latex'])
             input_kwargs.update(clause_b_1_3_5_I_f(**input_kwargs))
             _latex_equation_header.append('Clause B.1.3 (5), the radiative heat flux from an opening is:')
             _latex_equation_content.append(input_kwargs['_latex'])
+
+        # calculate alpha
+        if not all([i in input_kwargs for i in ['T_m', 'T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
+            if 'alpha' not in input_kwargs:
+                __ = clause_b_4_1_12_alpha_c(**input_kwargs)
+                __['alpha'] = __.pop('alpha_c')
+                input_kwargs.update(__)
+                _latex_equation_header.append('BS EN Clause B.4.1 (12), the convective heat transfer coefficient is:')
+                _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate T_m_1 ... T_m_4
         if not all([i in input_kwargs for i in ['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
@@ -315,6 +330,7 @@ def _test_fully_engulfed_column():
         lambda_1=10,
         lambda_3=1,
         sigma=5.67e-12,
+        Q=80,
         T_z=958.82,
         T_o=973.54,
         d_1=0.8,
@@ -325,12 +341,11 @@ def _test_fully_engulfed_column():
         h_eq=3.3,
         is_forced_draught=True,
         T_f=1200 + 273.15,
-        alpha=26.67,
-        w_f=23.34,
+        # alpha=26.67,
     )
 
     print(f'{test_object_1.output_kwargs["T_m"]:.5f} == 958.88173')
-    assert abs(test_object_1.output_kwargs['T_m'] - 958.88173) < 1e-4
+    assert abs(test_object_1.output_kwargs['T_m'] - 959.08383) < 1e-4
 
 
 if __name__ == '__main__':
