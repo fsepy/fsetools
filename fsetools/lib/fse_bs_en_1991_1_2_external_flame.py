@@ -150,8 +150,8 @@ class ExternalFlame(ReportBase):
                             input_kwargs.update(clause_b_2_4_DW_ratio(**input_kwargs))
                             _latex_equation_header.append(NoEscape('Clause B.2 (4), the ratio of $D/W$ is:'))
                             _latex_equation_content.append(input_kwargs['_latex'])
-                        except (AssertionError, TypeError):
-                            raise ValueError('Failed to calculate `DW_ratio`')
+                        except (AssertionError, TypeError) as e:
+                            raise ValueError(f'Failed to calculate `DW_ratio`, {e}')
             input_kwargs.update(clause_b_4_1_1_Q(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (1), the heat release rate is:')
             _latex_equation_content.append(input_kwargs['_latex'])

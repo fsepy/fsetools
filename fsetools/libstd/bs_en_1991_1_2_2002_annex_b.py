@@ -190,7 +190,6 @@ def clause_b_2_4_DW_ratio(
         W_c,
         A_v1,
         A_v,
-        is_windows_on_more_than_one_wall: bool = True,
         is_central_core: bool = True,
         *_,
         **__,
@@ -210,7 +209,7 @@ def clause_b_2_4_DW_ratio(
     :param __:
     :return:
     """
-    assert is_windows_on_more_than_one_wall and is_central_core
+    assert is_central_core
     DW_ratio = ((W_2 - L_c) * A_v1) / ((W_1 - W_c) * A_v)
 
     _latex = [
@@ -222,7 +221,7 @@ def clause_b_2_4_DW_ratio(
         f'\\end{{dcases}}',
 
         f'{{DW}}_{{ratio}}=\\frac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}}',
-        f'{{DW}}_{{ratio}}=\\frac{{\\left({W_2:.2f}-{L_c:.2f}\\right) {A_v1:.2f}}}{{\\left({W_1:.2f}-{W_c:.2f}\\right)\\cdot {A_v:.2f}}}',
+        f'{{DW}}_{{ratio}}=\\frac{{\\left({W_2:.2f}-{L_c:.2f}\\right) {A_v1:.2f}}}{{\\left({W_1:.2f}-{W_c:.2f}\\right) {A_v:.2f}}}',
         f'{{DW}}_{{ratio}}={DW_ratio:.2f}',
     ]
     return dict(DW_ratio=DW_ratio, _latex=_latex)
