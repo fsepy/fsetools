@@ -171,8 +171,8 @@ def clause_b_2_3_DW_ratio(
     _latex = [
         f'{{DW}}_{{ratio}} = \n'
         f'\\begin{{dcases}}\n'
-        f'  \\dfrac{{W_2}}{{W_1}},                                                     & \\text{{if there are windows in only wall 1}} \\ \\left[{True}\\right]\\\\\n'
-        f'  \\dfrac{{W_2}}{{W_1}}\\cdot \\dfrac{{A_{{v1}}}}{{A_v}},                    & \\text{{if there are windows on more than one wall}} \\ \\left[{False}\\right]\\\\\n'
+        f'  \\dfrac{{W_2}}{{W_1}},                                                     & \\text{{if there are windows in only wall 1}} \\ \\left[{False}\\right]\\\\\n'
+        f'  \\dfrac{{W_2}}{{W_1}}\\cdot \\dfrac{{A_{{v1}}}}{{A_v}},                    & \\text{{if there are windows on more than one wall}} \\ \\left[{True}\\right]\\\\\n'
         f'  \\dfrac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}},  & \\text{{if there is a core in the fire compartment}}\\ \\left[{False}\\right]\n'
         f'\\end{{dcases}}',
 
@@ -216,9 +216,9 @@ def clause_b_2_4_DW_ratio(
     _latex = [
         f'{{DW}}_{{ratio}} = \n'
         f'\\begin{{dcases}}\n'
-        f'  \\dfrac{{W_2}}{{W_1}},                                                     & \\text{{if there are windows in only wall 1}} \\ \\left[{True}\\right]\\\\\n'
+        f'  \\dfrac{{W_2}}{{W_1}},                                                     & \\text{{if there are windows in only wall 1}} \\ \\left[{False}\\right]\\\\\n'
         f'  \\dfrac{{W_2}}{{W_1}}\\cdot \\dfrac{{A_{{v1}}}}{{A_v}},                    & \\text{{if there are windows on more than one wall}} \\ \\left[{False}\\right]\\\\\n'
-        f'  \\dfrac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}},  & \\text{{if there is a core in the fire compartment}}\\ \\left[{False}\\right]\n'
+        f'  \\dfrac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}},  & \\text{{if there is a core in the fire compartment}}\\ \\left[{True}\\right]\n'
         f'\\end{{dcases}}',
 
         f'{{DW}}_{{ratio}}=\\frac{{\\left(W_2-L_c\\right) A_{{v1}}}}{{\\left(W_1-W_c\\right) A_v}}',
