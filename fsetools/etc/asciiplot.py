@@ -244,8 +244,7 @@ class AsciiPlot:
         # assign canvas frame to figure
         # -----------------------------
         i, j = 0, mat_yaxis.shape[1]
-        mat_figure[i:i + mat_plot_canvas_frame.shape[0], j:j + mat_plot_canvas_frame.shape[1]] = mat_plot_canvas_frame[
-                                                                                                 ::-1, :]
+        mat_figure[i:i + mat_plot_canvas_frame.shape[0], j:j + mat_plot_canvas_frame.shape[1]] = mat_plot_canvas_frame[::-1, :]
 
         # -----------------------
         # assign canvas to figure
