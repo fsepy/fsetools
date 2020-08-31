@@ -15,9 +15,8 @@ def fire(
         beam_location_height_m: float,
         beam_location_length_m: Union[float, list, np.ndarray],
         fire_nft_limit_c: float,
-        opening_fraction: float = 0,
-        opening_width_m: float = 0,
-        opening_height_m: float = 0,
+        *_,
+        **__,
 ):
     """
     This function calculates and returns a temperature array representing travelling fire. This function is NOT in SI.
