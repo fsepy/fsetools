@@ -3,10 +3,7 @@
 import os
 from codecs import open  # To use a consistent encoding
 
-import numpy as np
 import setuptools
-from Cython.Build import cythonize
-from setuptools import Extension
 
 import fsetools
 
@@ -16,16 +13,12 @@ with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "README.md")
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
-extensions = [
-    Extension("fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c", [os.path.join('fsetools', 'lib', 'fse_bs_en_1993_1_2_heat_transfer_c.pyx')], include_dirs=[np.get_include()])
-]
-
 setuptools.setup(
     name="fsetools",
     version=fsetools.__version__,
     description="Fire Safety Engineering Tools",
     author="Ian Fu",
-    author_email=''.join([chr(ord(v) + i) for i, v in enumerate(r'ftw^jn:`eX_a"Va^')]),
+    author_email=''.join([chr(ord(v)+i) for i, v in enumerate(r'ftw^jn:`eX_a"Va^')]),
     url="https://github.com/fsepy/fsetools",
     download_url="https://github.com/fsepy/fsetools/archive/master.zip",
     keywords=["fire", "safety", "engineering"],
@@ -46,7 +39,6 @@ setuptools.setup(
         "fsetools.lib",
         "fsetools.libstd",
     ],
-    ext_modules=cythonize(extensions),
     install_requires=requirements,
     include_package_data=True,
 )
