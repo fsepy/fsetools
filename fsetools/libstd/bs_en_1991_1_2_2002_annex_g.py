@@ -34,7 +34,7 @@ def clause_g_3_phi(w, h, s, theta):
 
 
 def _test_clause_g_3_phi():
-    res = clause_g_3_phi(w=6, h=10, s=2, theta=pi / 2)
+    res = clause_g_3_phi(w=1, h=2, s=3, theta=pi / 2)
 
     print(res['phi'])
     [print(i) for i in res['_latex']]

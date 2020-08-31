@@ -2,12 +2,10 @@ from operator import itemgetter
 from typing import List, Union
 
 from pylatex import Alignat, NoEscape, LongTable, MultiColumn
-
 try:
     from pytexit import py2tex
 except ModuleNotFoundError:
     pass
-
 
 def py2tex_modified(exps: Union[List, tuple, str]):
     if isinstance(exps, tuple):
