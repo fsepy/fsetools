@@ -2,25 +2,25 @@
 import numpy as np
 
 
-def c_steel_T(temperature):
+def c_steel_T(T):
     # BS EN 1993-1-2:2005, 3.4.1.2
 
-    temperature -= 273.15
-    if temperature < 20:
+    T -= 273.15
+    if T < 20:
         return 425 + 0.773 * 20 - 1.69e-3 * 400 + 2.22e-6 * 8000
-    if 20 <= temperature < 600:
-        return 425 + 0.773 * temperature - 1.69e-3 * 400 + 2.22e-6 * 8000
-    elif 600 <= temperature < 735:
-        return 666 + 13002 / (738 - temperature)
-    elif 735 <= temperature < 900:
-        return 545 + 17820 / (temperature - 731)
-    elif 900 <= temperature <= 1200:
+    if 20 <= T < 600:
+        return 425 + 0.773 * T - 1.69e-3 * T ** 2 + 2.22e-6 * T ** 3
+    elif 600 <= T < 735:
+        return 666 + 13002 / (738 - T)
+    elif 735 <= T < 900:
+        return 545 + 17820 / (T - 731)
+    elif 900 <= T <= 1200:
         return 650
-    elif temperature > 1200:
+    elif T > 1200:
         return 650
 
 
-def protected_steel_eurocode(
+def temperature(
         fire_time,
         fire_temperature,
         beam_rho,
@@ -41,7 +41,7 @@ def protected_steel_eurocode(
     . Ambient (fire) time-temperature data must be given, as well as the parameters specified below.
     :param fire_time: ndarray, [s], time evolution.
     :param fire_temperature: ndarray, [K], imposed temperature evolution.
-    :param beam_rho: float, [kg/m3], sstteel density.
+    :param beam_rho: float, [kg/m3], steel density.
     :param beam_cross_section_area: float, [m2], steel cross section area.
     :param protection_k: float, [K/kg/m], protection thermal conductivity.
     :param protection_rho: float, [kg/m3], protection density.
@@ -55,7 +55,6 @@ def protected_steel_eurocode(
 
     # todo: 4.2.5.2 (2) - thermal properties for the insulation material
     # todo: revise BS EN 1993-1-2:2005, Clauses 4.2.5.2
-
 
     V = beam_cross_section_area
     rho_a = beam_rho
@@ -82,7 +81,6 @@ def protected_steel_eurocode(
             specific_heat_steel[i] = c_steel_T(temperature_steel[i - 1])
         except ValueError:
             specific_heat_steel[i] = specific_heat_steel[i - 1]
-            # print(temperature_steel[i-1])
 
         # Steel temperature equations are from [BS EN 1993-1-2:2005, Clauses 4.2.5.2, Eq. 4.27]
         phi = (c_p * rho_p / specific_heat_steel[i] / rho_a) * d_p * A_p / V
@@ -93,6 +91,8 @@ def protected_steel_eurocode(
         d = fire_time[i] - fire_time[i - 1]
 
         temperature_rate_steel[i] = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
+        if temperature_rate_steel[i] < 0 < (T_g - fire_temperature[i - 1]):
+            temperature_rate_steel[i] = 0
 
         temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel[i] * d
 
@@ -115,7 +115,7 @@ def protected_steel_eurocode(
     return temperature_steel
 
 
-def protected_steel_eurocode_max_temperature(
+def temperature_max(
         fire_time,
         fire_temperature,
         beam_rho,
@@ -182,8 +182,10 @@ def protected_steel_eurocode_max_temperature(
         c = (np.exp(phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
 
         dT = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
+        if dT < 0 < (T_g - fire_temperature[i - 1]):
+            dT = 0
 
-        T += dT * d
+        T = T + dT * d
 
         if not flag_heating_started:
             if fire_time[i] >= terminate_check_wait_time:
@@ -221,7 +223,7 @@ def _interflam_figures():
     list_dp = np.arange(0.0001, 0.01 + 0.002, 0.002)
 
     for d_p in list_dp:
-        T_s = protected_steel_eurocode(
+        T_s = temperature(
             fire_time=t,
             fire_temperature=T,
             beam_rho=rho,
@@ -251,7 +253,7 @@ def _speed_test():
     list_dp = np.arange(0.0001, 0.01 + 0.002, 0.001)
 
     for d_p in list_dp:
-        T_s = protected_steel_eurocode(
+        T_s = temperature(
             fire_time=t,
             fire_temperature=T,
             beam_rho=rho,
@@ -262,9 +264,3 @@ def _speed_test():
             protection_thickness=d_p,
             protection_protected_perimeter=2.14,
         )
-
-
-if __name__ == "__main__":
-    import timeit
-
-    print(timeit.timeit(_speed_test, number=10))

@@ -2,21 +2,21 @@
 import numpy as np
 
 
-cdef double c_steel_T(double temperature):
+cdef double c_steel_T(double T):
 
-    temperature = temperature - 273.15
-    if temperature < 20:
+    T = T - 273.15
+    if T < 20:
         # warnings.warn('Temperature ({:.1f} °C) is below 20 °C'.format(temperature))
         return 425 + 0.773 * 20 - 1.69e-3 * 400 + 2.22e-6 * 8000
-    if 20 <= temperature < 600:
-        return 425 + 0.773 * temperature - 1.69e-3 * (temperature ** 2) + 2.22e-6 * (temperature ** 3)
-    elif 600 <= temperature < 735:
-        return 666 + 13002 / (738 - temperature)
-    elif 735 <= temperature < 900:
-        return 545 + 17820 / (temperature - 731)
-    elif 900 <= temperature <= 1200:
+    if 20 <= T < 600:
+        return 425 + 0.773 * T - 1.69e-3 * (T ** 2) + 2.22e-6 * (T ** 3)
+    elif 600 <= T < 735:
+        return 666 + 13002 / (738 - T)
+    elif 735 <= T < 900:
+        return 545 + 17820 / (T - 731)
+    elif 900 <= T <= 1200:
         return 650
-    elif temperature > 1200:
+    elif T > 1200:
         return 650
     else:
         return 0
@@ -39,20 +39,20 @@ def temperature(
 ):
     """
     SI UNITS!
-    This function calculate the temperature curve of protected steel section based on BS EN 1993-1-2:2005, Section 4
-    . Ambient (fire) time-temperature data must be given, as well as the parameters specified below.
-    :param fire_time: ndarray, [s], time evolution.
-    :param fire_temperature: ndarray, [K], imposed temperature evolution.
-    :param beam_rho: float, [kg/m3], steel density.
-    :param beam_cross_section_area: float, [m2], steel cross section area.
-    :param protection_k: float, [K/kg/m], protection thermal conductivity.
-    :param protection_rho: float, [kg/m3], protection density.
-    :param protection_c: float, [J/K/kg], protection thermal capacity.
-    :param protection_thickness: float, [m], protection thickness.
-    :param protection_protected_perimeter: float, [m], protected perimeter.
-    :param terminate_when_cooling: bool, [-], if True then terminate and return values when first peak steel
-    temperature is observed.
-    :return temperature_steel: ndarray, [K], is calculated steel temperature.
+    Calculate the time dependent temperature of a protected steel section based upon Section 4 in BS EN 1993-1-2:2005.
+
+    :param fire_time:                       Time array
+    :param fire_temperature:                Fire temperature array
+    :param beam_rho:                        Beam (steel) density
+    :param beam_cross_section_area:         Beam (steel) cross section area
+    :param protection_k:                    Protection (intumescent) thermal conductivity
+    :param protection_rho:                  Protection (intumescent) density
+    :param protection_c:                    Protection (intumescent) thermal heat capacity
+    :param protection_thickness:            Protection (intumescent) layer thickness
+    :param protection_protected_perimeter:  Beam (steel) protected perimeter
+    :param terminate_when_cooling:          If `True` return at first steel temperature peak
+    :param terminate_max_temperature:       If `True` return when bea
+    :return:                                Beam (steel) temperature array
     """
 
     # todo: 4.2.5.2 (2) - thermal properties for the insulation material
@@ -77,7 +77,7 @@ def temperature(
 
     temperature_steel[0] = fire_temperature[0]  # initially, steel temperature is equal to ambient
     cdef int i
-    cdef double a, b, c, d, phi,c_s, T_g, temperature_rate_steel
+    cdef double a, b, c, d, phi, c_s, T_g, temperature_rate_steel
     for i in range(fire_time.shape[0]-1):
         i += 1  # actual index since the first item had been skipped.
 
@@ -94,6 +94,8 @@ def temperature(
         d = fire_time[i] - fire_time[i - 1]
 
         temperature_rate_steel = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
+        if temperature_rate_steel < 0 < (T_g - fire_temperature[i - 1]):
+            temperature_rate_steel = 0
 
         temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel * d
 
@@ -113,11 +115,6 @@ def temperature(
         #       its previous temperature are all higher than the current calculated temperature.
         #       A better implementation is perhaps to use a 1-D heat transfer model.
 
-        # DEPRECIATED 26 MAR 2019
-        # if temperature_steel[i] < temperature_steel[i-1] or temperature_steel[i] < temperature_ambient[i]:
-        #     temperature_rate_steel[i] = 0
-        #     temperature_steel[i] = temperature_steel[i-1]
-
     return np.array(temperature_steel)
 
 
@@ -133,27 +130,27 @@ def temperature_max(
         double protection_thickness,
         double protection_protected_perimeter,
         double terminate_check_wait_time=3600,
-        double terminate_max_temperature=np.inf,
 ):
     """
     LIMITATIONS:
-    Constant time interval throughout
-    Only one maxima
+        - Fixed time interval throughout.
+        - Single maxima.
 
     SI UNITS!
     This function calculate the temperature curve of protected steel section based on BS EN 1993-1-2:2005, Section 4
     . Ambient (temperature) time-temperature data must be given, as well as the parameters specified below.
 
-    :param fire_time: [s]
-    :param fire_temperature: [K]
-    :param beam_rho: [kg/m3]
-    :param beam_cross_section_area: [m2]
-    :param protection_k: [K/kg/m]
-    :param protection_rho: [kg/m3]
-    :param protection_c: [J/K/kg]
-    :param protection_thickness: [m]
-    :param protection_protected_perimeter: [m]
-    :return T:      {float} [K]
+    :param fire_time:                       Time array
+    :param fire_temperature:                Fire temperature array
+    :param beam_rho:                        Beam (steel) density
+    :param beam_cross_section_area:         Beam (steel) cross section area
+    :param protection_k:                    Protection (intumescent) thermal conductivity
+    :param protection_rho:                  Protection (intumescent) density
+    :param protection_c:                    Protection (intumescent) thermal heat capacity
+    :param protection_thickness:            Protection (intumescent) layer thickness
+    :param protection_protected_perimeter:  Beam (steel) protected perimeter
+    :param terminate_check_wait_time:       Only to check max beam temperature after this, i.e. terminate when cooling
+    :return:                                Beam (steel) temperature array
     """
 
     # todo: 4.2.5.2 (2) - thermal properties for the insulation material
@@ -188,6 +185,8 @@ def temperature_max(
         c = (np.exp(phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
 
         dT = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
+        if dT < 0 < (T_g - fire_temperature[i - 1]):
+            dT = 0
 
         T += dT * d
 
@@ -198,8 +197,6 @@ def temperature_max(
 
         # Terminate early if maximum temperature is reached
         elif flag_heating_started:
-            if T > terminate_max_temperature:
-                break
             if dT < 0:
                 T -= dT * d
                 break
@@ -251,7 +248,6 @@ def protection_thickness(
     cdef double A_p = protection_protected_perimeter
     cdef double c_p = protection_c
 
-
     cdef double d = fire_time[1] - fire_time[0]
 
     cdef int i
@@ -278,6 +274,8 @@ def protection_thickness(
             b = (T_g - T) / (1.0 + phi / 3.0)
             c = (np.exp(phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
             dT = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
+            if dT < 0 < (T_g - fire_temperature[i - 1]):
+                dT = 0
             T += dT * d
             if not flag_heating_started:
                 if fire_time[i] >= terminate_check_wait_time:
