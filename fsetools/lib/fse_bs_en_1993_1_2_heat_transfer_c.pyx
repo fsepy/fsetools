@@ -99,13 +99,10 @@ def temperature(
 
         temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel * d
 
-        if (temperature_rate_steel > 0 and flag_heating_started is False) and fire_time[i] > 1800:
-            flag_heating_started = 1
-
         # Terminate steel temperature calculation if necessary
-        if terminate_when_cooling and flag_heating_started and temperature_rate_steel < 0:
+        if terminate_when_cooling and temperature_rate_steel < 0:
             break
-        elif flag_heating_started and terminate_max_temperature < temperature_steel[i]:
+        elif terminate_max_temperature < temperature_steel[i]:
             break
 
         # NOTE: Steel temperature can be in cooling phase at the beginning of calculation, even the ambient temperature
@@ -129,7 +126,6 @@ def temperature_max(
         double protection_c,
         double protection_thickness,
         double protection_protected_perimeter,
-        double terminate_check_wait_time=3600,
 ):
     """
     LIMITATIONS:
@@ -188,18 +184,11 @@ def temperature_max(
         if dT < 0 < (T_g - fire_temperature[i - 1]):
             dT = 0
 
-        T += dT * d
+        T = T + dT * d
 
-        if not flag_heating_started:
-            if fire_time[i] >= terminate_check_wait_time:
-                if dT > 0:
-                    flag_heating_started = True
+        if dT < 0:
+            return T
 
-        # Terminate early if maximum temperature is reached
-        elif flag_heating_started:
-            if dT < 0:
-                T -= dT * d
-                break
     return T
 
 

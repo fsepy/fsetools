@@ -70,13 +70,10 @@ def temperature(
 
     # Check time step <= 30 seconds. [BS EN 1993-1-2:2005, Clauses 4.2.5.2 (3)]
 
-    flag_heating_started = False
-
     temperature_steel[0] = fire_temperature[0]  # initially, steel temperature is equal to ambient
-    temperature_ambient_ = iter(fire_temperature)  # skip the first item
-    next(temperature_ambient_)  # skip the first item
-    for i, T_g in enumerate(temperature_ambient_):
+    for i in range(len(fire_temperature) - 1):
         i += 1  # actual index since the first item had been skipped.
+        T_g = fire_temperature[i]
         try:
             specific_heat_steel[i] = c_steel_T(temperature_steel[i - 1])
         except ValueError:
@@ -96,13 +93,10 @@ def temperature(
 
         temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel[i] * d
 
-        if (temperature_rate_steel[i] > 0 and flag_heating_started is False) and fire_time[i] > 1800:
-            flag_heating_started = True
-
         # Terminate steel temperature calculation if necessary
-        if terminate_when_cooling and flag_heating_started and temperature_rate_steel[i] < 0:
+        if terminate_when_cooling and temperature_rate_steel[i] < 0:
             break
-        elif flag_heating_started and terminate_max_temperature < temperature_steel[i]:
+        elif terminate_max_temperature < temperature_steel[i]:
             break
 
         # NOTE: Steel temperature can be in cooling phase at the beginning of calculation, even the ambient temperature
@@ -187,18 +181,12 @@ def temperature_max(
 
         T = T + dT * d
 
-        if not flag_heating_started:
-            if fire_time[i] >= terminate_check_wait_time:
-                if dT > 0:
-                    flag_heating_started = True
-
         # Terminate early if maximum temperature is reached
-        elif flag_heating_started:
-            if T > terminate_max_temperature:
-                break
-            if dT < 0:
-                T -= dT * d
-                break
+        if T > terminate_max_temperature:
+            break
+        if dT < 0:
+            T -= dT * d
+            break
     return T
 
 
