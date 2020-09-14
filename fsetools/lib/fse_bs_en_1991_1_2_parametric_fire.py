@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def fire(
+def temperature(
         t, A_t, A_f, A_v, h_eq, q_fd, lambda_, rho, c, t_lim, temperature_initial=293.15
 ):
     """Function Description: (SI UNITS ONLY)
@@ -158,7 +158,7 @@ def example_plot_interflam():
     # Calculate fire curves
     for w_v in w_v_:
         x = np.arange(0, 5 * 60 * 60, 1)
-        y = fire(
+        y = temperature(
             t=x,
             A_v=h_v * w_v,
             A_t=2 * (w * h + h * l + l * w),
@@ -242,7 +242,7 @@ def _test_fire():
     x1_list = []  # calculated time array
     y1_list = []  # calculated temperature array
     for i in A_v_list:
-        y = fire(A_v=i, **copy.copy(kws))
+        y = temperature(A_v=i, **copy.copy(kws))
         x = np.arange(0, 2 * 60 * 60 + 1, 1) + 10 * 60
         x1_list.append(x / 60)
         y1_list.append(y - 273.15)
