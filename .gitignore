@@ -154,3 +154,4 @@ fsetools/gui/layout/*.py
 *key.txt
 *__key__.py
 *.png
+fsetools/lib/fse_bs_en_1993_1_2_heat_transfer_c.c
