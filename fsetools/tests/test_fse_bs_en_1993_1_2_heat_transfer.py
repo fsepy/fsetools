@@ -2,9 +2,9 @@ import numpy as np
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import protection_thickness as protection_thickness_c
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
 
-from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature, temperature_max
-from fsetools.lib.fse_travelling_fire import temperature_si as trav_temp
 from fsetools.lib.fse_bs_en_1991_1_2_parametric_fire import temperature as param_temp
+from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
+from fsetools.lib.fse_travelling_fire import temperature_si as trav_temp
 
 
 def __trav_fire(t: np.ndarray):
@@ -30,7 +30,7 @@ def __param_fire(t: np.ndarray):
         A_v=20,
         h_eq=2,
         q_fd=420e6,
-        lambda_=720**2,
+        lambda_=720 ** 2,
         rho=1,
         c=1,
         t_lim=0.333,
@@ -45,7 +45,7 @@ def __param_fire_2(t: np.ndarray):
         A_v=115.2,
         h_eq=2,
         q_fd=336e6,
-        lambda_=720**2,
+        lambda_=720 ** 2,
         rho=1,
         c=1,
         t_lim=0.333,
@@ -120,6 +120,7 @@ def test_temperature_param():
     labels = ['temperature', 'temperature_c']
     ax.legend(lines, labels).set_visible(True)
     plt.show()
+
 
 def test_temperature_param_2():
     import matplotlib.pyplot as plt

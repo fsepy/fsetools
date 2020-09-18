@@ -2,3 +2,4 @@ packaging>=20.1
 scipy
 seaborn
 pandas
+cython>=0.29.21
