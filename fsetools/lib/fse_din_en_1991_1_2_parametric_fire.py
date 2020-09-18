@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 
 
-def fire(
+def temperature(
         t_array_s,
         A_w_m2,
         h_w_m2,
@@ -293,7 +293,7 @@ def example_plot_interflam():
     for w_v in w_v_:
         q_ref = 1300
         x = np.arange(0, 5 * 60 * 60 + 1, 1)
-        y = fire(
+        y = temperature(
             t_array_s=x,
             A_w_m2=h_v * w_v,
             h_w_m2=h_v,
@@ -343,7 +343,7 @@ def plot_variable_qfd():
     for q_fd in q_fd_:
         q_ref = 1300
         x = np.arange(0, 5 * 60 * 60 + 1, 1)
-        y = fire(
+        y = temperature(
             t_array_s=x,
             A_w_m2=h_v * w_v,
             h_w_m2=h_v,

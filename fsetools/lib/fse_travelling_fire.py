@@ -5,7 +5,7 @@ from typing import Union
 import numpy as np
 
 
-def fire(
+def temperature(
         t: np.array,
         fire_load_density_MJm2: float,
         fire_hrr_density_MWm2: float,
@@ -19,7 +19,7 @@ def fire(
         **__,
 ):
     """
-    This function calculates and returns a temperature array representing travelling fire. This function is NOT in SI.
+    This function calculates and returns a temperature array representing travelling temperature. This function is NOT in SI.
     :param t: in s, is the time array
     :param fire_load_density_MJm2: in MJ/m2, is the fuel density on the floor
     :param fire_hrr_density_MWm2: in MW/m2, is the heat release rate density
@@ -114,7 +114,7 @@ def fire(
         raise TypeError('Unknown type of parameter "l_s": {}'.format(type(l_s)))
 
 
-def fire_backup(
+def temperature_si(
         t: np.ndarray,
         T_0: float,
         q_fd: float,
@@ -127,6 +127,8 @@ def fire_backup(
         T_max: float = 1323.15,
 ):
     """
+    This is an SI and improved version of the original `temperature` method.
+
     :param t: ndarray, [s] An array representing time incorporating 'temperature'.
     :param T_0: float, [K] ,Initial temperature.
     :param q_fd: float, [J/m2], Fire load density.
@@ -161,9 +163,7 @@ def fire_backup(
 
     # workout the heat release rate ARRAY (corrected with time)
     Q_growth = (hrrpua * w * s * t) * (t < t_lim_)
-    Q_peak = (
-            min([hrrpua * w * s * t_burn, hrrpua * w * l]) * (t >= t_lim_) * (t <= t_decay_)
-    )
+    Q_peak = min([hrrpua * w * s * t_burn, hrrpua * w * l]) * (t >= t_lim_) * (t <= t_decay_)
     Q_decay = (max(Q_peak) - (t - t_decay_) * w * s * hrrpua) * (t > t_decay_)
     Q_decay[Q_decay < 0] = 0
     Q = (Q_growth + Q_peak + Q_decay) * 1000.0
@@ -193,7 +193,7 @@ def fire_backup(
     return T_g
 
 
-def example_plot_interflam():
+def _test_fire():
     time = np.arange(0, 210 * 60, 30)
     list_l = [25, 50, 100, 150]
 
@@ -202,10 +202,10 @@ def example_plot_interflam():
     plt.style.use("seaborn-paper")
     fig, ax = plt.subplots(figsize=(3.94, 2.76))
     ax.set_xlabel("Time [minute]")
-    ax.set_ylabel("Temperature [$℃$]")
+    ax.set_ylabel(u"Temperature [$℃$]")
 
     for length in list_l:
-        temperature = fire(
+        temperature_ = temperature(
             t=time,
             fire_load_density_MJm2=600,
             fire_hrr_density_MWm2=0.25,
@@ -217,14 +217,13 @@ def example_plot_interflam():
             fire_nft_limit_c=1050,
         )
 
-        ax.plot(time / 60, temperature, label="Room length {:4.0f} m".format(length))
+        ax.plot(time / 60, temperature_, label="Room length {:4.0f} m".format(length))
 
     ax.legend(loc=4).set_visible(True)
-    ax.set_xlim((0, 180))
-    ax.set_ylim((0, 1400))
+    ax.set_xlim((-10, 190))
     ax.grid(color="k", linestyle="--")
     plt.tight_layout()
-    plt.savefig(fname="fire-travelling.png", dpi=300)
+    plt.show()
 
 
 def _test_fire_backup():
@@ -241,7 +240,7 @@ def _test_fire_backup():
     ax.set_ylabel("Temperature [$℃$]")
 
     for l in list_l:
-        temperature = fire_backup(
+        temperature_0 = temperature_si(
             t=time,
             T_0=293.15,
             q_fd=900e6,
@@ -252,46 +251,27 @@ def _test_fire_backup():
             e_h=3.5,
             e_l=l / 2,
         )
-        ax.plot(time / 60, temperature - 273.15)
+        temperature_1 = temperature(
+            t=time,
+            fire_load_density_MJm2=900,
+            fire_hrr_density_MWm2=0.15,
+            room_length_m=l,
+            room_width_m=17.4,
+            fire_spread_rate_ms=0.012,
+            beam_location_height_m=3.5,
+            beam_location_length_m=l / 2,
+            fire_nft_limit_c=1323.15 - 273.15
+        )
+        ax.plot(time / 60, temperature_0 - 273.15)
+        ax.plot(time / 60, temperature_1, ls=':', c='r')
+
+        assert np.allclose(temperature_0 - 273.15, temperature_1)
 
     ax.legend().set_visible(True)
-    ax.set_xlim((0, 120))
-    ax.grid(color="k", linestyle="--")
+    ax.set_xlim((0, 180))
+    ax.grid(color="grey", linestyle="--", linewidth=0.5)
     plt.tight_layout()
-    # plt.show()
-
-
-def _test_fire():
-    time = np.arange(0, 210 * 60, 30)
-    list_l = [25, 50, 100, 150]
-
-    import matplotlib.pyplot as plt
-
-    plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.94, 2.76))
-    ax.set_xlabel("Time [minute]")
-    ax.set_ylabel(u"Temperature [$℃$]")
-
-    for length in list_l:
-        temperature = fire(
-            t=time,
-            fire_load_density_MJm2=600,
-            fire_hrr_density_MWm2=0.25,
-            room_length_m=length,
-            room_width_m=16,
-            fire_spread_rate_ms=0.012,
-            beam_location_height_m=3,
-            beam_location_length_m=length / 2,
-            fire_nft_limit_c=1050,
-        )
-
-        ax.plot(time / 60, temperature, label="Room length {:4.0f} m".format(length))
-
-    ax.legend(loc=4).set_visible(True)
-    ax.set_xlim((-10, 190))
-    ax.grid(color="k", linestyle="--")
-    plt.tight_layout()
-    # plt.show()
+    plt.show()
 
 
 def _test_fire_multiple_beam_location():
@@ -305,7 +285,7 @@ def _test_fire_multiple_beam_location():
     ax.set_xlabel("Time [minute]")
     ax.set_ylabel("Temperature [$℃$]")
 
-    temperature_list = fire(
+    temperature_list = temperature(
         t=time,
         fire_load_density_MJm2=600,
         fire_hrr_density_MWm2=0.25,
@@ -317,8 +297,8 @@ def _test_fire_multiple_beam_location():
         fire_nft_limit_c=1050,
     )
 
-    for temperature in temperature_list:
-        ax.plot(time / 60, temperature, label="Room length {:4.0f} m".format(length))
+    for temperature_ in temperature_list:
+        ax.plot(time / 60, temperature_, label="Room length {:4.0f} m".format(length))
 
     ax.legend(loc=4).set_visible(True)
     ax.set_xlim((-10, 190))
@@ -327,7 +307,42 @@ def _test_fire_multiple_beam_location():
     # plt.show()
 
 
+def example():
+    time = np.arange(0, 210 * 60, 30)
+    list_l = [25, 50, 100, 150]
+
+    import matplotlib.pyplot as plt
+
+    plt.style.use("seaborn-paper")
+    fig, ax = plt.subplots(figsize=(3.94, 2.76))
+    ax.set_xlabel("Time [minute]")
+    ax.set_ylabel("Temperature [$℃$]")
+
+    for length in list_l:
+        temperature_ = temperature(
+            t=time,
+            fire_load_density_MJm2=600,
+            fire_hrr_density_MWm2=0.25,
+            room_length_m=length,
+            room_width_m=16,
+            fire_spread_rate_ms=0.012,
+            beam_location_height_m=3,
+            beam_location_length_m=length / 2,
+            fire_nft_limit_c=1050,
+        )
+
+        ax.plot(time / 60, temperature_, label="Room length {:4.0f} m".format(length))
+
+    ax.legend(loc=4).set_visible(True)
+    ax.set_xlim((0, 180))
+    ax.set_ylim((0, 1400))
+    ax.grid(color="k", linestyle="--")
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
     _test_fire()
+    _test_fire_backup()
     _test_fire_multiple_beam_location()
-    # example_plot_interflam()
+    example()
