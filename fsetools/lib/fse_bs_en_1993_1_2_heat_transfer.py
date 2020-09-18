@@ -119,7 +119,6 @@ def temperature_max(
         protection_c,
         protection_thickness,
         protection_protected_perimeter,
-        terminate_check_wait_time=3600,
         terminate_max_temperature=np.inf,
 ):
     """
@@ -156,8 +155,6 @@ def temperature_max(
     d_p = protection_thickness
     A_p = protection_protected_perimeter
     c_p = protection_c
-
-    flag_heating_started = False
 
     T = fire_temperature[0]  # current steel temperature
     d = fire_time[1] - fire_time[0]
@@ -231,24 +228,3 @@ def _interflam_figures():
     plt.legend(loc=4)
     plt.tight_layout()
     plt.show()
-
-
-def _speed_test():
-    rho = 7850
-    t = np.arange(0, 700, 0.1)
-    T = 345.0 * np.log10(t * 8.0 + 1.0) + 293.15
-
-    list_dp = np.arange(0.0001, 0.01 + 0.002, 0.001)
-
-    for d_p in list_dp:
-        T_s = temperature(
-            fire_time=t,
-            fire_temperature=T,
-            beam_rho=rho,
-            beam_cross_section_area=0.017,
-            protection_k=0.2,
-            protection_rho=800,
-            protection_c=1700,
-            protection_thickness=d_p,
-            protection_protected_perimeter=2.14,
-        )
