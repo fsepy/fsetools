@@ -501,9 +501,7 @@ def _test_visual_CuboidRoomModel():
 
 
 if __name__ == '__main__':
-    # _test_main()
-    # _test_solve_phi()
-    # _test_Plane()
-    # _test_Emitter_Receiver()
-    # _test_CuboidRoomModel()
+    _test_Plane()
+    _test_Emitter_Receiver()
+    _test_CuboidRoomModel()
     _test_visual_CuboidRoomModel()
