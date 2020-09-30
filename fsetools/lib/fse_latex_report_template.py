@@ -27,12 +27,12 @@ class ReportBase(ABC):
         doc = self.make_latex()
         doc.generate_pdf(filepath=fp_pdf, clean=clean, clean_tex=clean_tex)
         if platform == 'darwin':
-            subprocess.Popen(['open', fp_pdf + '.pdf'])
+            subprocess.Popen(['open', fp_pdf + '.pdf'], creationflags=0x08000000)
         else:
             if fp_pdf_viewer:
-                subprocess.Popen([fp_pdf_viewer, fp_pdf + '.pdf'])
+                subprocess.Popen([fp_pdf_viewer, fp_pdf + '.pdf'], creationflags=0x08000000)
             else:
-                subprocess.Popen([fp_pdf + '.pdf'], shell=True)
+                subprocess.Popen([fp_pdf + '.pdf'], shell=True, creationflags=0x08000000)
 
     def make_pdf_web(self, fp_tex: str):
         if fp_tex.endswith('.tex'):
