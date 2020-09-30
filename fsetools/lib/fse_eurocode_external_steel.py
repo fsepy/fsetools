@@ -7,8 +7,12 @@ from fsetools.lib.fse_bs_en_1993_1_2_external_column import ExternalSteelTempera
 from fsetools.lib.fse_latex_report_template import Report
 
 
-def make_pdf_helper(pylatex_cls, fn_no_suffix: str, fp_pdf_viewer: str = r'C:\Program Files\SumatraPDF\SumatraPDF.exe',
-                    overleaf_fallback: bool = True):
+def make_pdf_helper(
+        pylatex_cls,
+        fn_no_suffix: str,
+        fp_pdf_viewer: str,
+        overleaf_fallback: bool = True
+):
     try:
         pylatex_cls.make_pdf(
             fp_pdf=fn_no_suffix,
@@ -22,7 +26,7 @@ def make_pdf_helper(pylatex_cls, fn_no_suffix: str, fp_pdf_viewer: str = r'C:\Pr
             raise e
 
 
-def external_fire_and_steel_beam_column_temperatures(
+def external_steel_temperature(
         D: float,
         W: float,
         H: float,
@@ -47,6 +51,7 @@ def external_fire_and_steel_beam_column_temperatures(
 ):
     A_f = D * W
     A_v = w_t * h_eq
+    A_t = 2 * (D * W + W * H + H * D)
 
     if Q:
         kwargs = dict(Q=Q)
@@ -54,9 +59,10 @@ def external_fire_and_steel_beam_column_temperatures(
         kwargs = dict()
 
     section_1 = ExternalFlame(
-        D=D,
-        W=W,
-        H=H,
+        # D=D,
+        # W=W,
+        # H=H,
+        A_t=A_t,
         A_f=A_f,
         h_eq=h_eq,
         w_t=w_t,
@@ -79,6 +85,7 @@ def external_fire_and_steel_beam_column_temperatures(
         d_2_beam=d_2_beam,
         d_fw=d_fw,
         d_aw=d_aw,
+        T_z=None,
         **kwargs,
     )
 
@@ -145,9 +152,11 @@ def external_fire_and_steel_beam_column_temperatures(
     )
 
     section_4 = ExternalFlameForcedDraught(
-        D=D,
-        W=W,
-        H=H,
+        # D=D,
+        # W=W,
+        # H=H,
+        A_t=A_t,
+        A_f=A_f,
         h_eq=h_eq,
         w_t=w_t,
         q_fd=q_fd,
@@ -262,3 +271,39 @@ def external_fire_and_steel_beam_column_temperatures(
                 raise e
 
     return sections
+
+
+def _test_external_steel_temperature():
+    input_params = dict(
+        D=20.9,  # original depth 85.5, shortened to match travelling fire width
+        W=25.1,  # the dimension with opening
+        H=3.3,
+        w_t=20.9,  # travelling fire maximum length
+        h_eq=3.3,
+        q_fd=400,
+        Q=80,
+        d_1_column=0.4,
+        d_2_column=0.7,
+        d_1_beam=0.4,
+        d_2_beam=0.982,
+
+        d_fw=0.79 - 0.2,
+        d_aw=0,
+
+        is_wall_above_opening=True,
+        is_windows_on_more_than_one_wall=False,
+        is_central_core=False,
+
+        fp_pdf_no_suffix='Appendix A - Travelling fire',
+        report_section_prefix='A.',
+
+        make_pdf=False,
+    )
+
+    external_steel_temperature(
+        **input_params
+    )
+
+
+if __name__ == '__main__':
+    _test_external_steel_temperature()
