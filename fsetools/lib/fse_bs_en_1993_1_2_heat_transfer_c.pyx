@@ -37,7 +37,7 @@ def temperature(
 ):
     """
     SI UNITS!
-    Calculate the time dependent temperature of a protected steel section based upon Section 4 in BS EN 1993-1-2:2005.
+    Function calculates the steel temperature for a protected steel member based upon BS EN 1993-1-2.
 
     :param fire_time:                       Time array [s]
     :param fire_temperature:                Gas temperature array [K]
@@ -115,14 +115,14 @@ def temperature_max(
         double protection_protected_perimeter,
 ):
     """
-    LIMITATIONS:
-        - Fixed time interval throughout.
-        - Single maxima.
-
     SI UNITS!
-    This function calculate the temperature curve of protected steel section based on BS EN 1993-1-2:2005, Section 4
-    . Ambient (temperature) time-temperature data must be given, as well as the parameters specified below.
+    Function calculates the maximum steel temperature for a protected steel member based upon BS EN 1993-1-2.
 
+    LIMITATIONS:
+        1. Constant time interval in `fire_time` throughout;
+        2. `fire_temperature` has *one* maxima.
+
+    PARAMETERS:
     :param fire_time:                       Time array [s]
     :param fire_temperature:                Gas temperature array [K]
     :param beam_rho:                        Steel beam density [kg/m3]

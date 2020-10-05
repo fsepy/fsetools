@@ -142,7 +142,7 @@ def test_temperature_param_2():
         # print(temperature_max(**kwargs), np.amax(T_c))
         ax.plot(t / 60, T - 273.15, c='k')
         ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
-        assert np.allclose(T, T_c)  # Assertion
+        assert np.allclose(T, T_c)  # check if the two function return the same
 
     ax.grid(ls='--', c='k', linewidth=0.5)
     lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
@@ -152,12 +152,35 @@ def test_temperature_param_2():
 
 
 def test_protection_thickness():
+    import matplotlib.pyplot as plt
+
     t = np.arange(0, 210 * 60, 1, dtype=np.float)
     kwargs = __test_temperature_kwargs(t, __trav_fire(t))
     kwargs.pop('protection_thickness')
-    kwargs['solver_temperature_goal'] = 873.15
+    kwargs['solver_temperature_goal'] = 873.15+20
     kwargs['solver_temperature_goal_tol'] = 0.1
-    print(protection_thickness_c(**kwargs))
+
+    solver_d_p, solver_T_a_max = protection_thickness_c(**kwargs)
+
+    print(
+        f'Solved protection thickness   {solver_d_p:<8.4} mm\n'
+        f'Solved max. steel temperature {solver_T_a_max-273.15:<8.2f} °C'
+    )
+
+    assert abs(solver_T_a_max - (873.15+20)) <= 0.1
+    assert abs(solver_d_p - 0.01556) <= 1e-5  # based on a solution on 05/10/2020
+
+    kwargs_check = __test_temperature_kwargs(t, __trav_fire(t))
+    kwargs_check['protection_thickness'] = solver_d_p
+    T_c = temperature_c(**kwargs_check)
+    assert abs(np.amax(T_c) - solver_T_a_max) < 1e-3
+
+    fig, ax = plt.subplots()
+    ax.plot(t, __trav_fire(t), label='Gas temperature')
+    ax.plot(t, T_c, label='Steel temperature')
+    ax.axhline(solver_T_a_max, ls='--', color='k', label=f'Steel temp. at d_p={solver_d_p:.4} mm')
+    ax.legend().set_visible(True)
+    fig.show()
 
 
 if __name__ == '__main__':

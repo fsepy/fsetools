@@ -30,27 +30,28 @@ def temperature(
         protection_c,
         protection_thickness,
         protection_protected_perimeter,
-        terminate_when_cooling=False,
-        terminate_max_temperature=np.inf,
         *_,
         **__
 ):
     """
     SI UNITS!
-    This function calculate the temperature curve of protected steel section based on BS EN 1993-1-2:2005, Section 4
-    . Ambient (fire) time-temperature data must be given, as well as the parameters specified below.
-    :param fire_time: ndarray, [s], time evolution.
-    :param fire_temperature: ndarray, [K], imposed temperature evolution.
-    :param beam_rho: float, [kg/m3], steel density.
-    :param beam_cross_section_area: float, [m2], steel cross section area.
-    :param protection_k: float, [K/kg/m], protection thermal conductivity.
-    :param protection_rho: float, [kg/m3], protection density.
-    :param protection_c: float, [J/K/kg], protection thermal capacity.
-    :param protection_thickness: float, [m], protection thickness.
-    :param protection_protected_perimeter: float, [m], protected perimeter.
-    :param terminate_when_cooling: bool, [-], if True then terminate and return values when first peak steel
-    temperature is observed.
-    :return temperature_steel: ndarray, [K], is calculated steel temperature.
+    Function calculates the maximum steel temperature for a protected steel member based upon BS EN 1993-1-2.
+
+    LIMITATIONS:
+        1. Constant time interval in `fire_time` throughout;
+        2. `fire_temperature` has *one* maxima.
+
+    PARAMETERS:
+    :param fire_time:                       Time array [s]
+    :param fire_temperature:                Gas temperature array [K]
+    :param beam_rho:                        Steel beam density [kg/m3]
+    :param beam_cross_section_area:         Steel beam cross sectional area [m2]
+    :param protection_k:                    Protection thermal conductivity [K/kg/m]
+    :param protection_rho:                  Protection density [kg/m3]
+    :param protection_c:                    Protection specific heat capacity [J/K/kg]
+    :param protection_thickness:            Protection layer thickness [m]
+    :param protection_protected_perimeter:  Protection protected perimeter (of the steel beam section) [m]
+    :return:                                Steel beam temperature array [K]
     """
 
     # todo: 4.2.5.2 (2) - thermal properties for the insulation material
@@ -93,12 +94,6 @@ def temperature(
 
         temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel[i] * d
 
-        # Terminate steel temperature calculation if necessary
-        if terminate_when_cooling and temperature_rate_steel[i] < 0:
-            break
-        elif terminate_max_temperature < temperature_steel[i]:
-            break
-
         # NOTE: Steel temperature can be in cooling phase at the beginning of calculation, even the ambient temperature
         #       (fire) is hot. This is
         #       due to the factor 'phi' which intends to address the energy locked within the protection layer.
@@ -119,7 +114,6 @@ def temperature_max(
         protection_c,
         protection_thickness,
         protection_protected_perimeter,
-        terminate_max_temperature=np.inf,
 ):
     """
     LIMITATIONS:
@@ -179,8 +173,6 @@ def temperature_max(
         T = T + dT * d
 
         # Terminate early if maximum temperature is reached
-        if T > terminate_max_temperature:
-            break
         if dT < 0:
             T -= dT * d
             break
