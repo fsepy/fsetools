@@ -116,27 +116,24 @@ def temperature_max(
         protection_protected_perimeter,
 ):
     """
-    LIMITATIONS:
-    Constant time interval throughout
-    Only one maxima
-
     SI UNITS!
-    This function calculate the temperature curve of protected steel section based on BS EN 1993-1-2:2005, Section 4
-    . Ambient (fire) time-temperature data must be given, as well as the parameters specified below.
+    Function calculates the maximum steel temperature for a protected steel member based upon BS EN 1993-1-2.
 
-    :param fire_time:                    {ndarray} [s]
-    :param fire_temperature:     {ndarray} [K]
-    :param beam_rho:               {float} [kg/m3]
-    :param beam_cross_section_area:      {float} [m2]
-    :param protection_k:            {float} [K/kg/m]
-    :param protection_rho:          {float} [kg/m3]
-    :param protection_c:            {float} [J/K/kg]
-    :param protection_thickness:    {float} [m]
-    :param protection_protected_perimeter:     {float} [m]
-                                                            temperature is observed.
-    :return time:                   {ndarray, float} [s]
-    :return temperature_steel:      {ndarray, float} [K]
-    :return data_all:               {Dict} [-]
+    LIMITATIONS:
+        1. Constant time interval in `fire_time` throughout;
+        2. `fire_temperature` has *one* maxima.
+
+    PARAMETERS:
+    :param fire_time:                       Time array [s]
+    :param fire_temperature:                Gas temperature array [K]
+    :param beam_rho:                        Steel beam density [kg/m3]
+    :param beam_cross_section_area:         Steel beam cross sectional area [m2]
+    :param protection_k:                    Protection thermal conductivity [K/kg/m]
+    :param protection_rho:                  Protection density [kg/m3]
+    :param protection_c:                    Protection specific heat capacity [J/K/kg]
+    :param protection_thickness:            Protection layer thickness [m]
+    :param protection_protected_perimeter:  Protection protected perimeter (of the steel beam section) [m]
+    :return:                                Steel beam temperature array [K]
     """
 
     # todo: 4.2.5.2 (2) - thermal properties for the insulation material
