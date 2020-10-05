@@ -155,9 +155,18 @@ def test_protection_thickness():
     t = np.arange(0, 210 * 60, 1, dtype=np.float)
     kwargs = __test_temperature_kwargs(t, __trav_fire(t))
     kwargs.pop('protection_thickness')
-    kwargs['solver_temperature_goal'] = 873.15
+    kwargs['solver_temperature_goal'] = 873.15+20
     kwargs['solver_temperature_goal_tol'] = 0.1
-    print(protection_thickness_c(**kwargs))
+
+    solver_d_p, solver_T_a_max = protection_thickness_c(**kwargs)
+
+    print(
+        f'Solved protection thickness   {solver_d_p:<8.4} mm\n'
+        f'Solved max. steel temperature {solver_T_a_max-273.15:<8.2f} °C'
+    )
+
+    assert abs(solver_T_a_max - (873.15+20)) <= 0.1
+    assert abs(solver_d_p - 0.01556) <= 1e-5  # based on a solution on 05/10/2020
 
 
 if __name__ == '__main__':
