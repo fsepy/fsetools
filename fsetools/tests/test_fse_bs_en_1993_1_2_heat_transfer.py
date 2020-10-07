@@ -53,7 +53,7 @@ def __param_fire_2(t: np.ndarray):
     )
 
 
-def __test_temperature_kwargs(t, T):
+def __test_heat_transfer_kwargs(t, T):
     return dict(
         fire_time=t,
         fire_temperature=T,
@@ -76,7 +76,7 @@ def test_temperature_trav():
     # --------------------------------------------------
     fig, ax = plt.subplots()
     t = np.arange(0, 210 * 60, 5)
-    kwargs = dict(**__test_temperature_kwargs(t, __trav_fire(t)))
+    kwargs = dict(**__test_heat_transfer_kwargs(t, __trav_fire(t)))
 
     list_dp = np.linspace(0.0001, 0.1000, 10)
 
@@ -104,7 +104,7 @@ def test_temperature_param():
     # --------------------------------------------------
     fig, ax = plt.subplots()
     t = np.arange(0, 210 * 60, 5)
-    kwargs = dict(**__test_temperature_kwargs(t, __param_fire(t)))
+    kwargs = dict(**__test_heat_transfer_kwargs(t, __param_fire(t)))
 
     list_dp = np.arange(0.0001, 0.05 + 0.002, 0.001)
 
@@ -132,7 +132,7 @@ def test_temperature_param_2():
     # --------------------------------------------------
     fig, ax = plt.subplots()
     t = np.arange(0, 210 * 60, 5)
-    kwargs = dict(**__test_temperature_kwargs(t, __param_fire_2(t)))
+    kwargs = dict(**__test_heat_transfer_kwargs(t, __param_fire_2(t)))
 
     list_dp = np.arange(0.0001, 0.05 + 0.002, 0.001)
 
@@ -152,11 +152,30 @@ def test_temperature_param_2():
     plt.show()
 
 
+def test_temperature_extreme():
+    import matplotlib.pyplot as plt
+
+    t = np.arange(0, 210 * 60, 1, dtype=np.float)
+    kwargs = __test_heat_transfer_kwargs(t, __param_fire(t))
+
+    fig, ax1 = plt.subplots()
+
+    for protection_thickness in np.linspace(0.5, 0.0001, 10):
+        kwargs['protection_thickness'] = protection_thickness
+        T_a = temperature(**kwargs)
+        ax1.plot(t / 60, T_a, label=f'd_p {protection_thickness * 1000:<4.0f} mm')
+    ax1.legend().set_visible(True)
+    ax1.set_xlabel('Time [$min$]')
+    ax1.set_ylabel('Steel temperature [$K$]')
+
+    fig.show()
+
+
 def test_protection_thickness_c():
     import matplotlib.pyplot as plt
 
     t = np.arange(0, 210 * 60, 1, dtype=np.float)
-    kwargs = __test_temperature_kwargs(t, __trav_fire(t))
+    kwargs = __test_heat_transfer_kwargs(t, __trav_fire(t))
     kwargs.pop('protection_thickness')
     kwargs['solver_temperature_goal'] = 873.15 + 20
     kwargs['solver_temperature_goal_tol'] = 0.1
@@ -171,7 +190,7 @@ def test_protection_thickness_c():
     assert abs(solver_T_a_max - (873.15 + 20)) <= 0.1
     assert abs(solver_d_p - 0.01556) <= 1e-5  # based on a solution on 05/10/2020
 
-    kwargs_check = __test_temperature_kwargs(t, __trav_fire(t))
+    kwargs_check = __test_heat_transfer_kwargs(t, __trav_fire(t))
     kwargs_check['protection_thickness'] = solver_d_p
     T_c = temperature_c(**kwargs_check)
     assert abs(np.amax(T_c) - solver_T_a_max) < 1e-3
@@ -188,12 +207,12 @@ def test_protection_thickness_c_extreme():
     import matplotlib.pyplot as plt
 
     t = np.arange(0, 210 * 60, 1, dtype=np.float)
-    kwargs = __test_temperature_kwargs(t, __param_fire_2(t))
+    kwargs = __test_heat_transfer_kwargs(t, __param_fire_2(t))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-    list_d_p, list_T_a_max = np.linspace(0.0001, 0.0301, 100), list()
+    list_d_p, list_T_a_max = np.linspace(0.0001, 0.5, 100), list()
 
-    for protection_thickness in np.linspace(0.0001, 0.0301, 10):
+    for protection_thickness in np.linspace(0.0001, 0.5, 10):
         kwargs['protection_thickness'] = protection_thickness
         T_a = temperature_c(**kwargs)
         ax1.plot(t / 60, T_a, label=f'd_p {protection_thickness * 1000:<4.0f} mm')
@@ -217,3 +236,4 @@ if __name__ == '__main__':
     test_temperature_param_2()
     test_protection_thickness_c()
     test_protection_thickness_c_extreme()
+    test_temperature_extreme()

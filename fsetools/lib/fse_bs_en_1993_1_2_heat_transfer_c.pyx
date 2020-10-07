@@ -272,14 +272,12 @@ def protection_thickness(
             protection_protected_perimeter=protection_protected_perimeter,
         )
 
-    print(f'{d_p_1:8.4f}->{T_a_max_1:8.2f}, {d_p_2:8.4f}->{T_a_max_2:8.2f}')
-
     if T_a_max_1 < solver_temperature_goal + solver_temperature_goal_tol:
-        return -np.inf, T_a_max_1
+        return -np.inf, T_a_max_1, t, solver_iter_count
     if T_a_max_2 > solver_temperature_goal - solver_temperature_goal_tol:
-        return np.inf, T_a_max_2
+        return np.inf, T_a_max_2, t, solver_iter_count
 
-    cdef double d_p = (d_p_1+d_p_2) / 2  # initial
+    cdef double d_p = (d_p_1+d_p_2) / 2 + ((np.random.rand() - 0.5) * 1e-5)  # initial
 
     while True:
         T, t = temperature_max(
@@ -306,7 +304,7 @@ def protection_thickness(
                 # steel temperature is too high, increase thickness
                 d_p_1 = d_p
             else:
-                return d_p, T, t, solver_max_iter
+                return d_p, T, t, solver_iter_count
 
             d_p = (d_p_1 + d_p_2) / 2
         else:

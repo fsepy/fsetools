@@ -38,7 +38,7 @@ def temperature(
 
     PARAMETERS:
     :param fire_time:                       Time array [s]
-    :param fire_temperature:                Gas temperature array [K]
+    :param T_g:                Gas temperature array [K]
     :param beam_rho:                        Steel beam density [kg/m3]
     :param beam_cross_section_area:         Steel beam cross sectional area [m2]
     :param protection_k:                    Protection thermal conductivity [K/kg/m]
@@ -52,6 +52,7 @@ def temperature(
     # todo: 4.2.5.2 (2) - thermal properties for the insulation material
     # todo: revise BS EN 1993-1-2:2005, Clauses 4.2.5.2
 
+    T_g = fire_temperature
     V = beam_cross_section_area
     rho_a = beam_rho
     lambda_p = protection_k
@@ -71,17 +72,17 @@ def temperature(
     if is_debug:
         phi_, a_, b_, c_, d_ = [np.zeros_like(fire_time, dtype=np.float) for i in range(5)]
 
-    T_a[0] = fire_temperature[0]  # initially, steel temperature is equal to ambient
+    T_a[0] = T_g[0]  # initially, steel temperature is equal to ambient
     for i in range(1, len(fire_time)):
-        T_g_i = fire_temperature[i]
         c_a[i] = c_steel_T(T_a[i - 1])
 
         # Steel temperature equations are from [BS EN 1993-1-2:2005, Clauses 4.2.5.2, Eq. 4.27]
+        # This a ratio of heat stored in the protection
         phi = (c_p * rho_p / c_a[i] / rho_a) * d_p * A_p / V
 
         a = (lambda_p * A_p / V) / (d_p * c_a[i] * rho_a)
-        b = (T_g_i - T_a[i - 1]) / (1.0 + phi / 3.0)
-        c = (np.exp(phi / 10.0) - 1.0) * (T_g_i - fire_temperature[i - 1])
+        b = (T_g[i] - T_a[i - 1]) / (1.0 + phi / 3.)
+        c = (2.718 ** (phi / 10.0) - 1.0) * (T_g[i] - T_g[i - 1])
         d = fire_time[i] - fire_time[i - 1]
 
         if is_debug:
@@ -92,7 +93,7 @@ def temperature(
             d_[i] = d
 
         dT_a[i] = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
-        if dT_a[i] < 0 < (T_g_i - fire_temperature[i - 1]):
+        if dT_a[i] < 0 < (T_g[i] - T_g[i - 1]):
             dT_a[i] = 0
 
         T_a[i] = T_a[i - 1] + dT_a[i] * d
@@ -108,7 +109,7 @@ def temperature(
         try:
             import pandas as pd
             data = pd.DataFrame.from_dict(dict(
-                T_g=fire_temperature,
+                T_g=T_g,
                 T_a=T_a,
                 dT_a=dT_a,
                 phi=phi_,
