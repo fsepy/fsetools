@@ -1,6 +1,7 @@
 import numpy as np
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import protection_thickness as protection_thickness_c
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
+from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature_max as temperature_max_c
 
 from fsetools.lib.fse_bs_en_1991_1_2_parametric_fire import temperature as param_temp
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
@@ -77,7 +78,7 @@ def test_temperature_trav():
     t = np.arange(0, 210 * 60, 5)
     kwargs = dict(**__test_temperature_kwargs(t, __trav_fire(t)))
 
-    list_dp = np.arange(0.0001, 0.05 + 0.002, 0.001)
+    list_dp = np.linspace(0.0001, 0.1000, 10)
 
     for d_p in list_dp:
         kwargs['protection_thickness'] = d_p
@@ -151,23 +152,23 @@ def test_temperature_param_2():
     plt.show()
 
 
-def test_protection_thickness():
+def test_protection_thickness_c():
     import matplotlib.pyplot as plt
 
     t = np.arange(0, 210 * 60, 1, dtype=np.float)
     kwargs = __test_temperature_kwargs(t, __trav_fire(t))
     kwargs.pop('protection_thickness')
-    kwargs['solver_temperature_goal'] = 873.15+20
+    kwargs['solver_temperature_goal'] = 873.15 + 20
     kwargs['solver_temperature_goal_tol'] = 0.1
 
-    solver_d_p, solver_T_a_max = protection_thickness_c(**kwargs)
+    solver_d_p, solver_T_a_max, _, _ = protection_thickness_c(**kwargs)
 
     print(
         f'Solved protection thickness   {solver_d_p:<8.4} mm\n'
-        f'Solved max. steel temperature {solver_T_a_max-273.15:<8.2f} °C'
+        f'Solved max. steel temperature {solver_T_a_max - 273.15:<8.2f} °C'
     )
 
-    assert abs(solver_T_a_max - (873.15+20)) <= 0.1
+    assert abs(solver_T_a_max - (873.15 + 20)) <= 0.1
     assert abs(solver_d_p - 0.01556) <= 1e-5  # based on a solution on 05/10/2020
 
     kwargs_check = __test_temperature_kwargs(t, __trav_fire(t))
@@ -183,8 +184,36 @@ def test_protection_thickness():
     fig.show()
 
 
+def test_protection_thickness_c_extreme():
+    import matplotlib.pyplot as plt
+
+    t = np.arange(0, 210 * 60, 1, dtype=np.float)
+    kwargs = __test_temperature_kwargs(t, __param_fire_2(t))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+    list_d_p, list_T_a_max = np.linspace(0.0001, 0.0301, 100), list()
+
+    for protection_thickness in np.linspace(0.0001, 0.0301, 10):
+        kwargs['protection_thickness'] = protection_thickness
+        T_a = temperature_c(**kwargs)
+        ax1.plot(t / 60, T_a, label=f'd_p {protection_thickness * 1000:<4.0f} mm')
+    ax1.legend().set_visible(True)
+    ax1.set_xlabel('Time [$min$]')
+    ax1.set_ylabel('Steel temperature [$K$]')
+
+    for protection_thickness in list_d_p:
+        kwargs['protection_thickness'] = protection_thickness
+        T_a_max, t = temperature_max_c(**kwargs)
+        list_T_a_max.append(T_a_max)
+    ax2.plot(list_d_p * 1000, list_T_a_max)
+    ax2.set_xlabel('d_p [$mm$]')
+
+    fig.show()
+
+
 if __name__ == '__main__':
     test_temperature_trav()
     test_temperature_param()
     test_temperature_param_2()
-    test_protection_thickness()
+    test_protection_thickness_c()
+    test_protection_thickness_c_extreme()
