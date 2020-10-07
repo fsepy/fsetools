@@ -4,7 +4,6 @@ import numpy as np
 
 def c_steel_T(T):
     # BS EN 1993-1-2:2005, 3.4.1.2
-
     T -= 273.15
     if T < 20:
         return 425 + 0.773 * 20 - 1.69e-3 * 400 + 2.22e-6 * 8000
@@ -37,10 +36,6 @@ def temperature(
     SI UNITS!
     Function calculates the maximum steel temperature for a protected steel member based upon BS EN 1993-1-2.
 
-    LIMITATIONS:
-        1. Constant time interval in `fire_time` throughout;
-        2. `fire_temperature` has *one* maxima.
-
     PARAMETERS:
     :param fire_time:                       Time array [s]
     :param fire_temperature:                Gas temperature array [K]
@@ -65,34 +60,42 @@ def temperature(
     A_p = protection_protected_perimeter
     c_p = protection_c
 
-    temperature_steel = fire_time * 0.0
-    temperature_rate_steel = fire_time * 0.0
-    specific_heat_steel = fire_time * 0.0
+    T_a = np.zeros_like(fire_time, dtype=np.float)
+    dT_a = np.zeros_like(fire_time, dtype=np.float)
+    c_a = np.zeros_like(fire_time, dtype=np.float)
 
     # Check time step <= 30 seconds. [BS EN 1993-1-2:2005, Clauses 4.2.5.2 (3)]
 
-    temperature_steel[0] = fire_temperature[0]  # initially, steel temperature is equal to ambient
-    for i in range(len(fire_temperature) - 1):
-        i += 1  # actual index since the first item had been skipped.
-        T_g = fire_temperature[i]
-        try:
-            specific_heat_steel[i] = c_steel_T(temperature_steel[i - 1])
-        except ValueError:
-            specific_heat_steel[i] = specific_heat_steel[i - 1]
+    # the following parameters are used for debug purposes
+    is_debug = False
+    if is_debug:
+        phi_, a_, b_, c_, d_ = [np.zeros_like(fire_time, dtype=np.float) for i in range(5)]
+
+    T_a[0] = fire_temperature[0]  # initially, steel temperature is equal to ambient
+    for i in range(1, len(fire_time)):
+        T_g_i = fire_temperature[i]
+        c_a[i] = c_steel_T(T_a[i - 1])
 
         # Steel temperature equations are from [BS EN 1993-1-2:2005, Clauses 4.2.5.2, Eq. 4.27]
-        phi = (c_p * rho_p / specific_heat_steel[i] / rho_a) * d_p * A_p / V
+        phi = (c_p * rho_p / c_a[i] / rho_a) * d_p * A_p / V
 
-        a = (lambda_p * A_p / V) / (d_p * specific_heat_steel[i] * rho_a)
-        b = (T_g - temperature_steel[i - 1]) / (1.0 + phi / 3.0)
-        c = (np.exp(phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
+        a = (lambda_p * A_p / V) / (d_p * c_a[i] * rho_a)
+        b = (T_g_i - T_a[i - 1]) / (1.0 + phi / 3.0)
+        c = (np.exp(phi / 10.0) - 1.0) * (T_g_i - fire_temperature[i - 1])
         d = fire_time[i] - fire_time[i - 1]
 
-        temperature_rate_steel[i] = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
-        if temperature_rate_steel[i] < 0 < (T_g - fire_temperature[i - 1]):
-            temperature_rate_steel[i] = 0
+        if is_debug:
+            phi_[i] = phi
+            a_[i] = a
+            b_[i] = b
+            c_[i] = c
+            d_[i] = d
 
-        temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel[i] * d
+        dT_a[i] = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
+        if dT_a[i] < 0 < (T_g_i - fire_temperature[i - 1]):
+            dT_a[i] = 0
+
+        T_a[i] = T_a[i - 1] + dT_a[i] * d
 
         # NOTE: Steel temperature can be in cooling phase at the beginning of calculation, even the ambient temperature
         #       (fire) is hot. This is
@@ -101,7 +104,24 @@ def temperature(
         #       its previous temperature are all higher than the current calculated temperature.
         #       A better implementation is perhaps to use a 1-D heat transfer model.
 
-    return temperature_steel
+    if is_debug:
+        try:
+            import pandas as pd
+            data = pd.DataFrame.from_dict(dict(
+                T_g=fire_temperature,
+                T_a=T_a,
+                dT_a=dT_a,
+                phi=phi_,
+                a=a_,
+                b=b_,
+                c=c_,
+                d=d_,
+                c_a=c_a
+            ))
+        except:
+            data = None
+
+    return T_a
 
 
 def temperature_max(
