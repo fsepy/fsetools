@@ -82,7 +82,7 @@ def temperature(
 
         a = (lambda_p * A_p / V) / (d_p * c_s * rho_a)
         b = (T_g - T_a[i - 1]) / (1.0 + phi / 3.0)
-        c = (np.exp(phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
+        c = (2.718 ** (phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
         d = fire_time[i] - fire_time[i - 1]
 
         dT = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
@@ -160,7 +160,7 @@ cpdef tuple temperature_max(
 
         a = (lambda_p * A_p / V) / (d_p * c_s * rho_a)
         b = (T_g - T) / (1.0 + phi / 3.0)
-        c = (np.exp(phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
+        c = (2.718 ** (phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
 
         dT = (a * b * d - c) / d  # deviated from e4.27, converted to rate [s-1]
         if dT < 0 < (T_g - fire_temperature[i - 1]):

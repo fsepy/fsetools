@@ -86,7 +86,7 @@ def test_temperature_trav():
         T_c = temperature_c(**kwargs)
         ax.plot(t / 60, T - 273.15, c='k')
         ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
-        assert np.allclose(T, T_c)  # Assertion
+        assert np.allclose(T, T_c, rtol=1.e-4)  # Assertion
 
     ax.grid(ls='--', c='k', linewidth=0.5)
     lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
@@ -114,7 +114,7 @@ def test_temperature_param():
         T_c = temperature_c(**kwargs)
         ax.plot(t / 60, T - 273.15, c='k')
         ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
-        assert np.allclose(T, T_c)  # Assertion
+        assert np.allclose(T, T_c, rtol=1.e-4)  # Assertion
 
     ax.grid(ls='--', c='k', linewidth=0.5)
     lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
@@ -143,7 +143,7 @@ def test_temperature_param_2():
         # print(temperature_max(**kwargs), np.amax(T_c))
         ax.plot(t / 60, T - 273.15, c='k')
         ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
-        assert np.allclose(T, T_c)  # check if the two function return the same
+        assert np.allclose(T, T_c, rtol=1.e-4)  # check if the two function return the same
 
     ax.grid(ls='--', c='k', linewidth=0.5)
     lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
