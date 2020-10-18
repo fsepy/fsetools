@@ -400,10 +400,8 @@ class CuboidRoomModel:
         # raw properties
         self.ceiling = Receiver(x1=0, x2=width, y1=0, y2=depth, z=height, delta=delta)
         self.wall_1 = Emitter(x1=0, x2=width, y1=0, y2=0, z1=0, z2=height, is_parallel=False, receiver=self.ceiling)
-        self.wall_2 = Emitter(x1=width, x2=width, y1=0, y2=depth, z1=0, z2=height, is_parallel=False,
-                              receiver=self.ceiling)
-        self.wall_3 = Emitter(x1=width, x2=0, y1=depth, y2=depth, z1=0, z2=height, is_parallel=False,
-                              receiver=self.ceiling)
+        self.wall_2 = Emitter(x1=width, x2=width, y1=0, y2=depth, z1=0, z2=height, is_parallel=False, receiver=self.ceiling)
+        self.wall_3 = Emitter(x1=width, x2=0, y1=depth, y2=depth, z1=0, z2=height, is_parallel=False, receiver=self.ceiling)
         self.wall_4 = Emitter(x1=0, x2=0, y1=depth, y2=0, z1=0, z2=height, is_parallel=False, receiver=self.ceiling)
         self.floor = Emitter(x1=0, x2=width, y1=0, y2=depth, z1=0, z2=0, is_parallel=True, receiver=self.ceiling)
 
