@@ -13,15 +13,11 @@ import fsetools
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "README.md")) as f:
     long_description = f.read()
 
-try:
-    with open("requirements.txt") as f:
-        requirements = f.read().splitlines()
-except FileNotFoundError:
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "requirements.txt")) as f:
-        requirements = f.read().splitlines()
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
 
 extensions = [
-    Extension("fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c", [os.path.join('fsetools', 'lib', 'fse_bs_en_1993_1_2_heat_transfer_c.pyx')], include_dirs=[np.get_include()])
+    Extension("fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c", sources=[f'fsetools{os.sep}lib{os.sep}fse_bs_en_1993_1_2_heat_transfer_c.pyx'], include_dirs=[np.get_include()])
 ]
 
 setuptools.setup(
