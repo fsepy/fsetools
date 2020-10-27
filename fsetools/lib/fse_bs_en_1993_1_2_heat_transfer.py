@@ -198,21 +198,16 @@ def temperature_max(
 
 
 def _interflam_figures():
-    from sfeprapy.func.fire_iso834 import fire
     import numpy as np
 
     import matplotlib.pyplot as plt
 
     plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.94, 2.76))
-    ax.set_xlabel("Time [minute]")
-    ax.set_ylabel("Temperature [$^{℃}C$]")
-    ax.legend().set_visible(True)
-    ax.grid(color="k", linestyle="--")
+    fig, ax = plt.subplots(figsize=(3.5, 3.5))
 
     rho = 7850
-    t = np.arange(0, 700, 0.1)
-    T = fire(t, 20 + 273.15)
+    t = np.arange(0, 60 * 60, 1)
+    T = 293.15+345.*np.log10(8*t/60+1)
     ax.plot(t / 60, T - 273.15, "k", label="ISO 834 fire")
 
     list_dp = np.arange(0.0001, 0.01 + 0.002, 0.002)
@@ -229,12 +224,25 @@ def _interflam_figures():
             protection_thickness=d_p,
             protection_protected_perimeter=2.14,
         )
-        plt.plot(
+        ax.plot(
             t / 60,
             T_s - 273.15,
             label="Protection thickness {:2.0f} mm".format(d_p * 1000),
         )
 
-    plt.legend(loc=4)
+    ax.set_xlabel("Time [minute]", fontsize='small')
+    ax.set_xlim(0, 60)
+    ax.set_xticks(np.arange(0, 61, 10))
+    ax.set_ylabel("Temperature [$^oC$]", fontsize='small')
+    ax.set_ylim(0, 900)
+    ax.set_yticks(np.arange(0, 1050.1, 150))
+    ax.tick_params(axis='both', labelsize='xx-small')
+    ax.legend(fontsize='xx-small').set_visible(True)
+    ax.grid(color="k", linestyle="--")
+
     plt.tight_layout()
     plt.show()
+
+
+if __name__ == '__main__':
+    _interflam_figures()

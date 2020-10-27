@@ -29,9 +29,6 @@ def temperature(
     :param beam_location_height_m: in m, is the beam lateral distance to fire origin
     :param beam_location_length_m: in m, is the beam height above the floor
     :param fire_nft_limit_c: in deg.C, is the maximum near field temperature
-    :param opening_fraction: in -, is the ventilation opening proportion between 0 to 1
-    :param opening_width_m: in m, is ventilation opening width
-    :param opening_height_m: in m, is ventilation opening height
     :return T_g: in deg.C, is calculated gas temperature
     """
 
