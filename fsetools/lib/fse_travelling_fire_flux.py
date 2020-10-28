@@ -212,6 +212,8 @@ def _test_fire():
 
     df_data = pd.DataFrame.from_dict(dict_data)
 
+    return df_data
+
 
 if __name__ == "__main__":
     _test_fire()
