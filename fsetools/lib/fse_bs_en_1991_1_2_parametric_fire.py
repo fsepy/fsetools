@@ -126,10 +126,7 @@ def temperature(
 
 def example_plot_interflam():
     import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    sns.set_style("ticks")
-    sns.set_context(context="paper")
+    plt.style.use('seaborn-paper')
 
     fig, ax = plt.subplots(figsize=(3.94, 2.76))
     ax.set_xlabel("Time [minute]")
@@ -189,8 +186,9 @@ def example_plot_interflam():
     plt.show()
 
 
-def _test_fire():
-    """This is a test function to `fire` within this module `fire_parametric_ec`, it compares the function against
+def _test_temperature():
+    """
+    This is a test function to `fire` within this module `fire_parametric_ec`, it compares the function against
     Figure 7 in Holicky, M. et al [1].
     yan fu, 1 oct 2018
 
@@ -267,5 +265,4 @@ def _test_fire():
 
 
 if __name__ == "__main__":
-    # exmaple_plot_interflam()
-    _test_fire()
+    _test_temperature()
