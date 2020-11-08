@@ -17,7 +17,8 @@ with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 extensions = [
-    Extension("fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c", sources=[f'fsetools{os.sep}lib{os.sep}fse_bs_en_1993_1_2_heat_transfer_c.pyx'], include_dirs=[np.get_include()])
+    Extension("fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c", sources=[f'fsetools{os.sep}lib{os.sep}fse_bs_en_1993_1_2_heat_transfer_c.pyx'], include_dirs=[np.get_include()]),
+    Extension("fsetools.ht1d.ht1d_inexplicit_c", sources=[f'fsetools{os.sep}ht1d{os.sep}ht1d_inexplicit_c.pyx'], include_dirs=[np.get_include()])
 ]
 
 setuptools.setup(
