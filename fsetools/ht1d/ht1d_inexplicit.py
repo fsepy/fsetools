@@ -2,7 +2,6 @@ from typing import Tuple
 from typing import Union, Callable
 
 import numpy as np
-from tqdm import tqdm
 
 
 def gauss(
@@ -22,7 +21,6 @@ def gauss(
     count_iter: int = 0
     q_net_exp: float = np.nan
     q_net_unexp: float = np.nan
-
 
     while max_x_err > tol:
         L = np.tril(A)
@@ -129,7 +127,7 @@ def main(
     A[n_nodes - 1, n_nodes - 1] = (1 + (2 * Fo))
 
     i = 0
-    for t in tqdm(np.arange(0, t_end + dt / 2, dt)):
+    for t in np.arange(0, t_end + dt / 2, dt):
 
         # Get boundary condition
         if isinstance(T_boundary_0, (int, float)):
