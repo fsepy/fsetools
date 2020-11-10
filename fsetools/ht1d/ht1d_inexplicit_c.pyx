@@ -1,7 +1,6 @@
 from typing import Union, Callable
 
 import numpy as np
-from tqdm import tqdm
 from scipy.linalg import inv
 
 
@@ -126,7 +125,7 @@ def main(
     A[n_nodes - 1, n_nodes - 1] = (1 + (2 * Fo))
 
     cdef i = 0
-    for t in tqdm(np.arange(0, t_end + dt / 2, dt)):
+    for t in np.arange(0, t_end + dt / 2, dt):
 
         # Get boundary condition
         if isinstance(T_boundary_0, (int, float)):
