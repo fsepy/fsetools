@@ -161,10 +161,7 @@ def temperature(
         T_1, T_2, T_3 = T_1_f, T_2_f, T_3_f
 
     else:
-        wmsg = "WTH, I do not know what type of fire ({}) this is, bugs?".format(
-            fire_type
-        )
-        warnings.warn(wmsg)
+        warnings.warn(f"WTH, I do not know what type of fire ({fire_type}) this is, bugs?")
         k = t_1 = T_1 = Q_2 = t_2 = Q_2_f = Q_3 = t_3 = Q_3_f = T_2 = T_3 = np.nan
 
     # Prerequisite for AA.20 and AA.21
