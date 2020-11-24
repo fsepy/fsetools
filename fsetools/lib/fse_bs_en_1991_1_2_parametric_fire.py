@@ -188,13 +188,13 @@ def example_plot_interflam():
 
 def _test_temperature():
     """
-    This is a test function to `fire` within this module `fire_parametric_ec`, it compares the function against
-    Figure 7 in Holicky, M. et al [1].
-    yan fu, 1 oct 2018
+    Verify against Figure 7, Section 1.2.2 in Holicky, M. et al [1].
+    Yan Fu, 1 oct 2018
 
     REFERENCES
     [1] Holicky, M., Meterna, A., Sedlacek, G. and Schleich, J.B., 2005. Implementation of eurocodes, handbook 5, design
-    of buildings for the fire situation. Leonardo da Vinci Pilot Project: Luxembourg."""
+    of buildings for the fire situation. Leonardo da Vinci Pilot Project: Luxembourg.
+    """
 
     import copy
     import pandas
