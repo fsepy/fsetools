@@ -2,6 +2,23 @@
 import numpy as np
 
 
+def c_steel_T(T):
+    # BS EN 1993-1-2:2005, 3.4.1.2
+    T -= 273.15
+    if T < 20:
+        return 425 + 0.773 * 20 - 1.69e-3 * 400 + 2.22e-6 * 8000
+    if 20 <= T < 600:
+        return 425 + 0.773 * T - 1.69e-3 * T ** 2 + 2.22e-6 * T ** 3
+    elif 600 <= T < 735:
+        return 666. + 13002. / (738. - T)
+    elif 735 <= T < 900:
+        return 545. + 17820. / (T - 731.)
+    elif 900 <= T <= 1200:
+        return 650.
+    elif T > 1200:
+        return 650.
+
+
 def unprotected_steel_eurocode(
         time,
         temperature_ambient,
@@ -9,7 +26,6 @@ def unprotected_steel_eurocode(
         area_section,
         perimeter_box,
         density_steel,
-        c_steel_T,
         h_conv,
         emissivity_resultant,
 ):
@@ -28,40 +44,48 @@ def unprotected_steel_eurocode(
     """
 
     # Create steel temperature change array s
-    temperature_rate_steel = time * 0.0
-    temperature_steel = time * 0.0
-    heat_flux_net = time * 0.0
-    c_s = time * 0.0
+    temperature_steel = np.zeros_like(time, dtype=np.float)
 
-    k_sh = (
-            0.9 * (perimeter_box / area_section) / (perimeter_section / area_section)
-    )  # BS EN 1993-1-2:2005 (e4.26a)
+    # BS EN 1993-1-2:2005 (e4.26a)
+    k_sh = 0.9 * (perimeter_box / area_section) / (perimeter_section / area_section)
     F = perimeter_section
     V = area_section
     rho_s = density_steel
     h_c = h_conv
-    sigma = 56.7e-9  # todo: what is this?
+    sigma = 56.7e-9
     epsilon = emissivity_resultant
 
-    time_, temperature_steel[0], c_s[0] = iter(time), temperature_ambient[0], 0.0
-    next(time_)
-    for i, v in enumerate(time_):
-        i += 1
-        T_f, T_s_ = (
-            temperature_ambient[i],
-            temperature_steel[i - 1],
-        )  # todo: steel specific heat
-        c_s[i] = c_steel_T(temperature_steel[i - 1] + 273.15)
-
+    temperature_steel[0] = temperature_ambient[0]
+    for i in range(1, len(time), 1):
         # BS EN 1993-1-2:2005 (e4.25)
-        a = h_c * (T_f - T_s_)
-        b = sigma * epsilon * (np.power(T_f, 4) - np.power(T_s_, 4))
-        c = k_sh * F / V / rho_s / c_s[i]
+        a = h_c * (temperature_ambient[i] - temperature_steel[i - 1])
+        b = sigma * epsilon * (np.power(temperature_ambient[i], 4) - np.power(temperature_steel[i - 1], 4))
+        c = k_sh * F / V / rho_s / c_steel_T(temperature_steel[i - 1])
         d = time[i] - time[i - 1]
 
-        heat_flux_net[i] = a + b
+        temperature_rate_steel = c * (a + b) * d
+        temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel
 
-        temperature_rate_steel[i] = c * (a + b) * d
-        temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel[i]
+    return dict(temperature=temperature_steel)
 
-    return temperature_steel, temperature_rate_steel, heat_flux_net, c_s
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
+    time = np.arange(0, 180 * 60, 1.)
+    temperature_fire = (345.0 * np.log10((time / 60.0) * 8.0 + 1.0) + 20.0) + 273.15
+
+    temperature_steel = unprotected_steel_eurocode(
+        time=time,
+        temperature_ambient=temperature_fire,
+        perimeter_section=1.768,
+        area_section=0.01408,
+        perimeter_box=300 * 4 / 1000,
+        density_steel=7850,
+        h_conv=25.,
+        emissivity_resultant=1.,
+    )['temperature']
+
+    plt.plot(time / 60, temperature_fire - 273.15)
+    plt.plot(time / 60, temperature_steel - 273.15)
+    plt.show()
