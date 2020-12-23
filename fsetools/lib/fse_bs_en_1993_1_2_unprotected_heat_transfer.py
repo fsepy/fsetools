@@ -19,24 +19,24 @@ def c_steel_T(T):
         return 650.
 
 
-def unprotected_steel_eurocode(
-        time,
-        temperature_ambient,
-        perimeter_section,
-        area_section,
-        perimeter_box,
-        density_steel,
-        h_conv,
-        emissivity_resultant,
+def temperature(
+        fire_time: np.ndarray,
+        fire_temperature: np.ndarray,
+        member_section_perimeter: float,
+        member_section_area: float,
+        member_perimeter_box: float,
+        member_density: float = 7850.,
+        h_conv: float = 25.,
+        emissivity_resultant: float = 1.,
 ):
     """
-    SI UNITS FOR INPUTS AND OUTPUTS.
-    :param time:
-    :param temperature_ambient:
-    :param perimeter_section:
-    :param area_section:
-    :param perimeter_box:
-    :param density_steel:
+    SI UNITS FOR ALL INPUTS AND OUTPUTS.
+    :param fire_time:
+    :param fire_temperature:
+    :param member_section_perimeter:
+    :param member_section_area:
+    :param member_perimeter_box:
+    :param member_density:
     :param c_steel_T:
     :param h_conv:
     :param emissivity_resultant:
@@ -44,24 +44,24 @@ def unprotected_steel_eurocode(
     """
 
     # Create steel temperature change array s
-    temperature_steel = np.zeros_like(time, dtype=np.float)
+    temperature_steel = np.zeros_like(fire_time, dtype=np.float)
 
     # BS EN 1993-1-2:2005 (e4.26a)
-    k_sh = 0.9 * (perimeter_box / area_section) / (perimeter_section / area_section)
-    F = perimeter_section
-    V = area_section
-    rho_s = density_steel
+    k_sh = 0.9 * (member_perimeter_box / member_section_area) / (member_section_perimeter / member_section_area)
+    F = member_section_perimeter
+    V = member_section_area
+    rho_s = member_density
     h_c = h_conv
     sigma = 56.7e-9
     epsilon = emissivity_resultant
 
-    temperature_steel[0] = temperature_ambient[0]
-    for i in range(1, len(time), 1):
+    temperature_steel[0] = fire_temperature[0]
+    for i in range(1, len(fire_time), 1):
         # BS EN 1993-1-2:2005 (e4.25)
-        a = h_c * (temperature_ambient[i] - temperature_steel[i - 1])
-        b = sigma * epsilon * (np.power(temperature_ambient[i], 4) - np.power(temperature_steel[i - 1], 4))
+        a = h_c * (fire_temperature[i] - temperature_steel[i - 1])
+        b = sigma * epsilon * (np.power(fire_temperature[i], 4) - np.power(temperature_steel[i - 1], 4))
         c = k_sh * F / V / rho_s / c_steel_T(temperature_steel[i - 1])
-        d = time[i] - time[i - 1]
+        d = fire_time[i] - fire_time[i - 1]
 
         temperature_rate_steel = c * (a + b) * d
         temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel
@@ -75,13 +75,13 @@ if __name__ == '__main__':
     time = np.arange(0, 180 * 60, 1.)
     temperature_fire = (345.0 * np.log10((time / 60.0) * 8.0 + 1.0) + 20.0) + 273.15
 
-    temperature_steel = unprotected_steel_eurocode(
-        time=time,
-        temperature_ambient=temperature_fire,
-        perimeter_section=1.768,
-        area_section=0.01408,
-        perimeter_box=300 * 4 / 1000,
-        density_steel=7850,
+    temperature_steel = temperature(
+        fire_time=time,
+        fire_temperature=temperature_fire,
+        member_section_perimeter=1.768,
+        member_section_area=0.01408,
+        member_perimeter_box=300 * 4 / 1000,
+        member_density=7850,
         h_conv=25.,
         emissivity_resultant=1.,
     )['temperature']
