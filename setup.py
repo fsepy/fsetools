@@ -3,12 +3,16 @@
 import os
 from codecs import open  # To use a consistent encoding
 
-import numpy as np
 import setuptools
 from Cython.Build import cythonize
 from setuptools import Extension
 
 import fsetools
+
+try:
+    import numpy
+except ModuleNotFoundError:
+    ModuleNotFoundError('NumPy is required before installing fsetools')
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "README.md")) as f:
     long_description = f.read()
@@ -17,8 +21,11 @@ with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 extensions = [
-    Extension("fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c", sources=[f'fsetools{os.sep}lib{os.sep}fse_bs_en_1993_1_2_heat_transfer_c.pyx'], include_dirs=[np.get_include()]),
-    Extension("fsetools.ht1d.ht1d_inexplicit_c", sources=[f'fsetools{os.sep}ht1d{os.sep}ht1d_inexplicit_c.pyx'], include_dirs=[np.get_include()])
+    Extension("fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c",
+              sources=[f'fsetools{os.sep}lib{os.sep}fse_bs_en_1993_1_2_heat_transfer_c.pyx'],
+              include_dirs=[numpy.get_include()]),
+    Extension("fsetools.ht1d.ht1d_inexplicit_c", sources=[f'fsetools{os.sep}ht1d{os.sep}ht1d_inexplicit_c.pyx'],
+              include_dirs=[numpy.get_include()])
 ]
 
 setuptools.setup(

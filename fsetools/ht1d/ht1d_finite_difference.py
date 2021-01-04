@@ -282,9 +282,7 @@ if __name__ == "__main__":
 
     # Plot temperature profiles at every nth time step
 
-    import seaborn as sns
-
-    sns.set_style("ticks")
+    plt.style.use("seaborn-paper")
     fig, ax = plt.subplots(figsize=(4, 3))
     for i, v in enumerate(list_temp_arr):
         if i / nth == int(i / nth):

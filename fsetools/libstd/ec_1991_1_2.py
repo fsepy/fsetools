@@ -136,13 +136,9 @@ def appendix_a_parametric_fire(
 
 
 def example_plot_interflam():
-    try:
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-    except:
-        raise ImportError('Missing library `seaborn` and `matplotlib`')
-    sns.set_style("ticks")
-    sns.set_context(context="paper")
+    import matplotlib.pyplot as plt
+
+    plt.style.use('seaborn-paper')
 
     fig, ax = plt.subplots(figsize=(3.94, 2.76))
     ax.set_xlabel("Time [minute]")
