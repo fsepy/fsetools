@@ -3,10 +3,13 @@ from pylatex import NoEscape, Section, Subsection, Enumerate
 from fsetools.etc.latex import make_alginat_equations, make_summary_table
 from fsetools.lib.fse_latex_report_template import ReportBase
 from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import *
-from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import clause_b_1_3_2_d
 
 
-class ExternalFlame(ReportBase):
+class ExternalFlameNoForcedDraught(ReportBase):
+    """
+    Carries out assessment in Clause B.4.2, BS EN 1991-1-2 (2002) and generate LaTeX report
+    """
+
     def __init__(
             self,
             h_eq: float,
@@ -31,22 +34,54 @@ class ExternalFlame(ReportBase):
         self.input_kwargs = input_kwargs
         self.output_kwargs = self.__calculation(**input_kwargs)
 
-    def make_latex(self):
+    def make_latex(self, *args, **kwargs):
+        # make LaTeX from template, this include permeable, formatting etc
         doc = self.make_document_template(**self.input_kwargs)
-        for i in self.make_latex_sections():
+
+        # make LaTeX contents/sections
+        for i in self.make_latex_sections(*args, **kwargs):
             doc.append(i)
+
         return doc
 
-    def make_latex_sections(self, section_title: str = None) -> list:
-        sections: list = list()
+    def make_latex_sections(
+            self,
+            section_title: str = None,
+            include_introduction: bool = True,
+            include_inputs_summary: bool = True,
+            include_calculation: bool = True,
+            include_outputs_summary: bool = True,
+            *_,
+            **__,
+    ) -> list:
+        """
+        Put up together LaTeX calculation procedure
+
+        :param section_title: Section title
+        :param include_introduction: `True` to include introduction section, default `True`
+        :param include_inputs_summary: `True` to include user defined parameters, default `True`
+        :param include_calculation: `True` to include calculation procedures, default `True`
+        :param include_outputs_summary: `True` to include outputs summary section, default `True`
+        :return: a list of LaTeX items
+        """
+        sections = list()
         if section_title:
             sections.append(Section(title=f'{section_title}'))
         else:
-            sections.append(Section(title='Thermal actions for external members (no forced draught)'))
-        sections.append(self.section_1_introduction())
-        sections.append(self.section_2_inputs(self.input_kwargs))
-        sections.append(self.section_3_calculation(self.output_kwargs))
-        sections.append(self.section_4_summary(self.output_kwargs))
+            sections.append(Section(title='Thermal actions for external members (forced draught)'))
+
+        if include_introduction:
+            sections.append(self.section_1_introduction())
+
+        if include_inputs_summary:
+            sections.append(ExternalFlameNoForcedDraught.section_2_inputs(self.input_kwargs))
+
+        if include_calculation:
+            sections.append(ExternalFlameNoForcedDraught.section_3_calculation(self.output_kwargs))
+
+        if include_outputs_summary:
+            sections.append(ExternalFlameNoForcedDraught.section_4_summary(self.output_kwargs))
+
         return sections
 
     @staticmethod
@@ -127,11 +162,33 @@ class ExternalFlame(ReportBase):
 
     @staticmethod
     def __calculation(**input_kwargs):
+        """
+        Calculation procedure as defined in Clause B4 in BS EN 1991-1-2 (2002) to assess characteristics of external
+        flame from a window.
+        :param input_kwargs:    Keyword arguments containing all the required parameters as per Clause B4.
+                                The following functions are involved in this process:
+                                    clause_b_2_2_DW_ratio, to calculate D/W
+                                    clause_b_2_3_DW_ratio, to calculate D/W
+                                    clause_b_2_4_DW_ratio, to calculate D/W
+                                    clause_b_4_1_1_Q, to calculate fire HRR
+                                    clause_1_6_Omega, an intermediate variable
+                                    clause_b_4_1_2_T_f, flame temperature within the fire enclosure
+                                    clause_b_4_1_3_L_L, external flame vertical dimension
+                                    clause_b_4_1_6_L_H, external flame horizontal dimension
+                                    clause_b_4_1_7_L_f, external flame total length
+                                    clause_b_4_1_8_T_w, flame temperature at the window
+                                    clause_b_4_1_10_T_z, external flame temperature at a given location
+                                    clause_b_4_1_12_alpha_c, convective heat transfer coefficient
+        :return:    A dict containing the following:
+                        _latex_equation_header, a list of descriptions, used for generating LaTeX
+                        _latex_equation_content, a list of step-by-step equations, used for generating LaTeX
+                        **, all keyword arguments returned from the functions in described in the `input_kwargs`
+        """
 
         _latex_equation_header = list()
         _latex_equation_content = list()
 
-        # Calculate Q
+        # Calculate Q, optional if provided
         if 'Q' not in input_kwargs:
             # Calculate D/W, optional
             if 'DW_ratio' not in input_kwargs:
@@ -156,7 +213,7 @@ class ExternalFlame(ReportBase):
             _latex_equation_header.append('Clause B.4.1 (1), the heat release rate is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate compartment temperature
+        # Calculate compartment temperature, if not provided
         if 'T_f' not in input_kwargs:
             if 'Omega' not in input_kwargs:
                 input_kwargs.update(clause_1_6_Omega(**input_kwargs))
@@ -166,128 +223,58 @@ class ExternalFlame(ReportBase):
             _latex_equation_header.append('Clause B.4.1 (2), the temperature within the fire compartment is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate external flame vertical projection
+        # Calculate external flame vertical projection, if not provided
         if 'L_L' not in input_kwargs:
             input_kwargs.update(clause_b_4_1_3_L_L(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (3), the external flame height is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate external flame horizontal projection
+        # Calculate external flame horizontal projection, if not provided
         if 'L_H' not in input_kwargs:
             input_kwargs.update(clause_b_4_1_6_L_H(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (6), the horizontal project of flames is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate flame length
+        # Calculate flame length, if not provided
         if 'L_f' not in input_kwargs:
             input_kwargs.update(clause_b_4_1_7_L_f(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (7), the flame length along the axis is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate flame temperature at window
+        # Calculate flame temperature at window, if not provided
         if 'T_w' not in input_kwargs:
             input_kwargs.update(clause_b_4_1_8_T_w(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (8), the flame temperature at window opening is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate flame temperature beyond window
+        # Calculate flame temperature beyond window, if not provided
         if 'T_z' not in input_kwargs:
             input_kwargs.update(clause_b_4_1_10_T_z(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (10), the flame temperature along the axis at $L_x$ is:')
             _latex_equation_content.append(input_kwargs['_latex'])
-        #
-        # # Calculate T_z_1
-        # # T_z_1 is only used for estimating beam element in BS EN 1993-1-2 Annex B
-        # if 'T_z_1' not in input_kwargs:
-        #     def L_x_1(d_fw, d_1, d_aw, *_, **__, ):
-        #         return (d_fw + 0.5 * d_1) * sqrt(2) + d_aw
-        #
-        #     L_x = input_kwargs.pop('L_x')
-        #     # input_kwargs['L_x'] = L_x_1(**input_kwargs)
-        #     input_kwargs['L_x'] = L_x_1(*[input_kwargs[i] for i in ['d_fw', 'd_1_beam', 'd_aw']])
-        #     __ = clause_b_4_1_10_T_z(**input_kwargs)
-        #     __['T_z_1'] = __.pop('T_z')
-        #
-        #     input_kwargs.update(__)
-        #     input_kwargs['L_x'] = L_x
-        #     _latex_equation_header.append('Clause B.4.1 (10), the flame temperature along the axis at $L_{x,1}$ (as per BS EN 1993-1-2) is:')
-        #     _latex_equation_content.append(input_kwargs['_latex'])
-        #
-        # # Calculate T_z_2
-        # # T_z_2 is only used for estimating beam element in BS EN 1993-1-2 Annex B
-        # if 'T_z_2' not in input_kwargs:
-        #     def L_x_2(d_fw, d_1, d_2, d_aw, *_, **__):
-        #         return (d_fw + 0.5 * d_1) * sqrt(2) + d_aw + d_2
-        #
-        #     L_x = input_kwargs.pop('L_x')
-        #     # input_kwargs['L_x'] = L_x_2(**input_kwargs)
-        #     input_kwargs['L_x'] = L_x_2(*[input_kwargs[i] for i in ['d_fw', 'd_1_beam', 'd_2_beam', 'd_aw']])
-        #     __ = clause_b_4_1_10_T_z(**input_kwargs)
-        #     __['T_z_2'] = __.pop('T_z')
-        #     input_kwargs.update(__)
-        #     input_kwargs['L_x'] = L_x
-        #     _latex_equation_header.append('Clause B.4.1 (10), the flame temperature along the axis at $L_{x,2}$ (as per BS EN 1993-1-2) is:')
-        #     _latex_equation_content.append(input_kwargs['_latex'])
 
-        # DEPRECIATED, `epsilon_f` IS DEFINED IN BS EN 1993-1-2
-        # Calculate emissivity of flames
-        # if 'epsilon_f' not in input_kwargs:
-        #     # Calculate flame thickness
-        #     if 'd_f' not in input_kwargs:
-        #         input_kwargs.update(clause_b_4_1_3_d_f(**input_kwargs))
-        #         _latex_equation_header.append('Clause B.4.1 (3), the flame thickness is:')
-        #         _latex_equation_content.append(input_kwargs['_latex'])
-        #     input_kwargs.update(clause_b_4_1_11_epsilon_f(**input_kwargs))
-        #     _latex_equation_header.append('Clause B.4.1 (11), the emissivity of flames is:')
-        #     _latex_equation_content.append(input_kwargs['_latex'])
-
-        # Calculate alpha_c, for column
-        if 'alpha_c_column' not in input_kwargs:
-            if 'd_eq' not in input_kwargs:
-                __ = clause_b_1_3_2_d(d_1=input_kwargs['d_1_column'], d_2=input_kwargs['d_2_column'])
-                __['d_eq'] = __.pop('d')
-                input_kwargs.update(**__)
-                # _latex_equation_header.append(
-                #     'BS EN 1993-1-2 Clause B.1.3 (2), the geometrical characteristic of an external column $d$ ($d_{eq}$ in BS EN 1991-1-2) is:')
-                # _latex_equation_content.append(input_kwargs['_latex'])
-            __ = clause_b_4_1_12_alpha_c(**input_kwargs)
-            __['alpha_c_column'] = __.pop('alpha_c')
-            input_kwargs.update(**__)
+        # Calculate alpha_c, if not provided
+        if 'alpha_c' not in input_kwargs:
+            input_kwargs.update(clause_b_4_1_12_alpha_c(**input_kwargs))
             _latex_equation_header.append(
                 'Clause B.4.1 (12), the connective heat transfer coefficient for the external column is:')
             _latex_equation_content.append(input_kwargs['_latex'])
-            input_kwargs.pop(
-                'd_eq')  # delete temporary `d_eq` from `input_kwargs`, `d_eq` will be calculated again later.
 
-        # Calculate alpha_c, for beam
-        if 'alpha_c_beam' not in input_kwargs:
-            if 'd_eq' not in input_kwargs:
-                __ = clause_b_1_3_2_d(d_1=input_kwargs['d_1_beam'], d_2=input_kwargs['d_2_beam'])
-                __['d_eq'] = __.pop('d')
-                input_kwargs.update(**__)
-                # _latex_equation_header.append(
-                #     'BS EN 1993-1-2 Clause B.1.3 (2), the geometrical characteristic of an external beam $d$ ($d_{eq}$ in BS EN 1991-1-2) is:')
-                # _latex_equation_content.append(input_kwargs['_latex'])
-            __ = clause_b_4_1_12_alpha_c(**input_kwargs)
-            __['alpha_c_beam'] = __.pop('alpha_c')
-            input_kwargs.update(**__)
-            _latex_equation_header.append(
-                'Clause B.4.1 (12), the connective heat transfer coefficient for the external beam is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
-            input_kwargs.pop(
-                'd_eq')  # delete temporary `d_eq` from `input_kwargs`, `d_eq` will be calculated again later.
-
-        input_kwargs.update(_latex_equation_header=_latex_equation_header, _latex_equation_content=_latex_equation_content)
+        input_kwargs.update(
+            _latex_equation_header=_latex_equation_header,
+            _latex_equation_content=_latex_equation_content
+        )
 
         return input_kwargs
 
 
 def _test_1():
     """
-    Test against results documented in 190702-R00-SC19024-WP1-Flame Projection Calculations-DN-CIC, dated 2nd July 2019, prepared by OFR (GM)
+    Test against results documented in "190702-R00-SC19024-WP1-Flame Projection Calculations-DN-CIC",
+    dated 2nd July 2019, prepared by OFR (GM)
     """
 
-    test_object_1 = ExternalFlame(
+    test_object_1 = ExternalFlameNoForcedDraught(
         q_fd=870,
         W_1=1.82,
         W_2=5.46,
@@ -300,8 +287,7 @@ def _test_1():
         is_wall_above_opening=True,
         is_windows_on_more_than_one_wall=False,
         is_central_core=False,
-        alpha_c_column=None,
-        alpha_c_beam=None,
+        alpha_c=None,
         T_f=None,
         T_w=None,
         T_z=None,

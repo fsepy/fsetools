@@ -1,9 +1,9 @@
 from pylatex import NewPage
 
-from fsetools.lib.fse_bs_en_1991_1_2_external_flame import ExternalFlame
 from fsetools.lib.fse_bs_en_1991_1_2_external_flame_forced_draught import ExternalFlameForcedDraught
-from fsetools.lib.fse_bs_en_1993_1_2_external_beam import ExternalSteelTemperatureEngulfedBeam
-from fsetools.lib.fse_bs_en_1993_1_2_external_column import ExternalSteelTemperatureFullyEngulfedColumn
+from fsetools.lib.fse_bs_en_1991_1_2_external_flame_no_forced_draught import ExternalFlameNoForcedDraught
+from fsetools.lib.fse_bs_en_1993_1_2_external_beam_engulfed import ExternalSteelTemperatureEngulfedBeam
+from fsetools.lib.fse_bs_en_1993_1_2_external_column_engulfed import ExternalSteelTemperatureFullyEngulfedColumn
 from fsetools.lib.fse_latex_report_template import Report
 
 
@@ -33,10 +33,14 @@ def external_steel_temperature(
         w_t: float,
         h_eq: float,
         q_fd: float,
-        d_1_column: float,
-        d_2_column: float,
-        d_1_beam: float,
-        d_2_beam: float,
+        d_eq: float,
+        d_1: float,
+        d_2: float,
+        # d_1_column: float,
+        # d_2_column: float,
+        # d_1_beam: float,
+        # d_2_beam: float,
+        L_x: float,
         d_fw: float,
         d_aw: float,
         fp_pdf_no_suffix: str,
@@ -58,7 +62,7 @@ def external_steel_temperature(
     else:
         kwargs = dict()
 
-    section_1 = ExternalFlame(
+    section_1 = ExternalFlameNoForcedDraught(
         # D=D,
         # W=W,
         # H=H,
@@ -79,10 +83,11 @@ def external_steel_temperature(
         is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
         is_central_core=is_central_core,
         is_forced_draught=False,
-        d_1_column=d_1_column,
-        d_2_column=d_2_column,
-        d_1_beam=d_1_beam,
-        d_2_beam=d_2_beam,
+        d_eq=d_eq,
+        # d_1_column=d_1_column,
+        # d_2_column=d_2_column,
+        # d_1_beam=d_1_beam,
+        # d_2_beam=d_2_beam,
         d_fw=d_fw,
         d_aw=d_aw,
         T_z=None,
@@ -94,7 +99,7 @@ def external_steel_temperature(
         C_2=1,
         C_3=1,
         C_4=1,
-        lambda_1=0.5 * (w_t - d_2_column),
+        lambda_1=0.5 * (w_t - 0.7),
         lambda_3=d_fw,
         sigma=5.67e-11,
         # T_z=section_1.output_kwargs['T_z'],
@@ -102,15 +107,15 @@ def external_steel_temperature(
         T_o=section_1.output_kwargs['T_w'],
         T_0=293.15,
         Q=section_1.output_kwargs['Q'],
-        d_1=d_1_column,
-        d_2=d_2_column,
+        d_1=d_1,
+        d_2=d_2,
         w_t=w_t,
         L_H=section_1.output_kwargs['L_H'],
         L_L=section_1.output_kwargs['L_L'],
         h_eq=h_eq,
         is_forced_draught=False,
         T_f=section_1.output_kwargs['T_f'],
-        alpha=section_1.output_kwargs['alpha_c_column'] / 1000,
+        alpha=section_1.output_kwargs['alpha_c'] / 1000,
         w_f=w_t,  # travelling fire maximum length
         T_m=None,
         I_z=None,
@@ -126,8 +131,8 @@ def external_steel_temperature(
         sigma=5.67e-11,
         # T_z=section_1.output_kwargs['T_z'],
         T_o=section_1.output_kwargs['T_w'],
-        d_1=d_1_beam,
-        d_2=d_2_beam,
+        d_1=d_1,
+        d_2=d_2,
         w_t=w_t,
         d_aw=d_aw,
         L_H=section_1.output_kwargs['L_H'],
@@ -144,7 +149,7 @@ def external_steel_temperature(
         d_fw=d_fw,
         T_0=293.15,
         Q=section_1.output_kwargs['Q'],
-        alpha=section_1.output_kwargs['alpha_c_beam'] / 1000,
+        alpha=section_1.output_kwargs['alpha_c'] / 1000,
         w_f=w_t,  # travelling fire maximum length
         T_m=None,
         I_z=None,
@@ -159,6 +164,8 @@ def external_steel_temperature(
         A_f=A_f,
         h_eq=h_eq,
         w_t=w_t,
+        L_x=L_x,
+        d_eq=d_eq,
         q_fd=q_fd,
         u=6,
         # Q=Q,
@@ -171,10 +178,8 @@ def external_steel_temperature(
         is_windows_on_more_than_one_wall=is_windows_on_more_than_one_wall,
         is_central_core=is_central_core,
         is_forced_draught=True,
-        d_1_column=d_1_column,
-        d_2_column=d_2_column,
-        d_1_beam=d_1_beam,
-        d_2_beam=d_2_beam,
+        d_1=d_1,
+        d_2=d_2,
         d_fw=d_fw,
         **kwargs,
     )
@@ -184,60 +189,26 @@ def external_steel_temperature(
         C_2=1,
         C_3=1,
         C_4=1,
-        lambda_1=0.5 * (w_t - d_2_column),
+        lambda_1=0.5 * (w_t - d_2),
         lambda_3=d_fw,
         sigma=5.67e-11,
         T_z=section_4.output_kwargs['T_z'],
         T_o=section_4.output_kwargs['T_w'],
-        d_1=d_1_column,
-        d_2=d_1_column,
+        d_1=d_1,
+        d_2=d_2,
         w_t=w_t,
         L_H=section_4.output_kwargs['L_H'],
         L_L=section_4.output_kwargs['L_L'],
         h_eq=h_eq,
         is_forced_draught=True,
         T_f=section_4.output_kwargs['T_f'],
-        alpha=section_4.output_kwargs['alpha_c_column'] / 1000,
+        alpha=section_4.output_kwargs['alpha_c'] / 1000,
         w_f=section_4.output_kwargs['w_f'],
         T_m=None,
         I_z=None,
         I_f=None,
         a_z=None,
         phi_f=None,
-    )
-
-    section_6 = ExternalSteelTemperatureEngulfedBeam(
-        C_1=1,
-        C_2=1,
-        C_3=1,
-        C_4=1,
-        lambda_4=d_fw,  # distance between member and wall
-        sigma=5.67e-11,
-        T_z=section_4.output_kwargs['T_z'],
-        T_o=section_4.output_kwargs['T_w'],
-        d_1=d_1_beam,
-        d_2=d_2_beam,
-        w_t=w_t,
-        d_aw=d_aw,
-        L_H=section_4.output_kwargs['L_H'],
-        L_L=section_4.output_kwargs['L_L'],
-        h_eq=h_eq,
-        is_forced_draught=True,
-        is_flame_above_steel_member=True,
-        is_steel_member_adjacent_to_wall=False,
-        T_f=section_4.output_kwargs['T_f'],
-        # T_z_1=section_4.output_kwargs['T_z_1'],
-        # T_z_2=section_4.output_kwargs['T_z_2'],
-        d_fw=d_fw,
-        T_0=293.15,
-        Q=section_1.output_kwargs['Q'],
-        alpha=section_4.output_kwargs['alpha_c_beam'] / 1000,
-        w_f=section_4.output_kwargs['w_f'],
-        T_m=None,
-        I_z=None,
-        I_f=None,
-        phi_f=None,
-        a_z=None,
     )
 
     sections = Report(
@@ -246,13 +217,9 @@ def external_steel_temperature(
         [NewPage()] +
         section_2.make_latex_sections(section_title='Heat transfer to external steel column (no forced draught)') +
         [NewPage()] +
-        section_3.make_latex_sections(section_title='Heat transfer to external steel beam (no forced draught)') +
-        [NewPage()] +
         section_4.make_latex_sections() +
         [NewPage()] +
-        section_5.make_latex_sections(section_title='Heat transfer to external steel column (forced draught)') +
-        [NewPage()] +
-        section_6.make_latex_sections(section_title='Heat transfer to external steel beam (forced draught)'),
+        section_5.make_latex_sections(section_title='Heat transfer to external steel column (forced draught)'),
         sec_title_prefix=report_section_prefix
     )
 
@@ -282,11 +249,15 @@ def _test_external_steel_temperature():
         h_eq=3.3,
         q_fd=400,
         Q=80,
-        d_1_column=0.4,
-        d_2_column=0.7,
-        d_1_beam=0.4,
-        d_2_beam=0.982,
+        d_eq=(0.4 + 0.7) / 2.,
+        d_1=0.4,
+        d_2=0.7,
+        # d_1_column=0.4,
+        # d_2_column=0.7,
+        # d_1_beam=0.4,
+        # d_2_beam=0.982,
 
+        L_x=0.9,
         d_fw=0.79 - 0.2,
         d_aw=0,
 
