@@ -28,7 +28,8 @@ SYMBOLS = dict(
     L_L=("m", "the flame height (from the upper part of the window)"),
     L_H=("m", "the horizontal projection of the flame (from the facade)"),
     h_eq=(
-    'm', 'the weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
+        'm',
+        'the weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
     is_forced_draught=('boolean', 'True if forced draught, False otherwise'),
     w_f=('m', 'the flame width'),
     a_z=('-', 'the absorptivity of flames'),
@@ -142,8 +143,8 @@ def clause_b_1_3_3_T_m_i_beam(
         f'\\sigma\\cdot T_{{m,i}}^4 + \\alpha\\cdot T_{{m,i}} = I_{{z,i}} + I_{{f,i}} + \\alpha\\cdot T_{{z,i}}',
         f'\\left( {sigma:.2E}\\right) T_{{m,1}}^4+{alpha:.2f}T_{{m,1}}={I_z_1:.2f}+{I_f_1:.2f}+{alpha:.2f}\\cdot {T_z_1:.2f}\\Rightarrow T_{{m,1}}={T_m_1:.2f}\\ \\left[K\\right]={T_m_1 - 273.15:.2f} \\left[^\\circ C\\right]',
         f'\\left( {sigma:.2E}\\right) T_{{m,2}}^4+{alpha:.2f}T_{{m,2}}={I_z_2:.2f}+{I_f_2:.2f}+{alpha:.2f}\\cdot {T_z_2:.2f}\\Rightarrow T_{{m,2}}={T_m_2:.2f}\\ \\left[K\\right]={T_m_2 - 273.15:.2f} \\left[^\\circ C\\right]',
-        f'\\left( {sigma:.2E}\\right) T_{{m,3}}^4+{alpha:.2f}T_{{m,3}}={I_z_3:.2f}+{I_f_3:.2f}+{alpha:.2f}\\cdot {(T_z_1+T_z_2)/2:.2f}\\Rightarrow T_{{m,3}}={T_m_3:.2f}\\ \\left[K\\right]={T_m_3 - 273.15:.2f} \\left[^\\circ C\\right]',
-        f'\\left( {sigma:.2E}\\right) T_{{m,4}}^4+{alpha:.2f}T_{{m,4}}={I_z_4:.2f}+{I_f_4:.2f}+{alpha:.2f}\\cdot {(T_z_1+T_z_2)/2:.2f}\\Rightarrow T_{{m,4}}={T_m_4:.2f}\\ \\left[K\\right]={T_m_4 - 273.15:.2f} \\left[^\\circ C\\right]',
+        f'\\left( {sigma:.2E}\\right) T_{{m,3}}^4+{alpha:.2f}T_{{m,3}}={I_z_3:.2f}+{I_f_3:.2f}+{alpha:.2f}\\cdot {(T_z_1 + T_z_2) / 2:.2f}\\Rightarrow T_{{m,3}}={T_m_3:.2f}\\ \\left[K\\right]={T_m_3 - 273.15:.2f} \\left[^\\circ C\\right]',
+        f'\\left( {sigma:.2E}\\right) T_{{m,4}}^4+{alpha:.2f}T_{{m,4}}={I_z_4:.2f}+{I_f_4:.2f}+{alpha:.2f}\\cdot {(T_z_1 + T_z_2) / 2:.2f}\\Rightarrow T_{{m,4}}={T_m_4:.2f}\\ \\left[K\\right]={T_m_4 - 273.15:.2f} \\left[^\\circ C\\right]',
     )
 
     return dict(T_m_1=T_m_1, T_m_2=T_m_2, T_m_3=T_m_3, T_m_4=T_m_4, _latex=_latex)
@@ -357,6 +358,92 @@ def clause_b_1_4_1_phi_f_i_column(h_eq, d_2, lambda_1, lambda_2, lambda_3, *_, *
     ]
 
     return dict(phi_f_1=phi_f_1, phi_f_2=phi_f_2, phi_f_3=phi_f_3, phi_f_4=phi_f_4, _latex=_latex)
+
+
+def clause_b_2_1_2_I_z(
+        phi_z: float,
+        epsilon_z: float,
+        sigma: float,
+        T_z: float,
+        *_, **__,
+):
+    """
+    B.2.1 (2), page 51. Radiative heat flux if the column is between openings.
+
+    :param phi_z:       [-] Overall configuration factor of the column for heat from the flame
+    :param epsilon_z:   [-] Emissivity of the flame
+    :param sigma:       [W/m2/K4] Stefan-Boltzmann constant
+    :param T_z:         [K] Flame temperature
+    :param _:           Not used
+    :param __:          Not used
+    :return:            A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
+    """
+
+    I_z = phi_z * epsilon_z * sigma * (T_z ** 4)
+
+    _latex = [
+        f'I_z=\\phi_z\\varepsilon_z\\sigma T_z^4',
+        f'I_z={phi_z:.3f}\\cdot{epsilon_z:.3f}\\cdot{sigma:.3e}\\cdot{T_z ** 4:.3e}',
+        f'I_z={I_z:.2f}\\left[\\frac{{kW}}{{m^2}}\\right]',
+    ]
+
+    return dict(I_z=I_z, _latex=_latex)
+
+
+def _test_clause_b_2_1_2_I_z():
+    res = clause_b_2_1_2_I_z(0.1, 0.7, 5.67e-11, 1000 + 273.5)
+
+    for i in res['_latex']:
+        print(i)
+
+    assert '_latex' in res
+    assert 'I_z' in res
+    assert abs(res['I_z'] - 10.43943) <= 1e-4
+
+
+def clause_b_2_1_3_I_z(
+        phi_z_m: float,
+        epsilon_z_m: float,
+        phi_z_n: float,
+        epsilon_z_n: float,
+        sigma: float,
+        T_z: float,
+        *_, **__,
+):
+    """
+    B.2.1 (3), page 51. Radiative heat flux if the column is opposite an opening.
+
+    :param phi_z_m:         Overall configuration factor of the column for heat from flames on side `m`
+    :param epsilon_z_m:     Total emissivity of the flames on side m
+    :param phi_z_n:         Overall configuration factor of the column for heat from flames on side `n`
+    :param epsilon_z_n:     Total emissivity of the flames on side n
+    :param sigma:           [W/m2/K4] Stefan-Boltzmann constant
+    :param T_z:             [K], Flame temperature
+    :param _:               Not used
+    :param __:              Not used
+    :return:                A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
+    """
+
+    I_z = (phi_z_m * epsilon_z_m + phi_z_n * epsilon_z_n) * sigma * (T_z ** 4)
+
+    _latex = [
+        f'I_z=\\left(\\phi_{{z,m}} \\varepsilon_{{z,m}} + \\phi_{{z,n}} \\varepsilon_{{z,n}} \\right)\\sigma T_z^4',
+        f'I_z=\\left({phi_z_m:.3f} \\cdot {epsilon_z_m:.3f} + {phi_z_n:.3f} \\cdot {epsilon_z_n:.3f} \\right){sigma:.3e}\\cdot {T_z ** 4:.3e}',
+        f'I_z={I_z:.2f}\\left[\\frac{{kW}}{{m^2}}\\right]',
+    ]
+
+    return dict(I_z=I_z, _latex=_latex)
+
+
+def _test_clause_b_2_1_3_I_z():
+    res = clause_b_2_1_3_I_z(0.1, 0.2, 0.3, 0.4, 5.67e-11, 1000 + 273.15)
+
+    for i in res['_latex']:
+        print(i)
+
+    assert '_latex' in res
+    assert 'I_z' in res
+    assert abs(res['I_z'] - 20.86) <= 1e-2
 
 
 def clause_b_1_4_1_phi_f(
@@ -1021,5 +1108,7 @@ def clause_b_5_2_1_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__)
 
 
 if __name__ == '__main__':
-    _test_clause_b_1_3_3_T_m()
-    _test_clause_b_4_1_lambda_4()
+    # _test_clause_b_1_3_3_T_m()
+    # _test_clause_b_4_1_lambda_4()
+    _test_clause_b_2_1_2_I_z()
+    _test_clause_b_2_1_3_I_z()
