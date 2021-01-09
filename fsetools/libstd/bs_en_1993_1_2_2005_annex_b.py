@@ -1,4 +1,5 @@
 from math import e
+from typing import Union
 
 from scipy.optimize import bisect
 
@@ -256,35 +257,6 @@ def clause_b_1_3_5_I_f_i(
     return dict(I_f_1=I_f_1, I_f_2=I_f_2, I_f_3=I_f_3, I_f_4=I_f_4, _latex=_latex)
 
 
-def clause_b_4_2_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__):
-    """
-    Clause B.4 (2), page 61
-    Emissivity of the external flames for each of the faces 1, 2, 3 and 4 of the column
-
-    :param lambda_1:
-    :param lambda_2:
-    :param lambda_3:
-    :param lambda_4:
-    :param _:
-    :param __:
-    :return:
-    """
-    epsilon_z_1 = 1 - e ** (-0.3 * lambda_1)
-    epsilon_z_2 = 1 - e ** (-0.3 * lambda_2)
-    epsilon_z_3 = 1 - e ** (-0.3 * lambda_3)
-    epsilon_z_4 = 1 - e ** (-0.3 * lambda_4)
-
-    _latex = [
-        f'\\varepsilon_{{z,1}}=1-e^{{-0.3\\cdot \\lambda_1}}=1-e^{{-0.3\\cdot {lambda_1:.2f}}}={epsilon_z_1:.5f}\\ \\left[ -\\right]',
-        f'\\varepsilon_{{z,2}}=1-e^{{-0.3\\cdot \\lambda_2}}=1-e^{{-0.3\\cdot {lambda_2:.2f}}}={epsilon_z_2:.5f}\\ \\left[ -\\right]',
-        f'\\varepsilon_{{z,3}}=1-e^{{-0.3\\cdot \\lambda_3}}=1-e^{{-0.3\\cdot {lambda_3:.2f}}}={epsilon_z_3:.5f}\\ \\left[ -\\right]',
-        f'\\varepsilon_{{z,4}}=1-e^{{-0.3\\cdot \\lambda_4}}=1-e^{{-0.3\\cdot {lambda_4:.2f}}}={epsilon_z_4:.5f}\\ \\left[ -\\right]',
-    ]
-
-    return dict(epsilon_z_1=epsilon_z_1, epsilon_z_2=epsilon_z_2, epsilon_z_3=epsilon_z_3, epsilon_z_4=epsilon_z_4,
-                _latex=_latex)
-
-
 def clause_b_1_3_2_d(d_1, d_2, *_, **__):
     # page 47
 
@@ -360,92 +332,6 @@ def clause_b_1_4_1_phi_f_i_column(h_eq, d_2, lambda_1, lambda_2, lambda_3, *_, *
     return dict(phi_f_1=phi_f_1, phi_f_2=phi_f_2, phi_f_3=phi_f_3, phi_f_4=phi_f_4, _latex=_latex)
 
 
-def clause_b_2_1_2_I_z(
-        phi_z: float,
-        epsilon_z: float,
-        sigma: float,
-        T_z: float,
-        *_, **__,
-):
-    """
-    B.2.1 (2), page 51. Radiative heat flux if the column is between openings.
-
-    :param phi_z:       [-] Overall configuration factor of the column for heat from the flame
-    :param epsilon_z:   [-] Emissivity of the flame
-    :param sigma:       [W/m2/K4] Stefan-Boltzmann constant
-    :param T_z:         [K] Flame temperature
-    :param _:           Not used
-    :param __:          Not used
-    :return:            A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
-    """
-
-    I_z = phi_z * epsilon_z * sigma * (T_z ** 4)
-
-    _latex = [
-        f'I_z=\\phi_z\\varepsilon_z\\sigma T_z^4',
-        f'I_z={phi_z:.3f}\\cdot{epsilon_z:.3f}\\cdot{sigma:.3e}\\cdot{T_z ** 4:.3e}',
-        f'I_z={I_z:.2f}\\left[\\frac{{kW}}{{m^2}}\\right]',
-    ]
-
-    return dict(I_z=I_z, _latex=_latex)
-
-
-def _test_clause_b_2_1_2_I_z():
-    res = clause_b_2_1_2_I_z(0.1, 0.7, 5.67e-11, 1000 + 273.5)
-
-    for i in res['_latex']:
-        print(i)
-
-    assert '_latex' in res
-    assert 'I_z' in res
-    assert abs(res['I_z'] - 10.43943) <= 1e-4
-
-
-def clause_b_2_1_3_I_z(
-        phi_z_m: float,
-        epsilon_z_m: float,
-        phi_z_n: float,
-        epsilon_z_n: float,
-        sigma: float,
-        T_z: float,
-        *_, **__,
-):
-    """
-    B.2.1 (3), page 51. Radiative heat flux if the column is opposite an opening.
-
-    :param phi_z_m:         Overall configuration factor of the column for heat from flames on side `m`
-    :param epsilon_z_m:     Total emissivity of the flames on side m
-    :param phi_z_n:         Overall configuration factor of the column for heat from flames on side `n`
-    :param epsilon_z_n:     Total emissivity of the flames on side n
-    :param sigma:           [W/m2/K4] Stefan-Boltzmann constant
-    :param T_z:             [K], Flame temperature
-    :param _:               Not used
-    :param __:              Not used
-    :return:                A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
-    """
-
-    I_z = (phi_z_m * epsilon_z_m + phi_z_n * epsilon_z_n) * sigma * (T_z ** 4)
-
-    _latex = [
-        f'I_z=\\left(\\phi_{{z,m}} \\varepsilon_{{z,m}} + \\phi_{{z,n}} \\varepsilon_{{z,n}} \\right)\\sigma T_z^4',
-        f'I_z=\\left({phi_z_m:.3f} \\cdot {epsilon_z_m:.3f} + {phi_z_n:.3f} \\cdot {epsilon_z_n:.3f} \\right){sigma:.3e}\\cdot {T_z ** 4:.3e}',
-        f'I_z={I_z:.2f}\\left[\\frac{{kW}}{{m^2}}\\right]',
-    ]
-
-    return dict(I_z=I_z, _latex=_latex)
-
-
-def _test_clause_b_2_1_3_I_z():
-    res = clause_b_2_1_3_I_z(0.1, 0.2, 0.3, 0.4, 5.67e-11, 1000 + 273.15)
-
-    for i in res['_latex']:
-        print(i)
-
-    assert '_latex' in res
-    assert 'I_z' in res
-    assert abs(res['I_z'] - 20.86) <= 1e-2
-
-
 def clause_b_1_4_1_phi_f(
         C_1, C_2, C_3, C_4,
         phi_f_1, phi_f_2, phi_f_3, phi_f_4,
@@ -485,6 +371,485 @@ def clause_b_1_4_1_phi_f(
     ]
 
     return dict(phi_f=phi_f, _latex=_latex)
+
+
+def clause_b_2_1_2_I_z(
+        phi_z: float,
+        epsilon_z: float,
+        sigma: float,
+        T_z: float,
+        *_, **__,
+):
+    """
+    B.2.1 (2), page 51. Radiative heat flux if the column is between openings.
+
+    :param phi_z:       [-] Overall configuration factor of the column for heat from the flame
+    :param epsilon_z:   [-] Emissivity of the flame
+    :param sigma:       [W/m2/K4] Stefan-Boltzmann constant
+    :param T_z:         [K] Flame temperature
+    :param _:           Not used
+    :param __:          Not used
+    :return:            A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
+    """
+
+    I_z = phi_z * epsilon_z * sigma * (T_z ** 4)
+
+    _latex = [
+        f'I_z=\\phi_z\\varepsilon_z\\sigma T_z^4',
+        f'I_z={phi_z:.3f}\\cdot{epsilon_z:.3f}\\cdot{sigma:.3e}\\cdot{T_z ** 4:.3e}',
+        f'I_z={I_z:.2f}\\left[\\frac{{kW}}{{m^2}}\\right]',
+    ]
+
+    return dict(I_z=I_z, _latex=_latex)
+
+
+def _test_clause_b_2_1_2_I_z():
+    o = clause_b_2_1_2_I_z(0.1, 0.7, 5.67e-11, 1000 + 273.5)
+    assert '_latex' in o
+    assert abs(o['I_z'] - 10.43943) <= 1e-4
+
+
+def clause_b_2_1_3_I_z(
+        phi_z_m: float,
+        epsilon_z_m: float,
+        phi_z_n: float,
+        epsilon_z_n: float,
+        sigma: float,
+        T_z: float,
+        *_, **__,
+):
+    """
+    B.2.1 (3), page 51. Radiative heat flux if the column is opposite an opening.
+
+    :param phi_z_m:         Overall configuration factor of the column for heat from flames on side `m`
+    :param epsilon_z_m:     Total emissivity of the flames on side m
+    :param phi_z_n:         Overall configuration factor of the column for heat from flames on side `n`
+    :param epsilon_z_n:     Total emissivity of the flames on side n
+    :param sigma:           [W/m2/K4] Stefan-Boltzmann constant
+    :param T_z:             [K], Flame temperature
+    :param _:               Not used
+    :param __:              Not used
+    :return:                A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
+    """
+
+    I_z = (phi_z_m * epsilon_z_m + phi_z_n * epsilon_z_n) * sigma * (T_z ** 4)
+
+    _latex = [
+        f'I_z=\\left(\\phi_{{z,m}} \\varepsilon_{{z,m}} + \\phi_{{z,n}} \\varepsilon_{{z,n}} \\right)\\sigma T_z^4',
+        f'I_z=\\left({phi_z_m:.3f} \\cdot {epsilon_z_m:.3f} + {phi_z_n:.3f} \\cdot {epsilon_z_n:.3f} \\right){sigma:.3e}\\cdot {T_z ** 4:.3e}',
+        f'I_z={I_z:.2f}\\ \\left[\\frac{{kW}}{{m^2}}\\right]',
+    ]
+
+    return dict(I_z=I_z, _latex=_latex)
+
+
+def _test_clause_b_2_1_3_I_z():
+    o = clause_b_2_1_3_I_z(0.1, 0.2, 0.3, 0.4, 5.67e-11, 1000 + 273.15)
+    assert '_latex' in o
+    assert abs(o['I_z'] - 20.86) <= 1e-2
+
+
+def clause_b_2_2_1_lambda(
+        h: float,
+        x: float = None,
+        z: float = None,
+        is_forced_draught: bool = False,
+):
+    """
+    Clause B.2.2 (1), page 51, flame thickness if the column is opposite an opening and no awning or balcony above the
+    opening.
+
+    :param h:                   [m], flame horizontal projection
+    :param x:                   [m], flame horizontal projection, required if `is_forced_draught` is True
+    :param z:                   [m], vertical distance from flame tip to opening upper edge, required if
+                                `is_forced_draught` is True
+    :param is_forced_draught:   [-], whether forced draught condition presents
+    :return:                    a dict containing `lambda_` and `_latex`
+    """
+
+    _latex = [
+        f'\\lambda='
+        f'\\begin{{dcases}}\n'
+        f'\\frac{{2}}{{3}}h,                                           &\\text{{no forced draught }} \\left[ {not is_forced_draught}\\right]\\\\\n'
+        f'\\operatorname{{min}}\left({{x, \\frac{{hx}}{{z}}}}\\right)  &\\text{{forced draught }}    \\left[ {is_forced_draught}\\right]\\\\\n'
+        f'\\end{{dcases}}',
+    ]
+
+    if not is_forced_draught:
+        lambda_ = 2. * h / 3.
+        _latex.append(f'\\lambda=\\frac{{2}}{{3}}{h:.3f}')
+    else:
+        lambda_ = min(x, h * x / z)
+        _latex.append(f'\\lambda=\\operatorname{{min}}\left({{{x:.3f}, \\frac{{{h * x:.3f}}}{{{z:.3f}}}}}\\right)')
+
+    _latex.append(f'\\lambda={lambda_:.3f}\\ \\left[m\\right]')
+
+    return dict(lambda_=lambda_, _latex=_latex)
+
+
+def _test_clause_b_2_2_1_lambda():
+    o = clause_b_2_2_1_lambda(2, 1, 1.5, False)
+    assert '_latex' in o
+    assert abs(2 / 3 * 2. - o['lambda_']) < 1.e-5
+
+    o = clause_b_2_2_1_lambda(2, 1, 1.5, True)
+    assert abs(1 - o['lambda_']) < 1.e-5
+
+    o = clause_b_2_2_1_lambda(2, 1, 4, True)
+    assert abs(2 / 4 - o['lambda_']) < 1.e-5
+
+
+def clause_b_2_2_2_lambda(
+        w_i_m: Union[float, list],
+        s_m: Union[float, list],
+        is_forced_draught_m: Union[float, list],
+        w_i_n: Union[float, list],
+        s_n: Union[float, list],
+        is_forced_draught_n: Union[float, list],
+        *_, **__,
+):
+    """
+    Clause B.2.2 (1), page 55, flame thickness if the column is between openings and no awning or balcony above the
+    opening.
+
+    :param h:                   [m], flame horizontal projection
+    :param x:                   [m], flame horizontal projection, required if `is_forced_draught` is True
+    :param z:                   [m], vertical distance from flame tip to opening upper edge, required if
+                                `is_forced_draught` is True
+    :param is_forced_draught:   [-], whether forced draught condition presents
+    :return:                    a dict containing `lambda_` and `_latex`
+    """
+
+    assert all([isinstance(i, (tuple, list)) for i in [w_i_m, s_m, is_forced_draught_m]])
+    assert all([isinstance(i, (tuple, list)) for i in [w_i_n, s_n, is_forced_draught_n]])
+
+    lambda_m = [
+        clause_b_2_2_3_lambda_i(
+            w_i=w_i_m[i], s=s_m[i], is_forced_draught=is_forced_draught_m[i]
+        ) for i in range(len(w_i_m))
+    ]
+    lambda_n = [
+        clause_b_2_2_3_lambda_i(
+            w_i=w_i_n[i], s=s_n[i], is_forced_draught=is_forced_draught_n[i]
+        ) for i in range(len(w_i_n))
+    ]
+
+    lambda_m = sum([i['lambda_i'] for i in lambda_m])
+    lambda_n = sum([i['lambda_i'] for i in lambda_n])
+
+    _latex = [
+        f'lambda_m={lambda_m:.3f}\\ \\left[ m\\right]',
+        f'lambda_n={lambda_n:.3f}\\ \\left[ m\\right]',
+    ]
+
+    return dict(lambda_m=lambda_m, lambda_n=lambda_n, _latex=_latex)
+
+
+def clause_b_2_2_3_lambda_i(
+        w_i: float,
+        s: float = None,
+        is_forced_draught: bool = False,
+        *_, **__,
+):
+    """
+    Clause B.2.2 (3), page 55, flame thickness used in B.2.2 (2).
+
+    :param w_i:                 Width of the opening
+    :param s:                   Horizontal distance from the centre-line of the column to the wall of the fire
+                                compartment
+    :param is_forced_draught:   True if forced condition is present
+    :param _:
+    :param __:
+    :return:                    A dict containing `lambda_i` and `_latex`
+    """
+    _latex = [
+        f'\\lambda_i='
+        f'\\begin{{dcases}}\n'
+        f'w_i,      &\\text{{no forced draught }} \\left[ {not is_forced_draught}\\right]\\\\\n'
+        f'w_i+0.4s  &\\text{{forced draught }}    \\left[ {is_forced_draught}\\right]\\\\\n'
+        f'\\end{{dcases}}',
+    ]
+    if not is_forced_draught:
+        lambda_i = w_i
+    else:
+        lambda_i = w_i + 0.4 * s
+        _latex.append(
+            f'\\lambda_i=w_i+0.4\\cdot {s:.3f}'
+        )
+    _latex.append(
+        f'\\lambda_i={lambda_i:.3f}\\left[ m\\right]'
+    )
+
+    return dict(lambda_i=lambda_i, _latex=_latex)
+
+
+def clause_b_2_3_1_l(
+        h: float = None,
+        s: float = None,
+        X: float = None,
+        x: float = None,
+        is_forced_draught: bool = False,
+        is_column_opposite_to_openning: bool = True,
+        *_, **__,
+):
+    """
+    Clause B.2.3 (1), page 55, distance from the opening along the flame axis, used to calculate flame temperature T_z.
+
+    :param h: [m], flame horizontal projection
+    :param s: [m], horizontal distance from the centre-line of the column to the wall of the fire compartment
+    :param X: todo
+    :param x: todo
+    :param is_forced_draught:
+    :param is_column_opposite_to_openning:
+    :param _:
+    :param __:
+    :return:
+    """
+    _latex = [
+        f'\\lambda_i='
+        f'\\begin{{dcases}}\n'
+        f'\\frac{{h}}{{2}},         &\\text{{no forced draught }} \\left[ {not is_forced_draught}\\right]\\\\\n'
+        f'0                         &\\text{{forced draught, opposite to opening }}    \\left[ {is_forced_draught and is_column_opposite_to_openning}\\right]\\\\\n'
+        f'\\frac{{s\\cdot X}}{{x}}  &\\text{{forced draught, not opposite to opening }}    \\left[ {is_forced_draught and is_column_opposite_to_openning}\\right]\\\\\n'
+        f'\\end{{dcases}}',
+    ]
+
+    if not is_forced_draught:
+        l = h / 2.
+        _latex += f'l=\\frac{{h}}{{2}}'
+    elif is_forced_draught and is_column_opposite_to_openning:
+        l = 0
+    else:
+        l = s * X / x
+        _latex += f'l=s\\cdot X\\frac{{X}}{{x}}'
+
+    _latex += f'l={l:.3f}\\ \\left[ m\\right]'
+
+
+def clause_b_3_1_3_I_z(
+        phi_z: float,
+        epsilon_z: float,
+        sigma: float,
+        T_z: float,
+        *_, **__,
+):
+    """
+    B.3.1 (3), page 56. Radiative heat flux for beams parallel to the external wall of the fire compartment.
+
+    :param phi_z:       [-] Overall configuration factor of the column for heat from the flame
+    :param epsilon_z:   [-] Emissivity of the flame
+    :param sigma:       [W/m2/K4] Stefan-Boltzmann constant
+    :param T_z:         [K] Flame temperature
+    :param _:           Not used
+    :param __:          Not used
+    :return:            A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
+    """
+
+    I_z = phi_z * epsilon_z * sigma * (T_z ** 4)
+
+    _latex = [
+        f'I_z=\\phi_z\\varepsilon_z\\sigma T_z^4',
+        f'I_z={phi_z:.3f}\\cdot{epsilon_z:.3f}\\cdot{sigma:.3e}\\cdot{T_z ** 4:.3e}',
+        f'I_z={I_z:.2f}\\left[\\frac{{kW}}{{m^2}}\\right]',
+    ]
+
+    return dict(I_z=I_z, _latex=_latex)
+
+
+def clause_b_3_1_4_I_z(
+        phi_z_m: float,
+        epsilon_z_m: float,
+        phi_z_n: float,
+        epsilon_z_n: float,
+        sigma: float,
+        T_z: float,
+        *_, **__,
+):
+    """
+    B.3.1 (4), page 56. Radiative heat flux at a beam perpendicular to the external wall of the fire compartment.
+
+    :param phi_z_m:         Overall configuration factor of the column for heat from flames on side `m`
+    :param epsilon_z_m:     Total emissivity of the flames on side m
+    :param phi_z_n:         Overall configuration factor of the column for heat from flames on side `n`
+    :param epsilon_z_n:     Total emissivity of the flames on side n
+    :param sigma:           [W/m2/K4] Stefan-Boltzmann constant
+    :param T_z:             [K], Flame temperature
+    :return:                A dict containing `I_z` and `_latex` where `I_z` is the heat flux in [kW/m2]
+    """
+
+    I_z = (phi_z_m * epsilon_z_m + phi_z_n * epsilon_z_n) * sigma * (T_z ** 4)
+
+    _latex = [
+        f'I_z=\\left( \\phi_{{z,m}}\\varepsilon_{{z,m}}+\\phi_{{z,n}}\\varepsilon_{{z,n}}\\right)\\sigma T_z^4',
+        f'I_z=\\left({phi_z_m:.3f}\\cdot {epsilon_z_m:.3f}+{phi_z_n:.3f}\\cdot {epsilon_z_n:.3f} \\right)\\cdot {sigma:.3e}\\cdot {T_z:.3e}',
+        f'I_z={I_z:.3f}\\ \\left[ \\frac{{kW}}/{{m^2}}\\right]'
+    ]
+
+    return dict(I_z=I_z, _latex=_latex)
+
+
+def clause_b_3_2_1_lambda(
+        h: float,
+        x: float = None,
+        z: float = None,
+        is_forced_draught: bool = False,
+):
+    """
+    Clause B.2.3 (1), page 58, flame thickness if the beam is parallel to the external wall of the fire compartment.
+
+    :param h:                   [m], flame horizontal projection
+    :param x:                   [m], flame horizontal projection, required if `is_forced_draught` is True
+    :param z:                   [m], vertical distance from flame tip to opening upper edge, required if
+                                `is_forced_draught` is True
+    :param is_forced_draught:   [-], whether forced draught condition presents
+    :return:                    a dict containing `lambda_` and `_latex`
+    """
+
+    _latex = [
+        f'\\lambda='
+        f'\\begin{{dcases}}\n'
+        f'\\frac{{2}}{{3}}h,                                           &\\text{{no forced draught }} \\left[ {not is_forced_draught}\\right]\\\\\n'
+        f'\\operatorname{{min}}\left({{x, \\frac{{hx}}{{z}}}}\\right)  &\\text{{forced draught }}    \\left[ {is_forced_draught}\\right]\\\\\n'
+        f'\\end{{dcases}}',
+    ]
+
+    if not is_forced_draught:
+        lambda_ = 2. * h / 3.
+        _latex.append(f'\\lambda=\\frac{{2}}{{3}}{h:.3f}')
+    else:
+        lambda_ = min(x, h * x / z)
+        _latex.append(f'\\lambda=\\operatorname{{min}}\left({{{x:.3f}, \\frac{{{h * x:.3f}}}{{{z:.3f}}}}}\\right)')
+
+    _latex.append(f'\\lambda={lambda_:.3f}\\ \\left[m\\right]')
+
+    return dict(lambda_=lambda_, _latex=_latex)
+
+
+def clause_b_3_2_2_lambda(
+        w_i_m: Union[float, list],
+        s_m: Union[float, list],
+        is_forced_draught_m: Union[float, list],
+        w_i_n: Union[float, list],
+        s_n: Union[float, list],
+        is_forced_draught_n: Union[float, list],
+        *_, **__,
+):
+    """
+    Clause B.3.2 (1), page 58, flame thickness if the beam is perpendicular to the external wall of the fire
+    compartment.
+
+    :param h:                   [m], flame horizontal projection
+    :param x:                   [m], flame horizontal projection, required if `is_forced_draught` is True
+    :param z:                   [m], vertical distance from flame tip to opening upper edge, required if
+                                `is_forced_draught` is True
+    :param is_forced_draught:   [-], whether forced draught condition presents
+    :return:                    a dict containing `lambda_` and `_latex`
+    """
+
+    assert all([isinstance(i, (tuple, list)) for i in [w_i_m, s_m, is_forced_draught_m]])
+    assert all([isinstance(i, (tuple, list)) for i in [w_i_n, s_n, is_forced_draught_n]])
+
+    lambda_m = [
+        clause_b_3_2_3_lambda_i(
+            w_i=w_i_m[i], s=s_m[i], is_forced_draught=is_forced_draught_m[i]
+        ) for i in range(len(w_i_m))
+    ]
+    lambda_n = [
+        clause_b_3_2_3_lambda_i(
+            w_i=w_i_n[i], s=s_n[i], is_forced_draught=is_forced_draught_n[i]
+        ) for i in range(len(w_i_n))
+    ]
+
+    lambda_m = sum([i['lambda_i'] for i in lambda_m])
+    lambda_n = sum([i['lambda_i'] for i in lambda_n])
+
+    _latex = [
+        f'lambda_m={lambda_m:.3f}\\ \\left[ m\\right]',
+        f'lambda_n={lambda_n:.3f}\\ \\left[ m\\right]',
+    ]
+
+    return dict(lambda_m=lambda_m, lambda_n=lambda_n, _latex=_latex)
+
+
+def clause_b_3_2_3_lambda_i(
+        w_i: float,
+        s: float = None,
+        is_forced_draught: bool = False,
+        *_, **__,
+):
+    """
+    Clause B.3.2 (3), page 58, flame thickness used in B.3.2 (2).
+
+    :param w_i:                 Width of the opening
+    :param s:                   Horizontal distance from the centre-line of the column to the wall of the fire
+                                compartment
+    :param is_forced_draught:   True if forced condition is present
+    :param _:
+    :param __:
+    :return:                    A dict containing `lambda_i` and `_latex`
+    """
+    _latex = [
+        f'\\lambda_i='
+        f'\\begin{{dcases}}\n'
+        f'w_i,      &\\text{{no forced draught }} \\left[ {not is_forced_draught}\\right]\\\\\n'
+        f'w_i+0.4s  &\\text{{forced draught }}    \\left[ {is_forced_draught}\\right]\\\\\n'
+        f'\\end{{dcases}}',
+    ]
+    if not is_forced_draught:
+        lambda_i = w_i
+    else:
+        lambda_i = w_i + 0.4 * s
+        _latex.append(
+            f'\\lambda_i=w_i+0.4\\cdot {s:.3f}'
+        )
+    _latex.append(
+        f'\\lambda_i={lambda_i:.3f}\\left[ m\\right]'
+    )
+
+    return dict(lambda_i=lambda_i, _latex=_latex)
+
+
+def clause_b_3_3_1_l(
+        h: float = None,
+        s: float = None,
+        X: float = None,
+        x: float = None,
+        is_forced_draught: bool = False,
+        is_beam_perpendicular_to_wall: bool = True,
+        *_, **__,
+):
+    """
+    Clause B.3.3 (1), page 55, distance from the opening along the flame axis, used to calculate flame temperature T_z.
+
+    :param h: [m], flame horizontal projection
+    :param s: [m], horizontal distance from the centre-line of the column to the wall of the fire compartment
+    :param X: todo
+    :param x: todo
+    :param is_forced_draught:
+    :param is_beam_perpendicular_to_wall:
+    :param _:
+    :param __:
+    :return:
+    """
+    _latex = [
+        f'\\lambda_i='
+        f'\\begin{{dcases}}\n'
+        f'\\frac{{h}}{{2}},         &\\text{{no forced draught }} \\left[ {not is_forced_draught}\\right]\\\\\n'
+        f'0                         &\\text{{forced draught, parallel to wall }}    \\left[ {is_forced_draught and is_beam_perpendicular_to_wall}\\right]\\\\\n'
+        f'\\frac{{s\\cdot X}}{{x}}  &\\text{{forced draught, perpendicular to wall }}    \\left[ {is_forced_draught and is_beam_perpendicular_to_wall}\\right]\\\\\n'
+        f'\\end{{dcases}}',
+    ]
+
+    if not is_forced_draught:
+        l = h / 2.
+        _latex += f'l=\\frac{{h}}{{2}}'
+    elif is_forced_draught and is_beam_perpendicular_to_wall:
+        l = 0
+    else:
+        l = s * X / x
+        _latex += f'l=s\\cdot X\\frac{{X}}{{x}}'
+
+    _latex += f'l={l:.3f}\\ \\left[ m\\right]'
 
 
 def clause_b_4_1_I_z_i(
@@ -636,6 +1001,35 @@ def _test_clause_b_4_1_lambda_4():
         is_forced_draught=True
     )
     assert abs(res['lambda_4'] - 4.1) < 1e-3
+
+
+def clause_b_4_2_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__):
+    """
+    Clause B.4 (2), page 61
+    Emissivity of the external flames for each of the faces 1, 2, 3 and 4 of the column
+
+    :param lambda_1:
+    :param lambda_2:
+    :param lambda_3:
+    :param lambda_4:
+    :param _:
+    :param __:
+    :return:
+    """
+    epsilon_z_1 = 1 - e ** (-0.3 * lambda_1)
+    epsilon_z_2 = 1 - e ** (-0.3 * lambda_2)
+    epsilon_z_3 = 1 - e ** (-0.3 * lambda_3)
+    epsilon_z_4 = 1 - e ** (-0.3 * lambda_4)
+
+    _latex = [
+        f'\\varepsilon_{{z,1}}=1-e^{{-0.3\\cdot \\lambda_1}}=1-e^{{-0.3\\cdot {lambda_1:.2f}}}={epsilon_z_1:.5f}\\ \\left[ -\\right]',
+        f'\\varepsilon_{{z,2}}=1-e^{{-0.3\\cdot \\lambda_2}}=1-e^{{-0.3\\cdot {lambda_2:.2f}}}={epsilon_z_2:.5f}\\ \\left[ -\\right]',
+        f'\\varepsilon_{{z,3}}=1-e^{{-0.3\\cdot \\lambda_3}}=1-e^{{-0.3\\cdot {lambda_3:.2f}}}={epsilon_z_3:.5f}\\ \\left[ -\\right]',
+        f'\\varepsilon_{{z,4}}=1-e^{{-0.3\\cdot \\lambda_4}}=1-e^{{-0.3\\cdot {lambda_4:.2f}}}={epsilon_z_4:.5f}\\ \\left[ -\\right]',
+    ]
+
+    return dict(epsilon_z_1=epsilon_z_1, epsilon_z_2=epsilon_z_2, epsilon_z_3=epsilon_z_3, epsilon_z_4=epsilon_z_4,
+                _latex=_latex)
 
 
 def clause_b_4_5_l(h_eq, L_H, L_L, d_fw, d_1, is_forced_draught, *_, **__):
@@ -1057,27 +1451,6 @@ def clause_b_5_1_3_3_I_z_i(
     return dict(I_z_1=I_z_1, I_z_2=I_z_2, I_z_3=I_z_3, I_z_4=I_z_4, _latex=_latex)
 
 
-def clause_b_5_3_a_z(lambda_1, *_, **__):
-    """
-    Clause B.5.3 (1), page 64
-    Absorptivity of the flame.
-
-    :param lambda_1: height of the opening
-    :param _:
-    :param __:
-    :return:
-    """
-
-    # Equation B.26, page 64
-    a_z = 1 - e ** (-0.3 * lambda_1)
-    _latex = [
-        f'a_z=1-e^{{-0.3h}}',
-        f'a_z=1-e^{{-0.3\\cdot {lambda_1:.2f}}}',
-        f'a_z={a_z:.4f}\\ \\left[-\\right]'
-    ]
-    return dict(a_z=a_z, _latex=_latex)
-
-
 def clause_b_5_2_1_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__):
     """
     Clause B.5.2 (1), page 64
@@ -1107,8 +1480,30 @@ def clause_b_5_2_1_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__)
                 _latex=_latex)
 
 
+def clause_b_5_3_a_z(lambda_1, *_, **__):
+    """
+    Clause B.5.3 (1), page 64
+    Absorptivity of the flame.
+
+    :param lambda_1: height of the opening
+    :param _:
+    :param __:
+    :return:
+    """
+
+    # Equation B.26, page 64
+    a_z = 1 - e ** (-0.3 * lambda_1)
+    _latex = [
+        f'a_z=1-e^{{-0.3h}}',
+        f'a_z=1-e^{{-0.3\\cdot {lambda_1:.2f}}}',
+        f'a_z={a_z:.4f}\\ \\left[-\\right]'
+    ]
+    return dict(a_z=a_z, _latex=_latex)
+
+
 if __name__ == '__main__':
     # _test_clause_b_1_3_3_T_m()
     # _test_clause_b_4_1_lambda_4()
     _test_clause_b_2_1_2_I_z()
     _test_clause_b_2_1_3_I_z()
+    _test_clause_b_2_2_1_lambda()
