@@ -6,35 +6,40 @@ from scipy.optimize import bisect
 from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187, phi_perpendicular_any_br187
 
 SYMBOLS = dict(
-    I_Z_i=('kW/m**2', 'the radiative heat flux from the flame to column face $i$'),
-    d_i=('-', 'the cross-sectional dimension of member face $i$'),
-    epsilon_Z_i=('-', 'the emissivity of the flames with respect to face $i$ of the column'),
-    C_i=('-', 'the protection coefficient of member face'),
-    I_z=('kW/m**2', 'the radiative heat flux from a flame'),
-    I_f=('kW/m**2', 'the radiative heat flux from an opening'),
+    a_z=('-', 'the absorptivity of flames'),
     alpha=('kW/(m**2*K)', 'the convective heat transfer coefficient'),
-    sigma=('kW/(m**2*K**4)', 'Stefan Boltzmann constant'),
-    T_o=('K', 'the flame temperature at the opening from annex B of EN 1991-1-2'),
-    T_z=('K', 'the flame temperature'),
-    T_z_1=('K', 'the flame temperature from Annex B of EN 1991-1-2, level with the bottom of a beam'),
-    T_z_2=('K', 'the flame temperature from Annex B of EN 1991-1-2, level with the top of a beam'),
     C_1=('-', 'the protection coefficient of member face 1'),
     C_2=('-', 'the protection coefficient of member face 2'),
     C_3=('-', 'the protection coefficient of member face 3'),
     C_4=('-', 'the protection coefficient of member face 4'),
-    d_1=('m', 'the cross-sectional dimension of member face 1'),
-    d_2=('m', 'the cross-sectional dimension of member face 2'),
+    C_i=('-', 'the protection coefficient of member face'),
+    d_1=('m', 'the cross-sectional dimension 1'),
+    d_2=('m', 'the cross-sectional dimension 2'),
     d_aw=('m', 'the distance between steel member bottom and opening top edge'),
-    w_t=('m', 'the width of the opening'),
-    L_L=("m", "the flame height (from the upper part of the window)"),
-    L_H=("m", "the horizontal projection of the flame (from the facade)"),
-    h_eq=(
-        'm',
-        'the weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
-    is_forced_draught=('boolean', 'True if forced draught, False otherwise'),
-    w_f=('m', 'the flame width'),
-    a_z=('-', 'the absorptivity of flames'),
+    d_i=('-', 'the cross-sectional dimension of member face $i$'),
     epsilon_f=('-', 'the emissivity of an opening'),
+    epsilon_z_1=('-', 'the total emissivity of the flames on a steel member at face 1'),
+    epsilon_z_2=('-', 'the total emissivity of the flames on a steel member at face 2'),
+    epsilon_z_3=('-', 'the total emissivity of the flames on a steel member at face 3'),
+    epsilon_z_4=('-', 'the total emissivity of the flames on a steel member at face 4'),
+    epsilon_Z_i=('-', 'the emissivity of the flames with respect to face $i$ of the column'),
+    h_eq=('m', 'the weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
+    h_z=('m', 'the height of the top of the flame above the bottom of the beam'),
+    I_f=('kW/m**2', 'the radiative heat flux from an opening'),
+    I_f_1=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 1'),
+    I_f_2=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 2'),
+    I_f_3=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 3'),
+    I_f_4=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 4'),
+    I_z=('kW/m**2', 'the radiative heat flux from a flame'),
+    I_z_1=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 1'),
+    I_z_2=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 2'),
+    I_z_3=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 3'),
+    I_z_4=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 4'),
+    I_Z_i=('kW/m**2', 'the radiative heat flux from the flame to column face $i$'),
+    is_forced_draught=('boolean', 'True if forced draught, False otherwise'),
+    l=('m', 'a distance from an opening, measured along the flame axis'),
+    L_H=("m", "the horizontal projection of the flame (from the facade)"),
+    L_L=("m", "the flame height (from the upper part of the window)"),
     lambda_1=('m', 'the flame thickness relevant to member face 1'),
     lambda_2=('m', 'the flame thickness relevant to member face 2'),
     lambda_3=('m', 'the flame thickness relevant to member face 3'),
@@ -43,26 +48,21 @@ SYMBOLS = dict(
     phi_f_2=('-', 'the configuration factor of member face 2 for an opening'),
     phi_f_3=('-', 'the configuration factor of member face 3 for an opening'),
     phi_f_4=('-', 'the configuration factor of member face 4 for an opening'),
-    epsilon_z_1=('-', 'the total emissivity of the flames on a steel member at face 1'),
-    epsilon_z_2=('-', 'the total emissivity of the flames on a steel member at face 2'),
-    epsilon_z_3=('-', 'the total emissivity of the flames on a steel member at face 3'),
-    epsilon_z_4=('-', 'the total emissivity of the flames on a steel member at face 4'),
-    I_z_1=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 1'),
-    I_z_2=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 2'),
-    I_z_3=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 3'),
-    I_z_4=('kW/m**2', 'the radiative heat flux from a flame to a steel member at face 4'),
-    I_f_1=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 1'),
-    I_f_2=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 2'),
-    I_f_3=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 3'),
-    I_f_4=('kW/m**2', 'the radiative heat flux from an opening to a steel member at face 4'),
+    sigma=('kW/(m**2*K**4)', 'Stefan Boltzmann constant'),
+    T_f=('K', 'the temperature of the fire compartment'),
+    T_m=('K', 'the average temperature of the steel member'),
     T_m_1=('K', 'the temperature of the steel member at face 1'),
     T_m_2=('K', 'the temperature of the steel member at face 2'),
     T_m_3=('K', 'the temperature of the steel member at face 3'),
     T_m_4=('K', 'the temperature of the steel member at face 4'),
-    l=('m', 'a distance from an opening, measured along the flame axis'),
-    T_f=('K', 'the temperature of the fire compartment'),
-    T_m=('K', 'the average temperature of the steel member')
+    T_o=('K', 'the flame temperature at the opening from annex B of EN 1991-1-2'),
+    T_z=('K', 'the flame temperature'),
+    T_z_1=('K', 'the flame temperature from Annex B of EN 1991-1-2, level with the bottom of a beam'),
+    T_z_2=('K', 'the flame temperature from Annex B of EN 1991-1-2, level with the top of a beam'),
+    w_f=('m', 'the flame width'),
+    w_t=('m', 'the width of the opening'),
 )
+
 UNITS = {k: v[0] for k, v in SYMBOLS.items()}
 DESCRIPTIONS = {k: v[1] for k, v in SYMBOLS.items()}
 
@@ -157,8 +157,7 @@ def clause_b_1_3_3_T_m_i_column(
         alpha,
         T_z,
         sigma: float = 5.67e-11,
-        *_,
-        **__
+        *_, **__
 ):
     """
 
@@ -207,8 +206,7 @@ def clause_b_1_3_5_I_f(
         sigma,
         T_f,
         epsilon_f: float = 1,
-        *_,
-        **__
+        *_, **__
 ):
     """
     Clause B.4 (5), page 49
@@ -270,7 +268,15 @@ def clause_b_1_3_2_d(d_1, d_2, *_, **__):
     return dict(d=d, _latex=_latex)
 
 
-def clause_b_1_4_1_phi_f_i_beam(h_eq, w_t, d_aw, lambda_3, lambda_4, *_, **__):
+def clause_b_1_4_1_phi_f_i_beam(
+        h_eq,
+        w_t,
+        d_aw,
+        lambda_3,
+        lambda_4,
+        *_,
+        **__
+):
     phi_f_1 = phi_perpendicular_any_br187(
         W_m=w_t,
         H_m=h_eq,
@@ -298,7 +304,25 @@ def clause_b_1_4_1_phi_f_i_beam(h_eq, w_t, d_aw, lambda_3, lambda_4, *_, **__):
     return dict(phi_f_1=phi_f_1, phi_f_2=phi_f_2, phi_f_3=phi_f_3, phi_f_4=phi_f_4, _latex=_latex)
 
 
-def clause_b_1_4_1_phi_f_i_column(h_eq, d_2, lambda_1, lambda_2, lambda_3, *_, **__):
+def clause_b_1_4_1_phi_f_i_column(
+        h_eq,
+        d_2,
+        lambda_1,
+        lambda_2,
+        lambda_3,
+        *_, **__
+):
+    """
+
+    :param h_eq:
+    :param d_2:
+    :param lambda_1:
+    :param lambda_2:
+    :param lambda_3:
+    :param _:
+    :param __:
+    :return:
+    """
     phi_f_1 = phi_perpendicular_any_br187(
         W_m=h_eq,
         H_m=lambda_1,
@@ -937,7 +961,12 @@ def clause_b_4_1_I_z(
     return dict(I_z=I_z, _latex=_latex)
 
 
-def clause_b_4_1_lambda_2(w_t, lambda_1, d_2, *_, **__):
+def clause_b_4_1_lambda_2(
+        w_t,
+        lambda_1,
+        d_2,
+        *_, **__
+):
     lambda_2 = w_t - lambda_1 - d_2
 
     _latex = [
@@ -949,7 +978,15 @@ def clause_b_4_1_lambda_2(w_t, lambda_1, d_2, *_, **__):
     return dict(lambda_2=lambda_2, _latex=_latex)
 
 
-def clause_b_4_1_lambda_4(lambda_3, L_L, L_H, h_eq, d_1, is_forced_draught: bool, *_, **__, ):
+def clause_b_4_1_lambda_4(
+        lambda_3,
+        L_L,
+        L_H,
+        h_eq,
+        d_1,
+        is_forced_draught: bool,
+        *_, **__,
+):
     _latex = [
         f'\\lambda_4=\n'
         f'\\begin{{dcases}}\n'
@@ -1003,7 +1040,13 @@ def _test_clause_b_4_1_lambda_4():
     assert abs(res['lambda_4'] - 4.1) < 1e-3
 
 
-def clause_b_4_2_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__):
+def clause_b_4_2_epsilon_z_i(
+        lambda_1,
+        lambda_2,
+        lambda_3,
+        lambda_4,
+        *_, **__
+):
     """
     Clause B.4 (2), page 61
     Emissivity of the external flames for each of the faces 1, 2, 3 and 4 of the column
@@ -1032,15 +1075,24 @@ def clause_b_4_2_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__):
                 _latex=_latex)
 
 
-def clause_b_4_5_l(h_eq, L_H, L_L, d_fw, d_1, is_forced_draught, *_, **__):
+def clause_b_4_5_l(
+        h_eq: float,
+        L_H: float,
+        L_L: float,
+        d_1: float,
+        lambda_3: float,
+        is_forced_draught: bool,
+        *_, **__
+):
     """
     Clause B.4 (5), page 61
-    :param is_forced_draught:
-    :param d_1:
-    :param d_fw:
-    :param L_L:
-    :param L_H:
+
     :param h_eq:
+    :param L_H:
+    :param L_L:
+    :param d_1:
+    :param lambda_3:
+    :param is_forced_draught:
     :param _:
     :param __:
     :return:
@@ -1067,11 +1119,11 @@ def clause_b_4_5_l(h_eq, L_H, L_L, d_fw, d_1, is_forced_draught, *_, **__):
         # todo, the equation below is not exactly the same as Equation B.19b in BS EN 1993-1-2.
         # todo, make sure the interpretation below is correct.
         # note, original equation `l = (lambda_3 + 0.5 * d_1) * L_L / L_H` and `l <= 0.5 * h_eq * L_L / L_H`
-        l = min((d_fw + 0.5 * d_1) * L_L / L_H, 0.5 * h_eq * L_L / L_H)
+        l = min((lambda_3 + 0.5 * d_1) * L_L / L_H, 0.5 * h_eq * L_L / L_H)
 
         _latex.extend([
-            f'l=\\operatorname{{min}}\\left(\\frac{{\\left({d_fw:.2f}+0.5\\cdot {d_1:.2f}\\right) {L_L:.2f}}}{{{L_H:.2f}}}, \\frac{{0.5\\cdot {h_eq:.2f}\\cdot {L_L:.2f}}}{{{L_H:.2f}}}\\right)',
-            f'l=\\operatorname{{min}}\\left({(d_fw + 0.5 * d_1) * L_L / L_H:.2f}, {0.5 * h_eq * L_L / L_H:.2f}\\right)',
+            f'l=\\operatorname{{min}}\\left(\\frac{{\\left({lambda_3:.2f}+0.5\\cdot {d_1:.2f}\\right) {L_L:.2f}}}{{{L_H:.2f}}}, \\frac{{0.5\\cdot {h_eq:.2f}\\cdot {L_L:.2f}}}{{{L_H:.2f}}}\\right)',
+            f'l=\\operatorname{{min}}\\left({(lambda_3 + 0.5 * d_1) * L_L / L_H:.2f}, {0.5 * h_eq * L_L / L_H:.2f}\\right)',
         ])
 
     _latex.extend([
@@ -1081,7 +1133,12 @@ def clause_b_4_5_l(h_eq, L_H, L_L, d_fw, d_1, is_forced_draught, *_, **__):
     return dict(l=l, _latex=_latex)
 
 
-def clause_b_4_6_a_z(epsilon_z_1, epsilon_z_2, epsilon_z_3, *_, **__):
+def clause_b_4_6_a_z(
+        epsilon_z_1,
+        epsilon_z_2,
+        epsilon_z_3,
+        *_, **__
+):
     """
     Clause B.4 (6), page 61
 
@@ -1106,9 +1163,12 @@ def clause_b_4_6_a_z(epsilon_z_1, epsilon_z_2, epsilon_z_3, *_, **__):
 
 
 def clause_b_5_1_1_2_lambda_1(
-        L_L, L_H,
-        h_eq, d_aw,
-        lambda_4, d_1,
+        L_L,
+        L_H,
+        h_eq,
+        d_aw,
+        lambda_4,
+        d_1,
         is_forced_draught,
         *_, **__,
 ):
@@ -1120,13 +1180,15 @@ def clause_b_5_1_1_2_lambda_1(
         f'\\end{{dcases}}'
     ]
 
-    if not is_forced_draught:
+    if is_forced_draught is False:
+        # for non forced draught condition
         lambda_1 = 2 / 3 * h_eq + d_aw
         _latex.extend([
             f'\\lambda_1=\\frac{{2}}{{3}} h_{{eq}} + d_{{aw}}',
             f'\\lambda_1=\\frac{{2}}{{3}}\\cdot {h_eq:.2f}+{d_aw:.2f}',
         ])
     else:
+        # for forced draught condition
         lambda_1 = d_aw + h_eq - (lambda_4 + 0.5 * d_1) * (L_L / L_H)
         _latex.extend([
             f'\\lambda_1=d_{{aw}}+h_{{eq}}-\\left(\\lambda_4+0.5 d_1\\right)\\frac{{L_L}}{{L_H}}',
@@ -1451,7 +1513,14 @@ def clause_b_5_1_3_3_I_z_i(
     return dict(I_z_1=I_z_1, I_z_2=I_z_2, I_z_3=I_z_3, I_z_4=I_z_4, _latex=_latex)
 
 
-def clause_b_5_2_1_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__):
+def clause_b_5_2_1_epsilon_z_i(
+        lambda_1,
+        lambda_2,
+        lambda_3,
+        lambda_4,
+        *_,
+        **__
+):
     """
     Clause B.5.2 (1), page 64
     Emissivity of the external flames for each of the faces 1, 2, 3 and 4 of the beam
@@ -1480,7 +1549,10 @@ def clause_b_5_2_1_epsilon_z_i(lambda_1, lambda_2, lambda_3, lambda_4, *_, **__)
                 _latex=_latex)
 
 
-def clause_b_5_3_a_z(lambda_1, *_, **__):
+def clause_b_5_3_a_z(
+        lambda_1,
+        *_, **__
+):
     """
     Clause B.5.3 (1), page 64
     Absorptivity of the flame.

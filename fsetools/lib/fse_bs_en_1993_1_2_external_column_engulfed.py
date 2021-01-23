@@ -4,7 +4,7 @@ from pylatex import NoEscape, Section, Subsection
 
 from fsetools.etc.latex import make_alginat_equations, make_summary_table
 from fsetools.lib.fse_latex_report_template import ReportBase
-from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import clause_b_4_1_10_T_z, clause_b_4_1_12_alpha_c
+from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import clause_b_4_1_10_T_z, clause_b_4_2_9_T_z, clause_b_4_1_12_alpha_c, clause_b_4_2_11_alpha_c
 from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import *
 
 
@@ -124,13 +124,17 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
     @staticmethod
     def __calculation(**input_kwargs):
 
-        _latex_equation_header, _latex_equation_content = list(), list()
+        # ==============================================
+        # Helper functions not defined in BS EN 1993-1-2
+        # ==============================================
 
-        # Calculate l
-        if 'l' not in input_kwargs:
-            input_kwargs.update(clause_b_4_1_lambda_2(**input_kwargs))
-            _latex_equation_header.append('Clause B.4 (1), the flame thickness $\\lambda_2$ is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
+        # todo
+
+        # =================================
+        # Main calculation procedure starts
+        # =================================
+
+        _latex_equation_header, _latex_equation_content = list(), list()
 
         # Calculate lambda_2
         if 'lambda_2' not in input_kwargs:
@@ -144,27 +148,36 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
             _latex_equation_header.append('Clause B.4 (1), the flame thickness $\\lambda_4$ is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
+        # Calculate l, i.e. L_x
+        if 'L_x' not in input_kwargs and 'T_z' not in input_kwargs:
+            __ = clause_b_4_5_l(**input_kwargs)
+            __['L_x'] = __.pop('l')
+            input_kwargs.update(__)
+            _latex_equation_header.append('Clause B.4 (5), the distance $l$ ($L_x$ in BS EN 1991-1-2) from the opening is:')
+            _latex_equation_content.append(input_kwargs['_latex'])
+
         # Calculate T_z
         if 'T_z' not in input_kwargs:
-            if 'L_x' not in input_kwargs:
-                # __ = clause_b_4_5_l(**input_kwargs)
-                __ = clause_b_4_5_l(
-                    h_eq=input_kwargs['h_eq'],
-                    L_H=input_kwargs['L_H'],
-                    L_L=input_kwargs['L_L'],
-                    d_fw=input_kwargs['d_fw'],
-                    d_1=input_kwargs['d_1'],  # note this variable name is different
-                    is_forced_draught=input_kwargs['is_forced_draught']
-                )
-                __['L_x'] = __.pop('l')
-                input_kwargs.update(__)
-                _latex_equation_header.append(
-                    'Clause B.4 (5), the distance $l$ ($L_x$ in BS EN 1991-1-2) from the opening is:')
-                _latex_equation_content.append(input_kwargs['_latex'])
-            input_kwargs.update(clause_b_4_1_10_T_z(T_w=input_kwargs['T_o'], **input_kwargs))
+
+            if input_kwargs['is_forced_draught'] is False:
+                # non forced draught
+                input_kwargs.update(clause_b_4_1_10_T_z(T_w=input_kwargs['T_o'], **input_kwargs))
+                _latex_equation_header.append('BS EN 1991-1-2 Clause B.4.1 (10), the flame temperature along the axis at the centroid of the beam section, $L_{x}$, is:')
+            elif input_kwargs['is_forced_draught'] is True:
+                # forced draught
+                input_kwargs.update(clause_b_4_2_9_T_z(T_w=input_kwargs['T_o'], **input_kwargs))
+                _latex_equation_header.append('BS EN 1991-1-2 Clause B.4.2 (9), the flame temperature along the axis at the centroid of the beam section, $L_{x}$, is:')
+            else:
+                raise ValueError('Unkown condition')
+
+            _latex_equation_content.append(input_kwargs['_latex'])
+
+
+        # Calculate phi_f_1 ... phi_f_4
+        if not all([i in input_kwargs for i in ['phi_z_1', 'phi_z_2', 'phi_z_3', 'phi_z_4']]):
+            input_kwargs.update(clause_b_1_4_1_phi_f_i_column(**input_kwargs))
             _latex_equation_header.append(
-                'BS EN 1991-1-2 Clause B.4.1 (10), the flame temperature along the axis at $L_x$ is:'
-            )
+                'Clause B.1.4 (1), the radiative heat flux from an opening for each of the faces 1, 2, 3 and 4 of the column is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate epsilon_z_1 ... epsilon_z_4
@@ -181,17 +194,44 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
                 'Clause B.4 (1), the radiative heat flux from the flames for each of the faces 1, 2, 3 and 4 of the column are:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
+        # Calculate I_f_1 ... I_f_4
+        if not all([i in input_kwargs for i in ['I_f_1', 'I_f_2', 'I_f_3', 'I_f_4']]):
+            input_kwargs.update(clause_b_1_3_5_I_f_i(**input_kwargs))
+            _latex_equation_header.append(
+                'Clause B.1.3 (5), the radiative heat flux from an opening for each of the faces 1, 2, 3, and 4 of the column are:')
+            _latex_equation_content.append(input_kwargs['_latex'])
+
+        # calculate alpha
+        # if not all([i in input_kwargs for i in ['T_m', 'T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
+        if 'alpha' not in input_kwargs:
+            if input_kwargs['is_forced_draught'] is False:
+                __ = clause_b_4_1_12_alpha_c(**input_kwargs)
+                __['alpha'] = __.pop('alpha_c')
+                __['alpha'] /= 1000.  # W/m2/K -> kW/m2/K, BS EN 1991-1-2 uses W/m2/K and BS EN 1993-1-2 uses kW/m2/K
+                input_kwargs.update(__)
+                _latex_equation_header.append(
+                    'BS EN 1991-1-2 Clause B.4.1 (12), the convective heat transfer coefficient $\\alpha$ ($\\alpha_c$ in BS EN 1991-1-2, this is converted to $\\frac{kW}{m^2\\cdot K}$ '
+                    'at later parts of this assessment) is:')
+            elif input_kwargs['is_forced_draught'] is True:
+                __ = clause_b_4_2_11_alpha_c(**input_kwargs)
+                __['alpha'] = __.pop('alpha_c')
+                __['alpha'] /= 1000.  # W/m2/K -> kW/m2/K, BS EN 1991-1-2 uses W/m2/K and BS EN 1993-1-2 uses kW/m2/K
+                input_kwargs.update(__)
+                _latex_equation_header.append(
+                    'BS EN 1991-1-2 Clause B.4.2 (11), the convective heat transfer coefficient $\\alpha$ ($\\alpha_c$ in BS EN 1991-1-2, this is converted to $\\frac{kW}{m^2\\cdot K}$ '
+                    'at later parts of this assessment) is:')
+            _latex_equation_content.append(input_kwargs['_latex'])
+
+        # Calculate T_m_1 ... T_m_4
+        if not all([i in input_kwargs for i in ['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
+            input_kwargs.update(clause_b_1_3_3_T_m_i_column(**input_kwargs))
+            _latex_equation_header.append('Clause B.1.3 (3), the temperature of the steel member for each of its faces 1, 2, 3, and 4 are:')
+            _latex_equation_content.append(input_kwargs['_latex'])
+
         # Calculate I_z
         if 'I_z' not in input_kwargs:
             input_kwargs.update(clause_b_4_1_I_z(**input_kwargs))
             _latex_equation_header.append('Clause B.4 (1), the radiative heat flux from the flames is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
-
-        # Calculate phi_f_1 ... phi_f_4
-        if not all([i in input_kwargs for i in ['phi_z_1', 'phi_z_2', 'phi_z_3', 'phi_z_4']]):
-            input_kwargs.update(clause_b_1_4_1_phi_f_i_column(**input_kwargs))
-            _latex_equation_header.append(
-                'Clause B.1.4 (1), the radiative heat flux from an opening for each of the faces 1, 2, 3 and 4 of the column is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate phi_f
@@ -200,38 +240,16 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
             _latex_equation_header.append('Clause B.1.4 (1), the radiative heat flux from an opening is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        # Calculate I_f_1 ... I_f_4
-        if not all([i in input_kwargs for i in ['I_f_1', 'I_f_2', 'I_f_3', 'I_f_4']]):
-            input_kwargs.update(clause_b_1_3_5_I_f_i(**input_kwargs))
-            _latex_equation_header.append(
-                'Clause B.1.3 (5), the radiative heat flux from an opening for each of the faces 1, 2, 3, and 4 of the column are:')
+        # Calculate a_z
+        if 'a_z' not in input_kwargs and 'I_f' not in input_kwargs:
+            input_kwargs.update(clause_b_4_6_a_z(**input_kwargs))
+            _latex_equation_header.append('Clause B.4 (6), the absorptivity of the flames is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate I_f
         if 'I_f' not in input_kwargs:
-            # Calculate a_z
-            if 'a_z' not in input_kwargs:
-                input_kwargs.update(clause_b_4_6_a_z(**input_kwargs))
-                _latex_equation_header.append('Clause B.4 (6), the absorptivity of the flames is:')
-                _latex_equation_content.append(input_kwargs['_latex'])
             input_kwargs.update(clause_b_1_3_5_I_f(**input_kwargs))
             _latex_equation_header.append('Clause B.1.3 (5), the radiative heat flux from an opening is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
-
-        # calculate alpha
-        if not all([i in input_kwargs for i in ['T_m', 'T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
-            if 'alpha' not in input_kwargs:
-                __ = clause_b_4_1_12_alpha_c(**input_kwargs)
-                __['alpha'] = __.pop('alpha_c')
-                input_kwargs.update(__)
-                _latex_equation_header.append('BS EN Clause B.4.1 (12), the convective heat transfer coefficient is:')
-                _latex_equation_content.append(input_kwargs['_latex'])
-
-        # Calculate T_m_1 ... T_m_4
-        if not all([i in input_kwargs for i in ['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']]):
-            input_kwargs.update(clause_b_1_3_3_T_m_i_column(**input_kwargs))
-            _latex_equation_header.append(
-                'Clause B.1.3 (3), the temperature of the steel member for each of its faces 1, 2, 3, and 4 are:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate T_m
@@ -240,8 +258,10 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
             _latex_equation_header.append('Clause B.1.3 (3), the average temperature of the steel member is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
-        input_kwargs.update(_latex_equation_header=_latex_equation_header,
-                            _latex_equation_content=_latex_equation_content)
+        input_kwargs.update(
+            _latex_equation_header=_latex_equation_header,
+            _latex_equation_content=_latex_equation_content
+        )
 
         return input_kwargs
 
