@@ -859,7 +859,10 @@ if __name__ == '__main__':
     # columns parallel 0.65, 0.875
     import numpy as np
     import os
-    from fsetools.tests.test_fse_bs_en_external_steel_members_fleet_st_dirwork import dirwork
+    try:
+        from fsetools.tests.test_fse_bs_en_external_steel_members_fleet_st_dirwork import dirwork
+    except ModuleNotFoundError:
+        dirwork = ''
 
 
     def print_outputs(report, heading: str, params: list):
