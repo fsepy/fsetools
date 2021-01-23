@@ -7,7 +7,7 @@ from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import *
 
 class ExternalFlameNoForcedDraught(ReportBase):
     """
-    Carries out assessment in Clause B.4.2, BS EN 1991-1-2 (2002) and generate LaTeX report
+    Carries out assessment as per Clause B.4.2, BS EN 1991-1-2 (2002), generates a LaTeX report.
     """
 
     def __init__(
@@ -68,7 +68,7 @@ class ExternalFlameNoForcedDraught(ReportBase):
         if section_title:
             sections.append(Section(title=f'{section_title}'))
         else:
-            sections.append(Section(title='Thermal actions for external members (forced draught)'))
+            sections.append(Section(title='Thermal actions for external members (non forced draught)'))
 
         if include_introduction:
             sections.append(self.section_1_introduction())
@@ -251,13 +251,6 @@ class ExternalFlameNoForcedDraught(ReportBase):
         if 'T_z' not in input_kwargs:
             input_kwargs.update(clause_b_4_1_10_T_z(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (10), the flame temperature along the axis at $L_x$ is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
-
-        # Calculate alpha_c, if not provided
-        if 'alpha_c' not in input_kwargs:
-            input_kwargs.update(clause_b_4_1_12_alpha_c(**input_kwargs))
-            _latex_equation_header.append(
-                'Clause B.4.1 (12), the connective heat transfer coefficient for the external column is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         input_kwargs.update(

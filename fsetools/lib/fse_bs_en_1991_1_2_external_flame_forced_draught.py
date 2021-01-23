@@ -3,7 +3,6 @@ try:
 except ModuleNotFoundError:
     pass
 
-from fsetools.lib.fse_bs_en_1991_1_2_external_flame_no_forced_draught import ExternalFlameNoForcedDraught
 from fsetools.lib.fse_latex_report_template import ReportBase
 from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import *
 
@@ -12,6 +11,7 @@ class ExternalFlameForcedDraught(ReportBase):
     """
     Carries out assessment in Clause B.4.2, BS EN 1991-1-2 (2002) and generate LaTeX report
     """
+    from fsetools.lib.fse_bs_en_1991_1_2_external_flame_no_forced_draught import ExternalFlameNoForcedDraught as __ExternalFlameNoForcedDraught
 
     def __init__(
             self,
@@ -78,19 +78,18 @@ class ExternalFlameForcedDraught(ReportBase):
             sections.append(self.section_1_introduction())
 
         if include_inputs_summary:
-            sections.append(ExternalFlameNoForcedDraught.section_2_inputs(self.input_kwargs))
+            sections.append(self.__ExternalFlameNoForcedDraught.section_2_inputs(self.input_kwargs))
 
         if include_calculation:
-            sections.append(ExternalFlameNoForcedDraught.section_3_calculation(self.output_kwargs))
+            sections.append(self.__ExternalFlameNoForcedDraught.section_3_calculation(self.output_kwargs))
 
         if include_outputs_summary:
-            sections.append(ExternalFlameNoForcedDraught.section_4_summary(self.output_kwargs))
+            sections.append(self.__ExternalFlameNoForcedDraught.section_4_summary(self.output_kwargs))
 
         return sections
 
-    @staticmethod
-    def section_1_introduction():
-        sec = ExternalFlameNoForcedDraught.section_1_introduction()
+    def section_1_introduction(self):
+        sec = self.__ExternalFlameNoForcedDraught.section_1_introduction()
         sec[-1] = NoEscape(
             'This assessment is specific to \\textit{forced draught} condition in accordance with '
             'Clause B.4.2 in BS EN 1991-1-2.'
@@ -105,24 +104,27 @@ class ExternalFlameForcedDraught(ReportBase):
 
         # Calculate Q, if not provided
         if 'Q' not in input_kwargs:
-            # Calculate D/W, if not provided
             if 'DW_ratio' not in input_kwargs:
                 try:
+                    is_windows_on_more_than_one_wall = input_kwargs['is_windows_on_more_than_one_wall']
+                    is_central_core = input_kwargs['is_central_core']
+                except KeyError:
+                    raise KeyError('`is_central_core` and `is_windows_on_more_than_one_wall` are missing, required to calculate `DW_ratio`')
+
+                if is_windows_on_more_than_one_wall is False and is_central_core is False:
                     input_kwargs.update(clause_b_2_2_DW_ratio(**input_kwargs))
                     _latex_equation_header.append(NoEscape('Clause B.2 (2), the ratio of $D/W$ is:'))
                     _latex_equation_content.append(input_kwargs['_latex'])
-                except (AssertionError, TypeError):
-                    try:
-                        input_kwargs.update(clause_b_2_3_DW_ratio(**input_kwargs))
-                        _latex_equation_header.append(NoEscape('Clause B.2 (3), the ratio of $D/W$ is:'))
-                        _latex_equation_content.append(input_kwargs['_latex'])
-                    except (AssertionError, TypeError):
-                        try:
-                            input_kwargs.update(clause_b_2_4_DW_ratio(**input_kwargs))
-                            _latex_equation_header.append(NoEscape('Clause B.2 (4), the ratio of $D/W$ is:'))
-                            _latex_equation_content.append(input_kwargs['_latex'])
-                        except (AssertionError, TypeError):
-                            pass  # optional as only required to calculate Q
+                elif is_windows_on_more_than_one_wall is True and is_central_core is False:
+                    input_kwargs.update(clause_b_2_3_DW_ratio(**input_kwargs))
+                    _latex_equation_header.append(NoEscape('Clause B.2 (3), the ratio of $D/W$ is:'))
+                    _latex_equation_content.append(input_kwargs['_latex'])
+                elif is_windows_on_more_than_one_wall is True and is_central_core is True:
+                    input_kwargs.update(clause_b_2_4_DW_ratio(**input_kwargs))
+                    _latex_equation_header.append(NoEscape('Clause B.2 (4), the ratio of $D/W$ is:'))
+                    _latex_equation_content.append(input_kwargs['_latex'])
+                else:
+                    raise ValueError
 
             input_kwargs.update(clause_b_4_2_1_Q(**input_kwargs))
             _latex_equation_header.append('Clause B.4.2 (1), the heat release rate is:')
@@ -170,48 +172,8 @@ class ExternalFlameForcedDraught(ReportBase):
 
         # Calculate flame temperature beyond window, if not provided
         if 'T_z' not in input_kwargs:
-            # DEPRECIATED, 4th Jan 2021, removed all calculations not in BS EN 1991-1-2, `L_x` should be provided
-            # if 'L_x' not in input_kwargs:
-            #     __ = clause_b_4_5_l(
-            #         h_eq=input_kwargs['h_eq'],
-            #         L_H=input_kwargs['L_H'],
-            #         L_L=input_kwargs['L_L'],
-            #         d_fw=input_kwargs['d_fw'],
-            #         d_1=input_kwargs['d_1_column'],  # note this variable name is different
-            #         is_forced_draught=input_kwargs['is_forced_draught']
-            #     )
-            #     __['L_x'] = __.pop('l')
-            #     input_kwargs.update(__)
-            #     _latex_equation_header.append(
-            #         'BS EN 1993-1-2 Clause B.4 (5), the distance $l$ ($L_x$ in BS EN 1991-1-2) from the opening is:')
-            #     _latex_equation_content.append(input_kwargs['_latex'])
             input_kwargs.update(**clause_b_4_2_9_T_z(**input_kwargs))
             _latex_equation_header.append('Clause B.4.2 (9), the flame temperature along the axis is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
-
-        # Calculate T_z_1 and T_z_2
-        # T_z_1 is only used for estimating beam element in BS EN 1993-1-2 Annex B
-        if not all([i in input_kwargs for i in ['T_z_1', 'T_z_2']]):
-            def L_x_1_and_2(L_L, L_H, d_1, d_fw, *_, **__):
-                return ((d_fw + 0.5 * d_1) ** 2 + ((d_fw + 0.5 * d_1) * (L_L / L_H)) ** 2) ** 0.5
-
-            L_x = input_kwargs.pop('L_x')  # reserve L_x from input_kwargs
-            # input_kwargs['L_x'] = L_x_1_and_2(**input_kwargs)
-            input_kwargs['L_x'] = L_x_1_and_2(*[input_kwargs[i] for i in ['L_L', 'L_H', 'd_1', 'd_fw']])
-            __ = clause_b_4_1_10_T_z(**input_kwargs)
-            __['T_z_1'] = __.pop('T_z')
-            __['T_z_2'] = __['T_z_1']
-            input_kwargs.update(__)
-            input_kwargs['L_x'] = L_x  # revert L_x in input_kwargs to the reserved value
-            _latex_equation_header.append(
-                'Clause B.4.1 (10), the flame temperature along the axis at $L_{x,1}$ and $L_{x,2}$ is:')
-            _latex_equation_content.append(input_kwargs['_latex'])
-
-        # Calculate alpha_c, if not provided
-        if 'alpha_c' not in input_kwargs:
-            input_kwargs.update(clause_b_4_1_12_alpha_c(**input_kwargs))
-            _latex_equation_header.append(
-                'Clause B.4.1 (12), the connective heat transfer coefficient for the external column is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         input_kwargs.update(

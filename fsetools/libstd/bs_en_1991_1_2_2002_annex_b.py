@@ -2,65 +2,18 @@ from math import e
 from typing import Tuple
 
 """
-Module description
-todo
-"""
+This module contains all the equations in Annex B, BS EN 1991-1-2:2002.
 
-"""
-Symbols in accordance with Clause 1.6 in EC 1991-1-2:2002 unless specified in comments
-dict(symbol=list(unit, description) ...)
-"""
-SYMBOLS = dict(
-    D=('m', 'the depth of the fire compartment or diameter of the fire'),
-    W=('m', 'the width of wall containing window(s) ($W_1$)'),
-    H=('m', 'the height of the fire compartment or distance between the fire source and the ceiling'),
-    # modified based on EC 1991-1-2:2002, added compartment height
-    h_eq=(
-    'm', 'the weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
-    w_t=('m', 'the sum of window widths on all walls (${\\textstyle \\sum_{i}}w_i$)'),
-    A_f=('m**2', 'the floor area of the fire compartment'),
-    A_t=('m**2', 'the total area of enclosure (walls, ceiling and floor, including openings)'),
-    A_v=('m**2', 'the total area of vertical openings on all walls (${\\textstyle \\sum_{i}A_{v,i}}$)'),
-    A_v1=('m**2', 'sum of window areas on wall 1'),
-    W_1=('m', 'the width of wall 1, assumed to contain the greatest window area'),
-    W_2=('m', 'the width of the wall perpendicular to wall 1 in the fire compartment'),
-    L_c=('m', 'the length of the core'),
-    W_c=('m', 'the width of the core'),
-    tau_F=('s', 'the free burning fire duration'),
-    d_ow=('m', 'the distance to any other window as per Clause B.9 (6) BS EN 1991-1-2:2002'),
-    DW_ratio=('-', 'the $D/W$ as per Clause B.2 (2) to (4) Eurocode 1991-1-2:2002'),
-    # DW_ratio not in EC 1991-1-2:2002, added for convenience of external flame calculation
-    d_eq=('m', 'the geometrical characteristic of an external structural element (diameter or side)'),
-    L_x=('m', 'the axis length from the window to the point of measurement'),
-    Omega=('-', '$\\frac{A_f\\cdot q_{fd}}{\\sqrt{A_v\\cdot A_t}}$'),
-    u=('m/s', 'the wind speed'),
+A module wide variable :code:`SYMBOLS` is used to take notes all the adopted variable names, their meaning and units. Variable names are largely in accordance with 
+Clause 1.6 in EC 1991-1-2:2002 unless otherwise specified in comments. :code:`SIMBOLS` is used for primarily two purposes:
 
-    T_0=('K', 'the ambient temperature'),
+    1. A handy lookup table from variable names and their meanings; and
+    2. Used to generate LaTeX table.
 
-    O=('m**0.5', r'the opening factor, $\sqrt{h_{eq}} \cdot \frac{A_v}{A_t}$'),
-    Q=('MW', 'the rate of heat release rate'),
-    q_fd=('MJ/m**2', 'the design fire load density related to the floor area $A_t$'),
-    q_fk=('MJ/m**2', 'the characteristic fire load density related to the floor area to $A_t$'),
-    T_f=('K', 'the temperature of the fire compartment'),
-    L_1=('m', 'the flame length (angled)'),
-    L_L=('m', 'the flame height (from the upper part of the window)'),
-    L_H=('m', 'the horizontal projection of the flame (from the facade)'),
-    L_f=('m', 'the flame length along axis'),
-    d_f=('m', 'the flame thickness'),
-    w_f=('m', 'the flame width'),
-    T_w=('K', 'the flame temperature at the window'),
-    T_z=('K', 'the flame temperature along the axis'),
-    alpha_c=('W/(m**2*K)', 'the coefficient of heat transfer by convection'),
-    epsilon_f=('-', 'the emissivity of flames, of the fire'),
-)
+`SYMBOLS` is dict object containing dict(variable_name=list(unit, description), ...).
 
-UNITS = {k: v[0] for k, v in SYMBOLS.items()}
-DESCRIPTIONS = {k: v[1] for k, v in SYMBOLS.items()}
+Fire load densities :code:`q_f_k` [MJ/m**2] for different occupancies as per Table E.4 in BS EN 1991-1-2:2002, page 50.
 
-"""
-Fire load densities q_f_k [MJ/m2] for different occupancies
-Table E.4 in BS EN 1991-1-2:2002, page 50
-===========================================================
 | Occupancy Average        | Average | 80 % fractile* |
 |--------------------------|---------|----------------|
 | Dwelling                 | 780     | 948            |
@@ -72,8 +25,51 @@ Table E.4 in BS EN 1991-1-2:2002, page 50
 | Shopping centre          | 600     | 730            |
 | Theatre (cinema)         | 300     | 365            |
 | Transport (public space) | 100     | 122            |
+
 *Gumbel II distribution
+
 """
+
+SYMBOLS = dict(
+    A_f=('m**2', 'the floor area of the fire compartment'),
+    A_t=('m**2', 'the total area of enclosure (walls, ceiling and floor, including openings)'),
+    A_v=('m**2', 'the total area of vertical openings on all walls (${\\textstyle \\sum_{i}A_{v,i}}$)'),
+    A_v1=('m**2', 'sum of window areas on wall 1'),
+    alpha_c=('W/(m**2*K)', 'the coefficient of heat transfer by convection'),
+    D=('m', 'the depth of the fire compartment or diameter of the fire'),
+    d_eq=('m', 'the geometrical characteristic of an external structural element (diameter or side)'),
+    d_f=('m', 'the flame thickness'),
+    d_ow=('m', 'the distance to any other window as per Clause B.9 (6) BS EN 1991-1-2:2002'),
+    DW_ratio=('-', 'the $D/W$ as per Clause B.2 (2) to (4) Eurocode 1991-1-2:2002'),  # DW_ratio not in EC 1991-1-2:2002, added for convenience of external flame calculation
+    epsilon_f=('-', 'the emissivity of flames, of the fire'),
+    H=('m', 'the height of the fire compartment or distance between the fire source and the ceiling'),  # modified based on EC 1991-1-2:2002, added compartment height
+    h_eq=('m', 'the weighted average of window heights on all wall ${\\textstyle \\sum_{i}}\\left(A_{v,i}h_i\\right)/A_v$'),
+    L_1=('m', 'the flame length (angled)'),
+    L_c=('m', 'the length of the core'),
+    L_f=('m', 'the flame length along axis'),
+    L_H=('m', 'the horizontal projection of the flame (from the facade)'),
+    L_L=('m', 'the flame height (from the upper part of the window)'),
+    L_x=('m', 'the axis length from the window to the point of measurement'),
+    O=('m**0.5', r'the opening factor, $\sqrt{h_{eq}} \cdot \frac{A_v}{A_t}$'),
+    Omega=('-', '$\\frac{A_f\\cdot q_{fd}}{\\sqrt{A_v\\cdot A_t}}$'),
+    Q=('MW', 'the rate of heat release rate'),
+    q_fd=('MJ/m**2', 'the design fire load density related to the floor area $A_t$'),
+    q_fk=('MJ/m**2', 'the characteristic fire load density related to the floor area to $A_t$'),
+    T_0=('K', 'the ambient temperature'),
+    T_f=('K', 'the temperature of the fire compartment'),
+    T_w=('K', 'the flame temperature at the window'),
+    T_z=('K', 'the flame temperature along the axis'),
+    tau_F=('s', 'the free burning fire duration'),
+    u=('m/s', 'the wind speed'),
+    W=('m', 'the width of wall containing window(s) ($W_1$)'),
+    W_1=('m', 'the width of wall 1, assumed to contain the greatest window area'),
+    W_2=('m', 'the width of the wall perpendicular to wall 1 in the fire compartment'),
+    W_c=('m', 'the width of the core'),
+    w_f=('m', 'the flame width'),
+    w_t=('m', 'the sum of window widths on all walls (${\\textstyle \\sum_{i}}w_i$)'),
+)
+UNITS = {k: v[0] for k, v in SYMBOLS.items()}
+DESCRIPTIONS = {k: v[1] for k, v in SYMBOLS.items()}
 
 
 def clause_1_6_Omega(
@@ -108,8 +104,6 @@ def clause_1_6_Omega(
 def clause_b_2_2_DW_ratio(
         W_1,
         W_2,
-        is_windows_on_more_than_one_wall: bool = False,
-        is_central_core: bool = False,
         *_,
         **__,
 ):
@@ -118,13 +112,10 @@ def clause_b_2_2_DW_ratio(
 
     :param W_1:
     :param W_2:
-    :param is_windows_on_more_than_one_wall:
-    :param is_central_core:
     :param _:
     :param __:
     :return:
     """
-    assert is_windows_on_more_than_one_wall is False and is_central_core is False
     DW_ratio = W_2 / W_1
 
     _latex = [
@@ -147,8 +138,6 @@ def clause_b_2_3_DW_ratio(
         W_2,
         A_v1,
         A_v,
-        is_windows_on_more_than_one_wall: bool = True,
-        is_central_core: bool = False,
         *_,
         **__,
 ):
@@ -159,13 +148,10 @@ def clause_b_2_3_DW_ratio(
     :param W_2:
     :param A_v1:
     :param A_v:
-    :param is_windows_on_more_than_one_wall:
-    :param is_central_core:
     :param _:
     :param __:
     :return:
     """
-    assert is_windows_on_more_than_one_wall and is_central_core is False
     # equation B.2
     DW_ratio = (W_2 / W_1) * (A_v1 / A_v)
     _latex = [
@@ -190,7 +176,6 @@ def clause_b_2_4_DW_ratio(
         W_c,
         A_v1,
         A_v,
-        is_central_core: bool = True,
         *_,
         **__,
 ):
@@ -203,13 +188,10 @@ def clause_b_2_4_DW_ratio(
     :param W_c:
     :param A_v1:
     :param A_v:
-    :param is_windows_on_more_than_one_wall:
-    :param is_central_core:
     :param _:
     :param __:
     :return:
     """
-    assert is_central_core
     DW_ratio = ((W_2 - L_c) * A_v1) / ((W_1 - W_c) * A_v)
 
     _latex = [
@@ -267,7 +249,7 @@ def clause_b_4_1_1_Q(
 def clause_b_4_1_2_T_f(
         O,
         Omega,
-        T_0,
+        T_0: float = 293.15,
         *_,
         **__,
 ):
@@ -353,7 +335,7 @@ def clause_b_4_1_6_L_H(
         f'\\end{{dcases}}'
     ]
 
-    if is_wall_above_opening:
+    if is_wall_above_opening is True:
         if h_eq <= 1.25 * w_t:
             # Equation B.8, page 36
             L_H = h_eq / 3
@@ -393,7 +375,7 @@ def clause_b_4_1_7_L_f(
         L_L,
         L_H,
         h_eq,
-        is_wall_above_opening,
+        is_wall_above_opening: bool,
         *_,
         **__,
 ):
@@ -405,7 +387,7 @@ def clause_b_4_1_7_L_f(
         f'\\end{{dcases}}'
     ]
 
-    if is_wall_above_opening and h_eq <= 1.25 * w_t:
+    if is_wall_above_opening is True and h_eq <= 1.25 * w_t:
         # equation B.12
         L_f = L_L + h_eq / 2
         _latex.extend([
@@ -428,18 +410,28 @@ def clause_b_4_1_7_L_f(
 
 
 def clause_b_4_1_8_T_w(
-        L_f,
-        w_t,
-        Q,
-        T_0,
+        L_f: float,
+        w_t: float,
+        Q: float,
+        T_0: float = 293.15,
         *_,
         **__,
 ):
-    """Equation B.14. Flame temperature at the window opening."""
+    """
+    Equation B.14. Flame temperature at the window opening.
+
+    :param L_f:
+    :param w_t:
+    :param Q:
+    :param T_0:
+    :param _:
+    :param __:
+    :return:
+    """
     try:
         assert L_f * w_t / Q < 1
     except AssertionError:
-        raise AssertionError(f'Condition not satisfied L_f*w_t/Q<1 in Clause B.4.1(8) ({L_f:.2f}*{w_t:.2f}/{Q:.2f}={L_f*w_t/Q:.2f}!<{1})')
+        raise AssertionError(f'Condition not satisfied L_f*w_t/Q<1 in Clause B.4.1(8) ({L_f:.2f}*{w_t:.2f}/{Q:.2f}={L_f * w_t / Q:.2f}!<{1})')
 
     T_w = 520 / (1 - 0.4725 * (L_f * w_t / Q)) + T_0
 
@@ -453,17 +445,20 @@ def clause_b_4_1_8_T_w(
 
 
 def clause_b_4_1_10_T_z(
-        T_w,
-        T_0,
-        L_x,
-        w_t,
-        Q,
+        T_w: float,
+        L_x: float,
+        w_t: float,
+        Q: float,
+        T_0: float = 293.15,
         *_,
         **__,
 ):
     """Equation B.15 in BS EN 1991-1-2:2002, page 38.
     Flame temperature along the axis."""
-    assert L_x * w_t / Q < 1
+    if 'is_test' in __:
+        if not __['is_test']:
+            assert L_x * w_t / Q < 1
+
     T_z = (T_w - T_0) * (1 - 0.4725 * (L_x * w_t / Q)) + T_0
 
     _latex = [
@@ -494,8 +489,7 @@ def clause_b_4_1_12_alpha_c(
         d_eq,
         Q,
         A_v,
-        *_,
-        **__,
+        *_, **__,
 ):
     alpha_c = 4.67 * (1 / d_eq) ** 0.4 * (Q / A_v) ** 0.6
 
@@ -516,7 +510,7 @@ def clause_b_4_1_13_modification_to_flame_with_balcony_above_opening(
         *_,
         **__,
 ) -> Tuple[float, float]:
-    assert is_balcony_above_opening and is_wall_above_opening
+    assert is_balcony_above_opening is True and is_wall_above_opening is True
     L_L = L_L - W_a * (1 + 2 ** 0.5)
     L_H = L_H + W_a
     return L_L, L_H
@@ -531,7 +525,7 @@ def clause_b_4_1_14_modification_to_flame_with_no_wall_above_opening(
         *_,
         **__,
 ):
-    assert is_balcony_above_opening and is_wall_above_opening is False
+    assert is_balcony_above_opening is True and is_wall_above_opening is False
     L_L = L_L - W_a
     L_H = L_H + W_a
     return L_L, L_H
@@ -726,10 +720,10 @@ def clause_b_4_2_11_alpha_c(
         A_v,
         Q,
         u,
-        *_,
-        **__,
+        *_, **__,
 ):
     # equation B.27, page 39
+
     a = 9.8 * (1 / d_eq) ** 0.4
     b = (Q / (17.5 * A_v) + u / 1.6) ** 0.6
     alpha_c = a * b
