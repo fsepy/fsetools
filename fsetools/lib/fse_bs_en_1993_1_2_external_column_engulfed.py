@@ -210,16 +210,16 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
                 __['alpha'] /= 1000.  # W/m2/K -> kW/m2/K, BS EN 1991-1-2 uses W/m2/K and BS EN 1993-1-2 uses kW/m2/K
                 input_kwargs.update(__)
                 _latex_equation_header.append(
-                    'BS EN 1991-1-2 Clause B.4.1 (12), the convective heat transfer coefficient $\\alpha$ ($\\alpha_c$ in BS EN 1991-1-2, this is converted to $\\frac{kW}{m^2\\cdot K}$ '
-                    'at later parts of this assessment) is:')
+                    'BS EN 1991-1-2 Clause B.4.1 (12), the convective heat transfer coefficient $\\alpha$ ($\\alpha_c$ $\\frac{W}{m^2\\cdot K}$ in BS EN 1991-1-2, '
+                    'this is converted to $\\frac{kW}{m^2\\cdot K}$ at later parts of this assessment) is:')
             elif input_kwargs['is_forced_draught'] is True:
                 __ = clause_b_4_2_11_alpha_c(**input_kwargs)
                 __['alpha'] = __.pop('alpha_c')
                 __['alpha'] /= 1000.  # W/m2/K -> kW/m2/K, BS EN 1991-1-2 uses W/m2/K and BS EN 1993-1-2 uses kW/m2/K
                 input_kwargs.update(__)
                 _latex_equation_header.append(
-                    'BS EN 1991-1-2 Clause B.4.2 (11), the convective heat transfer coefficient $\\alpha$ ($\\alpha_c$ in BS EN 1991-1-2, this is converted to $\\frac{kW}{m^2\\cdot K}$ '
-                    'at later parts of this assessment) is:')
+                    'BS EN 1991-1-2 Clause B.4.2 (11), the convective heat transfer coefficient $\\alpha$ ($\\alpha_c$ $\\frac{W}{m^2\\cdot K}$ in BS EN 1991-1-2, '
+                    'this is converted to $\\frac{kW}{m^2\\cdot K}$ at later parts of this assessment) is:')
             _latex_equation_content.append(input_kwargs['_latex'])
 
         # Calculate T_m_1 ... T_m_4

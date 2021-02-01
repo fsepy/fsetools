@@ -144,7 +144,15 @@ def unit_vector(vector: np.ndarray):
     return vector / np.linalg.norm(vector)
 
 
-def angle_between(v1: Union[list, np.ndarray], v2: Union[list, np.ndarray]) -> np.ndarray:
+def angle_between(v1: Union[tuple, list, np.ndarray], v2: Union[tuple, list, np.ndarray]) -> np.ndarray:
+    """
+    Calculates the angle between two vectors in radians.
+
+    :param v1:  (x, y, z) defines the first vector
+    :param v2:  (x, y, z) defines the second vector
+    :return:    Angle between `v1` and `v2` in radians. NB no angles are greater than pi (or 90 degrees)
+    """
+
     """ Returns the angle in theta_in_radians between vectors 'v1' and 'v2' """
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
