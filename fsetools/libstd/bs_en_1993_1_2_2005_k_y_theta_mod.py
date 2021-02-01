@@ -1,14 +1,27 @@
-import numpy as np
 from typing import Union
 
+import numpy as np
 
-def clause_3_2_1_k_y_theta(theta_a: Union[float, np.ndarray]):
+
+def clause_3_2_1_1_k_y_theta_mod(
+        theta_a: Union[float, np.ndarray]
+) -> Union[float, np.ndarray]:
+    """
+    Effective yield strength in accordance with Clause 3.2.1 (3).
+
+    :param theta_a: [K] Steel temperature
+    :return:        [-] Reduction factor for effective yield strength
+    """
 
     if isinstance(theta_a, float):
-        if theta_a < 673.15:
-            k_y_theta = 1
+        if theta_a < 273.15:
+            raise ValueError
+        elif theta_a < 673.15:
+            # k_y_theta = -2.5e-6 * theta_a + 1.000682875
+            k_y_theta = 1.00 + (0.999 - 1.00) / 400 * (theta_a - 273.15)
         elif theta_a <= 773.15:
-            k_y_theta = 1.00 + (0.78 - 1.00) / 100 * (theta_a - 673.15)
+            # k_y_theta = 1.00 + (0.78 - 1.00) / 100 * (theta_a - 673.15)
+            k_y_theta = 0.999 + (0.78 - 0.999) / 100 * (theta_a - 673.15)
         elif theta_a <= 873.15:
             k_y_theta = 0.78 + (0.47 - 0.78) / 100 * (theta_a - 773.15)
         elif theta_a <= 973.15:
@@ -27,8 +40,10 @@ def clause_3_2_1_k_y_theta(theta_a: Union[float, np.ndarray]):
             k_y_theta = 0.02 + (0.00 - 0.02) / 100 * (theta_a - 1373.15)
 
     elif isinstance(theta_a, np.ndarray):
-        k_y_theta = np.where(theta_a <= 673.15, 1, 0)
-        k_y_theta = np.where((673.15 < theta_a) & (theta_a <= 773.15), 1.00 + (0.78 - 1.00) / 100 * (theta_a - 673.15), k_y_theta)
+        k_y_theta = np.where(theta_a <= 273.15, 1, 0)
+        k_y_theta = np.where((273.15 < theta_a) & (theta_a <= 673.15), 1.00 + (0.999 - 1.00) / 400 * (theta_a - 273.15), k_y_theta)
+        # k_y_theta = np.where((673.15 < theta_a) & (theta_a <= 773.15), 1.00 + (0.78 - 1.00) / 100 * (theta_a - 673.15), k_y_theta)
+        k_y_theta = np.where((673.15 < theta_a) & (theta_a <= 773.15), 0.999 + (0.78 - 0.999) / 100 * (theta_a - 673.15), k_y_theta)
         k_y_theta = np.where((773.15 < theta_a) & (theta_a <= 873.15), 0.78 + (0.47 - 0.78) / 100 * (theta_a - 773.15), k_y_theta)
         k_y_theta = np.where((873.15 < theta_a) & (theta_a <= 973.15), 0.47 + (0.23 - 0.47) / 100 * (theta_a - 873.15), k_y_theta)
         k_y_theta = np.where((973.15 < theta_a) & (theta_a <= 1073.15), 0.23 + (0.11 - 0.23) / 100 * (theta_a - 973.15), k_y_theta)
@@ -42,3 +57,22 @@ def clause_3_2_1_k_y_theta(theta_a: Union[float, np.ndarray]):
         raise TypeError(f'theta_a can be either float or numpy.ndarray type, got {type(theta_a)}')
 
     return k_y_theta
+
+
+def clause_3_2_1_1_k_y_theta_mod_reversed(k_y_theta: float):
+    T_range = np.hstack((np.arange(273.15, 400 + 273.15, 0.01), np.arange(400 + 273.15, 1200 + 273.15, 0.5)))
+    k_range = clause_3_2_1_1_k_y_theta_mod(T_range)
+    T = T_range[np.argmin(abs(k_range - k_y_theta))]
+    return T
+
+
+def _test_clause_3_2_1_1_k_y_theta_mod_reversed():
+    for T in np.arange(0 + 273.15, 1200 + 273.15 + 1, 13.5):
+        a = clause_3_2_1_1_k_y_theta_mod(float(T))
+        b = clause_3_2_1_1_k_y_theta_mod_reversed(a)
+        print(a, T, b)
+        assert abs(T - b) < 1
+
+
+if __name__ == '__main__':
+    _test_clause_3_2_1_1_k_y_theta_mod_reversed()
