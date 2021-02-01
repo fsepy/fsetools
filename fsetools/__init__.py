@@ -1,3 +1,39 @@
+import logging
+import os
+
+# make root directory of this app which will be used 1. when running the app; 2. pyinstaller at compiling the app.
+if os.path.exists(os.path.dirname(__file__)):
+    # this path should be used when running the app as a Python package (non compiled) and/or pyinstaller at compiling
+    # stage.
+    __root_dir__ = os.path.realpath(os.path.dirname(__file__))
+elif os.path.exists(os.path.dirname(os.path.dirname(__file__))):
+    # the path will become invalid when the app run after compiled as the dirname `fsetoolsGUI` will disappear.
+    # instead, the parent folder of the project dir will be used.
+    __root_dir__ = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
+else:
+    raise IsADirectoryError(
+        f'Project root directory undefined: '
+        f'{os.path.dirname(__file__)} nor '
+        f'{os.path.dirname(os.path.dirname(__file__))}'
+    )
+
+
+# setup logger
+def __get_logger(logger_name:str = 'fsetools'):
+    logger_ = logging.getLogger(logger_name)
+
+    c_handler = logging.StreamHandler()
+    c_handler.setLevel(logging.DEBUG)
+    c_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s'))
+    logger_.addHandler(c_handler)
+
+    logger_.setLevel(logging.DEBUG)
+
+    return logger_
+
+
+logger = __get_logger()
+
 """
 VERSION IDENTIFICATION RULES DOCUMENTED IN PEP 440.
 
@@ -38,6 +74,7 @@ __version__ = "0.0.5"
 
 if __name__ == "__main__":
     import re
+
 
     def is_canonical(version):
         return (
