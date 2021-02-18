@@ -12,14 +12,14 @@ import xmltodict
 from numpy import ndarray
 
 from fsetools import logger
-from fsetools.libstd.bs_en_1993_1_2_2005_mat_prop import clause_3_2_1_1_k_y_theta_mod, clause_3_2_1_1_k_y_theta_mod_reversed
+from fsetools.libstd.bs_en_1993_1_2_2005_k_y_theta import clause_3_2_1_1_k_y_theta_mod, clause_3_2_1_1_k_y_theta_mod_reversed
 
 plt.style.use('seaborn-paper')
 
 
 class Thermal2DPPXML:
     """
-    Safir Thermal2D Post Processor XML
+    SAFIR Thermal2D Post Processor XML
     """
 
     def __init__(self):
@@ -41,7 +41,9 @@ class Thermal2DPPXML:
     def get_nodes_temp_ave(
             self,
             ns: ndarray = None, ws: ndarray = None, mode: str = 'ws', T_ns: ndarray = None,
-            fp_save_plot: str = None, fp_save_num: str = None, figsize: Union[list, tuple] = (3.5, 3.5), ylim: Union[list, tuple] = (0, 1000)):
+            fp_save_plot: str = None, figsize: Union[list, tuple] = (3.5, 3.5), ylim: Union[list, tuple] = (0, 1200), xlim: Union[list, tuple] = None, show_legnend: bool = False,
+            fp_save_num: str = None,
+    ):
         """
         Get average temperature based on the defined nodes :code:`ns` or temperatures :code:`T_ns`.
 
@@ -49,7 +51,7 @@ class Thermal2DPPXML:
                                 :code:`ns = [n1, n2, ...]`
         :param ws:              A list/tuple of floats describing weighting of the defined nodes when averaging temperatures.
                                 :code:`ws = [w1, w2, ...]`
-        :param mode:            ws, k_y_theta
+        :param mode:            `ws` for weighted average, k_y_theta for
         :param T_ns:            An array of temperatures. This will be derived from the xml if not provided.
                                 :code:`T_ns = [T_n1, T_n2, ...]`
                                 :code:`T_n1 = [float, float, ...]`
@@ -83,11 +85,16 @@ class Thermal2DPPXML:
                     ax.plot(self.__ts / 60., T_n, label=f'{ns[i]}')
                 ax.plot(self.__ts / 60., T_ave_, ls='--', c='k', label='Mean')
                 ax.set_ylim(ylim)
+                if xlim is not None:
+                    ax.set_xlim(xlim)
                 ax.grid(which='major', linestyle=':', linewidth='0.5', color='black')
                 ax.set_xlabel('Time [min]')
                 ax.set_ylabel('Temperature [°C]')
                 ax.tick_params(axis='both', which='both', labelsize='xx-small')
-                ax.legend(shadow=False, edgecolor='k', fancybox=False, ncol=3, fontsize='xx-small', loc='lower right').set_visible(True)  # Update plot settings
+                if show_legnend:
+                    ax.legend(shadow=False, edgecolor='k', fancybox=False, ncol=3, fontsize='xx-small', loc='lower right').set_visible(True)
+                else:
+                    ax.legend().set_visible(False)
                 fig.savefig(fp_save_plot, dpi=300, bbox_inches='tight', transparent=True)
                 plt.close('all')
             except Exception as e:
@@ -125,7 +132,7 @@ class Thermal2DPPXML:
             self.xml = self.xml  # assign xml
             self.__data = self.xml2dict(self.xml)  # convert xml to dict
             self.__xs, self.__ys = self.dict2xys(self.__data)  # obtain all node x and y coordinates
-            self.__ts, self.__Ts = self.dict2tTs(self.__data)  # obtain all time steps and temperatures at each time step
+            self.__ts, self.__Ts = self.dict2tsTs(self.__data)  # obtain all time steps and temperatures at each time step
             self.__xml_changed = False
 
     @property
@@ -157,7 +164,7 @@ class Thermal2DPPXML:
         return np.array(xs), np.array(ys)
 
     @staticmethod
-    def dict2tTs(data: dict) -> tuple:
+    def dict2tsTs(data: dict) -> tuple:
         ts, Ts = list(), list()
         steps = data['SAFIR_RESULTS']['STEP']
         for step in steps:
@@ -185,16 +192,11 @@ class Thermal2DPPXML:
         return np.array(Ts_nodes)
 
     @staticmethod
-    def __T_ave(Ts: ndarray, weights: ndarray):
+    def __T_ave(Ts: ndarray, weights: ndarray) -> ndarray:
         # populate `weights` to match the shape of `Ts_nodes`
         Ts_weights = np.repeat(weights, Ts.shape[1])
         Ts_weights = np.reshape(Ts_weights, (Ts.shape[1], len(weights)), order='F')
         Ts_weights = Ts_weights.transpose()
-
-        # apply the yield strength factor to weights as necessary
-        # if apply_ky_theta:
-        #     Ts_nodes_ky_theta = clause_3_2_1_1_k_y_theta(Ts_nodes)
-        #     Ts_weights = Ts_weights * Ts_nodes_ky_theta
 
         # calculate the summed weights for all time steps
         Ts_weights_sum = np.sum(Ts_weights, axis=0)
@@ -207,7 +209,7 @@ class Thermal2DPPXML:
         return np.sum(Ts_weights_normalised * Ts, axis=0)
 
     @staticmethod
-    def __T_ave_k_y_theta(Ts: ndarray, weights: ndarray):
+    def __T_ave_k_y_theta(Ts: ndarray, weights: ndarray) -> ndarray:
         T_ave = np.zeros_like(Ts[0, :])
         for i in range(len(T_ave)):
             k_y_theta_i = clause_3_2_1_1_k_y_theta_mod(Ts[:, i] + 273.15)
@@ -239,7 +241,7 @@ class Thermal2DRun:
             T_target: float,
             ws: Union[list, tuple],
             k_1=0.010,
-            k_2=100.000,
+            k_2=200.000,
             T_target_tol=1,
             bc_old2new=None,
             teq_solve: bool = False,
@@ -312,7 +314,19 @@ class Thermal2DRun:
             logger.warning(f'The minimum possible temperature {T_1:.1f} is higher than the target {T_target:.1f}')
             return dict(k=-np.inf, T=T_1)
 
-        k_3 = 2.0
+        '''
+        T_1, k_1
+        T_2, k_2
+        y = a x + b
+        k_1 = a T_1 + b
+        k_2 = a T_2 + b
+        k_1 - k_2 = a T_1 + b - a T_2 - b
+        k_1 - k_2 = a (T_1 - T_2) + b - b
+        a = (k_1 - k_2) / (T_1 - T_2)
+        b = k_1 - a ((k_1 - k_2) / (T_1 - T_2))
+        '''
+
+        k_3 = 100
         T_3 = run_and_get_max_temp(k_=k_3)
         self.logger('Iteration {}: {:<20}{:<20}'.format(f'0', f'{k_3:.5f} W/m/K', f'{T_3:.1f} °C'))
 

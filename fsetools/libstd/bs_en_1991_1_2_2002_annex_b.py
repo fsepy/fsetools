@@ -325,12 +325,15 @@ def clause_b_4_1_6_L_H(
         *_,
         **__,
 ):
+    if d_ow is None:
+        d_ow = 9999999
+
     _latex = [
         f'L_H = '
         f'\\begin{{dcases}}'
-        f'\\frac{{{{1}}}}{{3}}\\cdot h_{{eq}},                                                  & \\text{{if }} h_{{eq}}\\leq 1.25\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq <= 1.25 * w_t}\\right]\\\\'
-        f'0.3\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{w_t}}\\right)}}^{{0.54}},       & \\text{{if }} h_{{eq}}>1.25\\cdot w_t \\text{{ and }} d_{{ow}}>4\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and d_ow > 4 * w_t}\\right]\\\\'
-        f'0.454\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{2w_t}}\\right)}}^{{0.54}},    & \\text{{otherwise if wall exist above window}}\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and not d_ow > 4 * w_t}\\right]\\\\'
+        f'\\frac{{1}}{{3}}\\cdot h_{{eq}},                                                  & \\text{{if }} h_{{eq}}\\leq 1.25\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq <= 1.25 * w_t}\\right]\\\\'
+        f'0.3\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{w_t}}\\right)}}^{{0.54}},       & \\text{{if }} h_{{eq}}>1.25\\cdot w_t \\text{{ and }} d_{{ow}}>4\\cdot w_t\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and d_ow is not None and d_ow > 4 * w_t}\\right]\\\\'
+        f'0.454\\cdot h_{{eq}}\\cdot {{\\left(\\frac{{h_{{eq}}}}{{2w_t}}\\right)}}^{{0.54}},    & \\text{{otherwise if wall exist above window}}\\ \\left[{is_wall_above_opening and h_eq > 1.25 * w_t and d_ow is not None and not d_ow > 4 * w_t}\\right]\\\\'
         f'0.6\\cdot h_{{eq}}\\cdot \\left(\\frac{{L_L}}{{h_{{eq}}}}\\right)^\\frac{{1}}{{3}},    & \\text{{if no wall exist above window}}\\ \\left[{not is_wall_above_opening}\\right]\\\\'
         f'\\end{{dcases}}'
     ]
@@ -344,8 +347,6 @@ def clause_b_4_1_6_L_H(
                 f'L_H=\\frac{{1}}{{3}}\\cdot {h_eq:.2f}',
                 f'L_H={L_H:.2f}\\ \\left[m\\right]',
             ])
-        elif d_ow is None:
-            raise ValueError(f'`d_ow` is required if `h_eq <= 1.25 * w_t` ({h_eq} <= {1.25 * w_t})')
         elif h_eq > 1.25 * w_t and d_ow > 4 * w_t:
             # Equation B.9, page 36
             L_H = 0.3 * h_eq * (h_eq / w_t) ** 0.54
@@ -357,7 +358,7 @@ def clause_b_4_1_6_L_H(
             # Equation B.10, page 36
             L_H = 0.454 * h_eq * (h_eq / (2 * w_t)) ** 0.54
             _latex.extend([
-                f'L_H=0.454\\cdot {h_eq:.2f} {{\\left(\\frac{{{h_eq:.2f}}}{{2\\cdot {w_t:.2f}\\right)}}^{{0.54}}',
+                f'L_H=0.454\\cdot {h_eq:.2f} \\cdot \\left(\\frac{{{h_eq:.2f}}}{{2\\cdot {w_t:.2f}}}\\right)^{{0.54}}',
                 f'L_H={L_H:.2f}\\ \\left[m\\right]',
             ])
     else:

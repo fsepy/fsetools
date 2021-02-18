@@ -2,6 +2,7 @@ from fsetools.lib.fse_bs_en_1991_1_2_external_flame_forced_draught import Extern
 from fsetools.lib.fse_bs_en_1991_1_2_external_flame_no_forced_draught import ExternalFlameNoForcedDraught
 from fsetools.lib.fse_bs_en_1993_1_2_external_beam_engulfed import ExternalSteelTemperatureEngulfedBeam
 from fsetools.lib.fse_bs_en_1993_1_2_external_column_engulfed import ExternalSteelTemperatureFullyEngulfedColumn
+from fsetools.lib.fse_latex_report_template import Report
 
 
 def flame_no_forced_draught(
@@ -68,7 +69,7 @@ def flame_no_forced_draught(
         # h_eq=1,                                 # previously defined above
         w_t=w_t,
         # L_L=1,                                  # derived
-        # d_ow=1,
+        # d_ow=np.nan,
         is_wall_above_opening=is_wall_above_opening,
 
         # clause_b_4_1_7_L_f
@@ -111,6 +112,7 @@ def flame_forced_draught(
         h_eq,
         u,
         w_t,
+        A_v1=None,
 ):
     report = ExternalFlameForcedDraught(
         # clause_b_2_2_DW_ratio
@@ -122,7 +124,7 @@ def flame_forced_draught(
         # clause_b_2_3_DW_ratio
         # W_1=0,                                  # previously defined above
         # W_2=0,                                  # previously defined above
-        # A_v1=1,
+        A_v1=A_v1,
         # A_v=1,
         # is_windows_on_more_than_one_wall=0,     # previously defined above
         # is_central_core=0,                      # previously defined above
@@ -853,23 +855,23 @@ def column_temperature_no_forced_draught(
     return report
 
 
-if __name__ == '__main__':
-
+def travelling_fire(print_pdf=False):
     # beams perpendicular 0.875, parallel 1
     # columns parallel 0.65, 0.875
     import numpy as np
     import os
+
+    fake_modules = [os, np]
+
     try:
-        from fsetools.tests.test_fse_bs_en_external_steel_members_fleet_st_dirwork import dirwork
+        from fsetools.tests.test_fse_ec_external_steel_fleet_st_dirwork import dirwork
     except ModuleNotFoundError:
         dirwork = ''
-
 
     def print_outputs(report, heading: str, params: list):
         print('\n' + heading)
         for k in params:
             print(f'{k + ":":<10}{report.output_kwargs[k]:g}')
-
 
     def print_reduction_factors(heading: str = None, *reports):
         if heading:
@@ -878,25 +880,23 @@ if __name__ == '__main__':
         reduction_factors = np.zeros(shape=(4, len(reports)))
         for i, v in enumerate(['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']):
             for j, report in enumerate(reports):
-                # reduction_factors.append(report.output_kwargs[v] / report.output_kwargs['T_f'])
-                reduction_factors[i, j] = report.output_kwargs[v] / report.output_kwargs['T_f']
+                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'], report.output_kwargs['T_o'])
 
         print(reduction_factors)
         print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
 
-
     # Common parameters
-    W_1 = 8.66
-    W_2 = 15.11
+    W_1 = 9.0
+    W_2 = 12.3
     H = 3.05
     A_f = W_1 * W_2
     A_t = 2 * (W_1 * W_2 + W_2 * H + H * W_1)
 
     h_eq = 3.05
-    w_t = 8.659
+    w_t = 9.0
     A_v = h_eq * w_t
 
-    q_fd = 328.67
+    q_fd = 396.9
 
     # Calculation
 
@@ -1053,11 +1053,471 @@ if __name__ == '__main__':
     # report_column_temperature_no_forced_draught.make_pdf_web()
     # report_column_temperature_forced_draught.make_pdf_web()
 
-    report_flame_no_forced_draught.make_pdf(os.path.join(dirwork,'01 flame (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
-    report_flame_forced_draught.make_pdf(os.path.join(dirwork,'02 flame (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
-    report_beam_temperature_no_forced_draught.make_pdf(os.path.join(dirwork,'03a beam (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
-    report_beam_temperature_forced_draught.make_pdf(os.path.join(dirwork,'03b beam (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
-    report_column_temperature_no_forced_draught.make_pdf(os.path.join(dirwork,'04a column (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
-    report_column_temperature_forced_draught.make_pdf(os.path.join(dirwork,'04b column (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+    report = Report(
+        sections=report_flame_no_forced_draught.make_latex_sections() +
+                 report_flame_forced_draught.make_latex_sections() +
+                 report_beam_temperature_no_forced_draught.make_latex_sections() +
+                 report_beam_temperature_forced_draught.make_latex_sections() +
+                 report_column_temperature_no_forced_draught.make_latex_sections() +
+                 report_column_temperature_forced_draught.make_latex_sections(),
+        sec_title_prefix='C.'
+    )
+
+    if print_pdf:
+        report.make_pdf(os.path.join(dirwork, '03.pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_flame_no_forced_draught.make_pdf(os.path.join(dirwork, '03a flame (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_flame_forced_draught.make_pdf(os.path.join(dirwork, '03b flame (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_beam_temperature_no_forced_draught.make_pdf(os.path.join(dirwork, '03c beam (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_beam_temperature_forced_draught.make_pdf(os.path.join(dirwork, '03d beam (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_column_temperature_no_forced_draught.make_pdf(os.path.join(dirwork, '03e column (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_column_temperature_forced_draught.make_pdf(os.path.join(dirwork, '03f column (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
 
     pass
+
+
+def parametric_fire_1(print_pdf=False):
+    # beams perpendicular 0.875, parallel 1
+    # columns parallel 0.65, 0.875
+    import numpy as np
+    import os
+
+    fake_modules = [os, np]
+
+    try:
+        from fsetools.tests.test_fse_ec_external_steel_fleet_st_dirwork import dirwork
+    except ModuleNotFoundError:
+        dirwork = ''
+
+    def print_outputs(report, heading: str, params: list):
+        print('\n' + heading)
+        for k in params:
+            print(f'{k + ":":<10}{report.output_kwargs[k]:g}')
+
+    def print_reduction_factors(heading: str = None, *reports):
+        if heading:
+            print('\n' + heading)
+
+        reduction_factors = np.zeros(shape=(4, len(reports)))
+        for i, v in enumerate(['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']):
+            for j, report in enumerate(reports):
+                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'], report.output_kwargs['T_o'])
+
+        print(reduction_factors)
+        print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
+
+    # Common parameters
+    W_1 = 9.55
+    W_2 = 6.36
+    H = 3.05
+    A_f = W_1 * W_2
+    A_t = 2 * (W_1 * W_2 + W_2 * H + H * W_1)
+
+    h_eq = 3.05
+    w_t = 1.27
+    A_v = h_eq * w_t
+
+    q_fd = 287.81
+
+    # Calculation
+
+    report_flame_no_forced_draught = flame_no_forced_draught(
+        W_1=W_1,
+        W_2=W_2,
+        is_windows_on_more_than_one_wall=False,
+        is_central_core=False,
+        A_f=A_f,
+        q_fd=q_fd,
+        tau_F=1200,
+        O=(h_eq ** 0.5) * A_v / A_t,
+        h_eq=h_eq,
+        A_t=A_t,
+        w_t=w_t,
+        is_wall_above_opening=True,
+    )
+
+    report_flame_forced_draught = flame_forced_draught(
+        W_1=W_1,
+        W_2=W_2,
+        is_windows_on_more_than_one_wall=False,
+        is_central_core=False,
+        A_v1=A_v,
+        A_f=A_f,
+        q_fd=q_fd,
+        tau_F=1200,
+        A_t=A_t,
+        T_0=293.15,
+        h_eq=h_eq,
+        u=6,
+        w_t=w_t,
+    )
+
+    report_beam_temperature_no_forced_draught = beam_temperature_no_forced_draught(
+        is_forced_draught=False,
+
+        L_L=report_flame_no_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_no_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_no_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_no_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_no_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_aw=-0.325,
+        lambda_4=0.618,
+        d_1=0.875,
+        d_2=1.,
+        d_eq=(0.875 + 1.) / 2.,
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+
+        sigma=5.67e-11,
+    )
+
+    report_beam_temperature_forced_draught = beam_temperature_forced_draught(
+        is_forced_draught=True,
+
+        L_L=report_flame_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_aw=-0.325,
+        lambda_4=0.618,
+        d_1=0.875,
+        d_2=1.,
+        d_eq=(0.875 + 1.) / 2.,
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+        u=6,
+
+        T_0=293.15,
+        sigma=5.67e-11,
+    )
+
+    report_column_temperature_no_forced_draught = column_temperature_no_forced_draught(
+        is_forced_draught=False,
+
+        L_L=report_flame_no_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_no_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_no_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_no_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_no_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_eq=(0.875 + 0.65) / 2.,
+        lambda_1=(w_t - 0.65) / 2,  # (w_t - d_2) / 2
+        lambda_3=0.618,
+        d_1=0.875,
+        d_2=0.65,
+
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+
+        sigma=5.67e-11,
+        T_0=293.15,
+    )
+
+    report_column_temperature_forced_draught = column_temperature_forced_draught(
+        is_forced_draught=True,
+
+        L_L=report_flame_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_1=0.875,
+        d_2=0.65,
+        lambda_1=(w_t - 0.65) / 2,  # (w_t - d_2) / 2
+        lambda_3=0.618,
+        d_eq=(0.875 + 0.65) / 2.,
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+        u=6,
+
+        sigma=5.67e-11,
+        T_0=293.15,
+    )
+
+    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_flame_forced_draught, heading='forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+
+    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught, report_beam_temperature_forced_draught)
+    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught, report_column_temperature_forced_draught)
+
+    # report_flame_no_forced_draught.make_pdf_web()
+    # report_flame_forced_draught.make_pdf_web()
+    # report_beam_temperature_no_forced_draught.make_pdf_web()
+    # report_beam_temperature_forced_draught.make_pdf_web()
+    # report_column_temperature_no_forced_draught.make_pdf_web()
+    # report_column_temperature_forced_draught.make_pdf_web()
+
+    report = Report(
+        sections=report_flame_no_forced_draught.make_latex_sections() +
+                 report_flame_forced_draught.make_latex_sections() +
+                 report_beam_temperature_no_forced_draught.make_latex_sections() +
+                 report_beam_temperature_forced_draught.make_latex_sections() +
+                 report_column_temperature_no_forced_draught.make_latex_sections() +
+                 report_column_temperature_forced_draught.make_latex_sections(),
+        sec_title_prefix='A.'
+    )
+
+    if print_pdf:
+        report.make_pdf(os.path.join(dirwork, '01.pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_flame_no_forced_draught.make_pdf(os.path.join(dirwork, '01a flame (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_flame_forced_draught.make_pdf(os.path.join(dirwork, '01b flame (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_beam_temperature_no_forced_draught.make_pdf(os.path.join(dirwork, '01c beam (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_beam_temperature_forced_draught.make_pdf(os.path.join(dirwork, '01d beam (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_column_temperature_no_forced_draught.make_pdf(os.path.join(dirwork, '01e column (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_column_temperature_forced_draught.make_pdf(os.path.join(dirwork, '01f column (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+
+
+def parametric_fire_2(print_pdf=False):
+    # beams perpendicular 0.875, parallel 1
+    # columns parallel 0.65, 0.875
+    import numpy as np
+    import os
+
+    fake_modules = [os, np]
+
+    try:
+        from fsetools.tests.test_fse_ec_external_steel_fleet_st_dirwork import dirwork
+    except ModuleNotFoundError:
+        dirwork = ''
+
+    def print_outputs(report, heading: str, params: list):
+        print('\n' + heading)
+        for k in params:
+            print(f'{k + ":":<10}{report.output_kwargs[k]:g}')
+
+    def print_reduction_factors(heading: str = None, *reports):
+        if heading:
+            print('\n' + heading)
+
+        reduction_factors = np.zeros(shape=(4, len(reports)))
+        for i, v in enumerate(['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']):
+            for j, report in enumerate(reports):
+                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'], report.output_kwargs['T_o'])
+
+        print(reduction_factors)
+        print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
+
+    # Common parameters
+    W_1 = 14.58
+    W_2 = 7.04
+    H = 3.05
+    A_f = W_1 * W_2
+    A_t = 2 * (W_1 * W_2 + W_2 * H + H * W_1)
+
+    h_eq = 3.05
+    w_t = 6.17
+    A_v = h_eq * w_t
+
+    q_fd = 536.16
+
+    # Calculation
+
+    report_flame_no_forced_draught = flame_no_forced_draught(
+        W_1=W_1,
+        W_2=W_2,
+        is_windows_on_more_than_one_wall=False,
+        is_central_core=False,
+        A_f=A_f,
+        q_fd=q_fd,
+        tau_F=1200,
+        O=(h_eq ** 0.5) * A_v / A_t,
+        h_eq=h_eq,
+        A_t=A_t,
+        w_t=w_t,
+        is_wall_above_opening=True,
+    )
+
+    report_flame_forced_draught = flame_forced_draught(
+        W_1=W_1,
+        W_2=W_2,
+        is_windows_on_more_than_one_wall=False,
+        is_central_core=False,
+        A_v1=A_v,
+        A_f=A_f,
+        q_fd=q_fd,
+        tau_F=1200,
+        A_t=A_t,
+        T_0=293.15,
+        h_eq=h_eq,
+        u=6,
+        w_t=w_t,
+    )
+
+    report_beam_temperature_no_forced_draught = beam_temperature_no_forced_draught(
+        is_forced_draught=False,
+
+        L_L=report_flame_no_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_no_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_no_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_no_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_no_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_aw=-0.325,
+        lambda_4=0.618,
+        d_1=0.875,
+        d_2=1.,
+        d_eq=(0.875 + 1.) / 2.,
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+
+        sigma=5.67e-11,
+    )
+
+    report_beam_temperature_forced_draught = beam_temperature_forced_draught(
+        is_forced_draught=True,
+
+        L_L=report_flame_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_aw=-0.325,
+        lambda_4=0.618,
+        d_1=0.875,
+        d_2=1.,
+        d_eq=(0.875 + 1.) / 2.,
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+        u=6,
+
+        T_0=293.15,
+        sigma=5.67e-11,
+    )
+
+    report_column_temperature_no_forced_draught = column_temperature_no_forced_draught(
+        is_forced_draught=False,
+
+        L_L=report_flame_no_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_no_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_no_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_no_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_no_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_eq=(0.875 + 0.65) / 2.,
+        lambda_1=(w_t - 0.65) / 2,  # (w_t - d_2) / 2
+        lambda_3=0.618,
+        d_1=0.875,
+        d_2=0.65,
+
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+
+        sigma=5.67e-11,
+        T_0=293.15,
+    )
+
+    report_column_temperature_forced_draught = column_temperature_forced_draught(
+        is_forced_draught=True,
+
+        L_L=report_flame_forced_draught.output_kwargs['L_L'],
+        L_H=report_flame_forced_draught.output_kwargs['L_H'],
+        Q=report_flame_forced_draught.output_kwargs['Q'],
+        T_o=report_flame_forced_draught.output_kwargs['T_w'],
+        T_f=report_flame_forced_draught.output_kwargs['T_f'],
+
+        h_eq=h_eq,
+        w_t=w_t,
+        A_v=A_v,
+        d_1=0.875,
+        d_2=0.65,
+        lambda_1=(w_t - 0.65) / 2,  # (w_t - d_2) / 2
+        lambda_3=0.618,
+        d_eq=(0.875 + 0.65) / 2.,
+        C_1=1,
+        C_2=1,
+        C_3=1,
+        C_4=1,
+        u=6,
+
+        sigma=5.67e-11,
+        T_0=293.15,
+    )
+
+    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_flame_forced_draught, heading='forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+
+    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught, report_beam_temperature_forced_draught)
+    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught, report_column_temperature_forced_draught)
+
+    # report_flame_no_forced_draught.make_pdf_web()
+    # report_flame_forced_draught.make_pdf_web()
+    # report_beam_temperature_no_forced_draught.make_pdf_web()
+    # report_beam_temperature_forced_draught.make_pdf_web()
+    # report_column_temperature_no_forced_draught.make_pdf_web()
+    # report_column_temperature_forced_draught.make_pdf_web()
+
+    report = Report(
+        sections=report_flame_no_forced_draught.make_latex_sections() +
+                 report_flame_forced_draught.make_latex_sections() +
+                 report_beam_temperature_no_forced_draught.make_latex_sections() +
+                 report_beam_temperature_forced_draught.make_latex_sections() +
+                 report_column_temperature_no_forced_draught.make_latex_sections() +
+                 report_column_temperature_forced_draught.make_latex_sections(),
+        sec_title_prefix='B.'
+    )
+
+    if print_pdf:
+        report.make_pdf(os.path.join(dirwork, '02.pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_flame_no_forced_draught.make_pdf(os.path.join(dirwork, '02a flame (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_flame_forced_draught.make_pdf(os.path.join(dirwork, '02b flame (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_beam_temperature_no_forced_draught.make_pdf(os.path.join(dirwork, '02c beam (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_beam_temperature_forced_draught.make_pdf(os.path.join(dirwork, '02d beam (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_column_temperature_no_forced_draught.make_pdf(os.path.join(dirwork, '02e column (no forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+        # report_column_temperature_forced_draught.make_pdf(os.path.join(dirwork, '02f column (forced draught).pdf'), fp_pdf_viewer='sumatrapdf')
+
+
+if __name__ == '__main__':
+    parametric_fire_1(False)
+    parametric_fire_2(False)
+    travelling_fire(False)
+
+    # parametric_fire_1(True)
+    # parametric_fire_2(True)
+    # travelling_fire(True)
