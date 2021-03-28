@@ -192,23 +192,27 @@ class ExternalFlameNoForcedDraught(ReportBase):
         if 'Q' not in input_kwargs:
             # Calculate D/W, optional
             if 'DW_ratio' not in input_kwargs:
-                # EAFP style below
                 try:
+                    is_windows_on_more_than_one_wall = input_kwargs['is_windows_on_more_than_one_wall']
+                    is_central_core = input_kwargs['is_central_core']
+                except KeyError:
+                    raise KeyError('`is_central_core` and `is_windows_on_more_than_one_wall` are missing. They are required to calculate `DW_ratio`')
+
+                if is_windows_on_more_than_one_wall is False and is_central_core is False:
                     input_kwargs.update(clause_b_2_2_DW_ratio(**input_kwargs))
                     _latex_equation_header.append(NoEscape('Clause B.2 (2), the ratio of $D/W$ is:'))
                     _latex_equation_content.append(input_kwargs['_latex'])
-                except (AssertionError, TypeError):
-                    try:
-                        input_kwargs.update(clause_b_2_3_DW_ratio(**input_kwargs))
-                        _latex_equation_header.append(NoEscape('Clause B.2 (3), the ratio of $D/W$ is:'))
-                        _latex_equation_content.append(input_kwargs['_latex'])
-                    except (AssertionError, TypeError):
-                        try:
-                            input_kwargs.update(clause_b_2_4_DW_ratio(**input_kwargs))
-                            _latex_equation_header.append(NoEscape('Clause B.2 (4), the ratio of $D/W$ is:'))
-                            _latex_equation_content.append(input_kwargs['_latex'])
-                        except (AssertionError, TypeError) as e:
-                            raise ValueError(f'Failed to calculate `DW_ratio`, {e}')
+                elif is_central_core is False:
+                    input_kwargs.update(clause_b_2_3_DW_ratio(**input_kwargs))
+                    _latex_equation_header.append(NoEscape('Clause B.2 (3), the ratio of $D/W$ is:'))
+                    _latex_equation_content.append(input_kwargs['_latex'])
+                elif is_central_core is True:
+                    input_kwargs.update(clause_b_2_4_DW_ratio(**input_kwargs))
+                    _latex_equation_header.append(NoEscape('Clause B.2 (4), the ratio of $D/W$ is:'))
+                    _latex_equation_content.append(input_kwargs['_latex'])
+                else:
+                    raise ValueError(f'Failed to calculate `DW_ratio`, unknown conditions')
+
             input_kwargs.update(clause_b_4_1_1_Q(**input_kwargs))
             _latex_equation_header.append('Clause B.4.1 (1), the heat release rate is:')
             _latex_equation_content.append(input_kwargs['_latex'])

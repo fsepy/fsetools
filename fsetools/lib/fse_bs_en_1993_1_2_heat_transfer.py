@@ -244,5 +244,48 @@ def _interflam_figures():
     plt.show()
 
 
+def _stephy_figure():
+    import numpy as np
+
+    import matplotlib.pyplot as plt
+
+    plt.style.use("seaborn-paper")
+
+    rho = 7850
+    t = np.arange(0, 180 * 60, 1)
+    T = 293.15+345.*np.log10(8*t/60+1)
+
+    list_dp = np.arange(0.0001, 0.05 + 0.002, 0.002)
+    Ts = list()
+    for d_p in list_dp:
+        Ts.append(temperature(
+            fire_time=t,
+            fire_temperature=T,
+            beam_rho=rho,
+            beam_cross_section_area=0.017,
+            protection_k=0.2,
+            protection_rho=800,
+            protection_c=1700,
+            protection_thickness=d_p,
+            protection_protected_perimeter=2.14,
+        ))
+
+    fig, ax = plt.subplots(figsize=(5.3, 5))
+    for i, T_s in enumerate(Ts):
+        ax.plot(
+            t / 60,
+            T_s - 273.15,
+        )
+
+    ax.set_xlabel("Time [minute]", fontsize='small')
+    ax.set_xlim(0, 180)
+    ax.set_ylabel("Temperature [$^oC$]", fontsize='small')
+
+    plt.tight_layout()
+    fig.savefig('stephy.png', ppi=300)
+    plt.show()
+
+
 if __name__ == '__main__':
-    _interflam_figures()
+    # _interflam_figures()
+    _stephy_figure()
