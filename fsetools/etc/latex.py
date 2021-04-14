@@ -9,7 +9,7 @@ except ModuleNotFoundError:
     pass
 
 
-def py2tex_modified(exps: Union[List, tuple, str]):
+def py2tex_modified(exps: Union[List, tuple, str], ignore_error: bool = True):
     if isinstance(exps, tuple):
         exps = list(exps)
 
@@ -17,34 +17,57 @@ def py2tex_modified(exps: Union[List, tuple, str]):
         for i in range(len(exps)):
             try:
                 exps[i] = f"${py2tex(f'{exps[i]}', print_latex=False, print_formula=False).replace('$', '')}$"
-            except:
-                pass
+            except Exception as e:
+                if ignore_error:
+                    pass
+                else:
+                    raise e
     elif isinstance(exps, str):
         try:
             exps = f"${py2tex(f'{exps}', print_latex=False, print_formula=False).replace('$', '')}$"
-        except:
-            pass
+        except Exception as e:
+            if ignore_error:
+                pass
+            else:
+                raise e
     else:
         raise TypeError('`exps` not list or str')
     return exps
 
 
-def make_alginat_equations(latex_expressions: List[str], alignment_symbol: str = '='):
+def _test_py2tex_modified():
+    assert py2tex_modified(r'a = b ** 2 + c ** 2') == '$a=b^2+c^2$'
+    assert py2tex_modified(r'E = m * c ** 2') == '$E=m c^2$'
+    assert py2tex_modified([r'a = b ** 2 + c ** 2', r'E = m * c ** 2',], ignore_error=False)
+
+
+def make_alginat_equations(exps: List[str], sym: str = '=') -> Alignat:
+    """For a given list of equations, generate pylatex alginat object
+
+    :param exps: A list of LaTeX math expressions
+    :param sym: The symbol to be aligned against
+    :return: A pylatex Alginat object
+    """
+
     alignat = Alignat(numbering=False, escape=False)
-    for i, latex_expression in enumerate(latex_expressions):
-        if i < len(latex_expressions) - 1:
-            latex_expression += '\\\\'
+    for i, exp in enumerate(exps):
+        if i < len(exps) - 1:
+            exp += '\\\\'
 
-        alignment_symbol_i = latex_expression.find(alignment_symbol)
-        if alignment_symbol_i >= 0:
-            latex_expression = f'{latex_expression[:alignment_symbol_i]}&{latex_expression[alignment_symbol_i:]}'
-
-        alignat.append(latex_expression)
+        sym_loc = exp.find(sym)                         # Find the alignment symbol location
+        if sym_loc >= 0:                                # If alignment symbol exists
+            exp = f'{exp[:sym_loc]}&{exp[sym_loc:]}'    # Insert &
+        alignat.append(exp)     # Add expression
 
     return alignat
 
 
-def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: List[str]):
+def _test_make_alginat_equations():
+    obj = make_alginat_equations(py2tex_modified([r'a = b ** 2 + c ** 2', r'E = m * c ** 2',], ignore_error=False))
+    assert obj.dumps() == '\\begin{alignat*}{2}%\n$a&=b^2+c^2$\\\\%\n$E&=m c^2$%\n\\end{alignat*}'
+
+
+def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: List[str]) -> LongTable:
     table_symbols_content = LongTable("l l l")
     table_symbols_content.add_hline()
     table_symbols_content.add_row(["Symbol", "Unit", "Description"])
@@ -73,6 +96,15 @@ def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: Li
     table_symbols_content.add_hline()
 
     return table_symbols_content
+
+
+def _test_make_table_of_symbols():
+    obj = make_table_of_symbols(
+        symbols=['\\rho_a', 'T_0', '\\lambda_\\theta'],
+        units=['kg/m**3', 'K', '-'],
+        descriptions=['Density of steel', 'Initial temperature', 'Reduction factor']
+    )
+    print(obj.dumps())
 
 
 def make_summary_table(symbols: list, units: dict, descriptions: dict, values: dict):
@@ -114,3 +146,20 @@ def make_summary_table(symbols: list, units: dict, descriptions: dict, values: d
         [description[0].upper() + description[1:] for description in itemgetter(*true_values)(descriptions)],
     )
     return table
+
+
+def _test_make_summary_table():
+    obj = make_summary_table(
+        symbols=['rho_a', 'T_0', 'lambda_theta'],
+        units={'rho_a': 'kg/m**3', 'T_0': 'K', 'lambda_theta': '-'},
+        descriptions={'rho_a': 'Density of steel', 'T_0': 'Initial temperature', 'lambda_theta': 'Reduction factor'},
+        values={'rho_a': 1, 'T_0': 2, 'lambda_theta': 3}
+    )
+    print(obj.dumps())
+
+
+if __name__ == '__main__':
+    _test_py2tex_modified()
+    _test_make_alginat_equations()
+    _test_make_table_of_symbols()
+    _test_make_summary_table()
