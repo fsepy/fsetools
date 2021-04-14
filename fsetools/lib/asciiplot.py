@@ -77,8 +77,8 @@ class AsciiPlot:
         # Make canvas string
         # ------------------
         canvas_size = (
-            self.size[0] - self.__plot_yaxis.shape[1] - 5,
-            self.size[1] - self.__plot_xaxis.shape[0] - 5
+            self.size[0] - self.__plot_yaxis.shape[1],  # width = total width - width taken by y-axis ticks/label
+            self.size[1] - self.__plot_xaxis.shape[0]  # height = total height - height taken by x-axis ticks/label
         )
         self.__plot_canvas = self._make_canvas(x, y, xlim, ylim, canvas_size)
 
@@ -329,7 +329,7 @@ class AsciiPlot:
 
 
 def _test_asciiplot():
-    size = (50, 25)
+    size = (100, 20)
     xlim = (-2 * np.pi, 2 * np.pi)
     ylim = (-1.1, 1.1)
 
