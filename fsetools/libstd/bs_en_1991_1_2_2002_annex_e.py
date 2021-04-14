@@ -12,6 +12,7 @@ from typing import Union
 
 
 class FireLoadDensity:
+
     OCCUPANCY_ART_GALLERY = 1
     OCCUPANCY_MUSEUM = 1
     OCCUPANCY_SWIMMING_POOL = 1
@@ -26,7 +27,7 @@ class FireLoadDensity:
 
     def calculate(
             self,
-            q_fk: float,
+            q_f_k: float,
             A_f: float,
             m: float,
             occupancy: Union[str, int],
@@ -51,25 +52,25 @@ class FireLoadDensity:
 
     @staticmethod
     def clause_e_1_3_design_fire_load_density(
-            q_fk: float,
+            q_f_k: float,
             m: float,
-            delta_q1: float,
-            delta_q2: float,
+            delta_q_1: float,
+            delta_q_2: float,
             delta_n: float,
             **__
     ) -> dict:
         """The design value of the fire load, Clause E.1 (3), page 46.
 
-        :param q_fk:        [MJ/m2],    is the characteristic fuel load density
-        :type q_fk:         float
+        :param q_f_k:       [MJ/m2],    is the characteristic fuel load density
+        :type q_f_k:        float
         :param m:           [-],        is the combustion factor (see E.3)
         :type m:            float
-        :param delta_q1:    [-],        is a factor taking into account the fire activation risk due to the size of the 
+        :param delta_q_1:   [-],        is a factor taking into account the fire activation risk due to the size of the
                                         compartment (see Table E.1)
-        :type delta_q1:     float
-        :param delta_q2:    [-],        is a factor taking into account the fire activation risk due to the type of 
+        :type delta_q_1:    float
+        :param delta_q_2:   [-],        is a factor taking into account the fire activation risk due to the type of
                                         occupancy (see Table E.1)
-        :type delta_q2:     float
+        :type delta_q_2:    float
         :param delta_n:     [-],        is a factor taking into account the different active fire fighting measures i 
                                         (sprinkler, detection, automatic alarm transmission, firemen ...). These active 
                                         measures are generally imposed for life safety reason (see Table E.2 and 
@@ -79,14 +80,14 @@ class FireLoadDensity:
         :rtype:             dict
         """
 
-        q_fd = q_fk * m * delta_q1 * delta_q2 * delta_n
+        q_f_d = q_f_k * m * delta_q_1 * delta_q_2 * delta_n
 
         _latex = [
             f'q_{{fd}}=q_{{fk}}\\cdot m\\cdot \\delta_{{q1}}\\cdot \\delta_{{q2}}\\cdot \\delta_n',
-            f'q_{{fd}}={q_fk:.2f}\\cdot {m:.2f}\\cdot \\{delta_q1:.2f}\\cdot \\{delta_q2:.2f}\\cdot \\{delta_n:.2f}',
-            f'q_{{fd}}={q_fd:.2f}',
+            f'q_{{fd}}={q_f_k:.2f}\\cdot {m:.2f}\\cdot \\{delta_q_1:.2f}\\cdot \\{delta_q_2:.2f}\\cdot \\{delta_n:.2f}',
+            f'q_{{fd}}={q_f_d:.2f}',
         ]
-        return dict(q_fd=q_fd, _latex=_latex)
+        return dict(q_f_d=q_f_d, _latex=_latex)
 
     @staticmethod
     def table_e1_delta_q1(A_f: float, **__) -> dict:
@@ -96,21 +97,21 @@ class FireLoadDensity:
         :return:            delta_q1, is the factor taking into account of fire activation risk due to compartment size; and latex math expression
         """
         if A_f <= 25:
-            delta_q1 = 1.1
+            delta_q_1 = 1.1
         elif A_f <= 250:
-            delta_q1 = 1.5
+            delta_q_1 = 1.5
         elif A_f <= 2500:
-            delta_q1 = 1.9
+            delta_q_1 = 1.9
         elif A_f <= 5000:
-            delta_q1 = 2
+            delta_q_1 = 2
         elif A_f <= 10000:
-            delta_q1 = 2.13
+            delta_q_1 = 2.13
         else:
             raise ValueError(f'Maximum floor area 10,000 m² exceeded {A_f}')
 
-        _latex = [f'\\delta_{{q1}}={delta_q1:.2f}']
+        _latex = [f'\\delta_{{q1}}={delta_q_1:.2f}']
 
-        return dict(delta_q1=delta_q1, _latex=_latex)
+        return dict(delta_q_1=delta_q_1, _latex=_latex)
 
     @staticmethod
     def table_e1_delta_q2(
@@ -121,23 +122,23 @@ class FireLoadDensity:
             occupancy = occupancy.lower().strip()
 
         if occupancy == 1 or occupancy in ['artgallery', 'musem', 'swimming pool']:
-            delta_q2 = 0.78
+            delta_q_2 = 0.78
         elif occupancy == 2 or occupancy in ['office', 'residence', 'hotel', 'paper industry']:
-            delta_q2 = 1.0
+            delta_q_2 = 1.0
         elif occupancy == 3 or occupancy in ['manufactory for machinery & engines']:
-            delta_q2 = 1.22
+            delta_q_2 = 1.22
         elif occupancy == 4 or occupancy in ['chemical laboratory', 'painting workshop']:
-            delta_q2 = 1.44
+            delta_q_2 = 1.44
         elif occupancy == 5 or occupancy in ['manufactory of fireworks or paints']:
-            delta_q2 = 1.66
+            delta_q_2 = 1.66
         else:
             raise ValueError(f'Unknown occupancy "{occupancy}"')
 
         _latex = [
-            f'\\delta_{{q2}}={delta_q2:.2f}'
+            f'\\delta_{{q2}}={delta_q_2:.2f}'
         ]
 
-        return dict(delta_q2=delta_q2, _latex=_latex)
+        return dict(delta_q_2=delta_q_2, _latex=_latex)
 
     @staticmethod
     def table_e2_delta_n(
@@ -185,34 +186,34 @@ class FireLoadDensity:
         :rtype:                                             dict
         """
 
-        delta_n1 = 0.61 if is_sprinklered else 1
+        delta_n_1 = 0.61 if is_sprinklered else 1
 
         if is_sprinklered and sprinkler_independent_water_supplies == 0:
-            delta_n2 = 1.0
+            delta_n_2 = 1.0
         elif is_sprinklered and sprinkler_independent_water_supplies == 1:
-            delta_n2 = 0.87
+            delta_n_2 = 0.87
         elif is_sprinklered and sprinkler_independent_water_supplies == 2:
-            delta_n2 = 0.7
+            delta_n_2 = 0.7
         else:
-            delta_n2 = 1
+            delta_n_2 = 1
 
-        delta_n3 = 0.87 if is_detection_by_heat else 1
-        delta_n4 = 0.73 if is_detection_by_smoke else 1
-        delta_n5 = 0.87 if is_automatic_transmission_to_fire_brigade else 1
-        delta_n6 = 0.61 if is_onsite_fire_brigade else 1
-        delta_n7 = 0.78 if is_offsite_fire_brigade else 1
-        delta_n8 = 1 if is_safe_access_routes else 1.5
-        delta_n9 = 1 if is_fire_fighting_devices else 1.5
-        delta_n10 = 1 if is_smoke_exhaust_system else 1.5
+        delta_n_3 = 0.87 if is_detection_by_heat else 1
+        delta_n_4 = 0.73 if is_detection_by_smoke else 1
+        delta_n_5 = 0.87 if is_automatic_transmission_to_fire_brigade else 1
+        delta_n_6 = 0.61 if is_onsite_fire_brigade else 1
+        delta_n_7 = 0.78 if is_offsite_fire_brigade else 1
+        delta_n_8 = 1 if is_safe_access_routes else 1.5
+        delta_n_9 = 1 if is_fire_fighting_devices else 1.5
+        delta_n_10 = 1 if is_smoke_exhaust_system else 1.5
 
         delta_n = \
-            delta_n1 * delta_n2 * delta_n3 * delta_n4 * delta_n5 * \
-            delta_n6 * delta_n7 * delta_n8 * delta_n9 * delta_n10
+            delta_n_1 * delta_n_2 * delta_n_3 * delta_n_4 * delta_n_5 * \
+            delta_n_6 * delta_n_7 * delta_n_8 * delta_n_9 * delta_n_10
 
         _latex = [
             f'\\delta_n=\\sum_{{i=1}}^{{10}}\\delta_{{ni}}',
-            f'\\delta_n={delta_n1:.2f}+{delta_n2:.2f}+{delta_n3:.2f}+{delta_n4:.2f}+'
-            f'{delta_n5:.2f}+{delta_n6:.2f}+{delta_n7:.2f}+{delta_n8:.2f}+{delta_n9:.2f}+{delta_n10:.2f}',
+            f'\\delta_n={delta_n_1:.2f}+{delta_n_2:.2f}+{delta_n_3:.2f}+{delta_n_4:.2f}+'
+            f'{delta_n_5:.2f}+{delta_n_6:.2f}+{delta_n_7:.2f}+{delta_n_8:.2f}+{delta_n_9:.2f}+{delta_n_10:.2f}',
             f'\\delta_n={delta_n:.2f}'
         ]
 
@@ -222,12 +223,14 @@ class FireLoadDensity:
 class TestFireLoadDensity(FireLoadDensity):
     def __init__(self):
         super().__init__()
+        from fsetools import logger
+        self.logger = logger
         self.test_1()
 
     def test_1(self):
         kwargs = dict(
             A_f=1500,
-            q_fk=870,
+            q_f_k=870,
             m=0.8,
             occupancy=self.OCCUPANCY_OFFICE,
             is_sprinklered=True,
@@ -241,8 +244,13 @@ class TestFireLoadDensity(FireLoadDensity):
             is_fire_fighting_devices=True,
             is_smoke_exhaust_system=True,
         )
-        q_fd = self.calculate(**kwargs)['q_fd']
-        assert abs(q_fd - 399.6035989920) < 1e-8
+        q_f_d = self.calculate(**kwargs)['q_f_d']
+        try:
+            assert abs(q_f_d - 399.6035989920) < 1e-8
+            self.logger.debug('Test 1 successful')
+        except Exception as e:
+            self.logger.debug('Test 1 unsuccessful')
+            raise e
 
 
 if __name__ == '__main__':

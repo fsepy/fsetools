@@ -104,7 +104,7 @@ class TestEquivalenceOfTimeExposure(EquivalenceOfTimeExposure):
         q_fd_cls = FireLoadDensity()
         q_fd = q_fd_cls.calculate(
             A_f=1500,
-            q_fk=870,
+            q_f_k=870,
             m=0.8,
             occupancy=FireLoadDensity.OCCUPANCY_OFFICE,
             is_sprinklered=True,
