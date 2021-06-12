@@ -12,7 +12,8 @@ import xmltodict
 from numpy import ndarray
 
 from fsetools import logger
-from fsetools.libstd.bs_en_1993_1_2_2005_k_y_theta import clause_3_2_1_1_k_y_theta_mod, clause_3_2_1_1_k_y_theta_mod_reversed
+from fsetools.libstd.bs_en_1993_1_2_2005_k_y_theta import clause_3_2_1_1_k_y_theta_mod, \
+    clause_3_2_1_1_k_y_theta_mod_reversed
 
 plt.style.use('seaborn-paper')
 
@@ -23,12 +24,12 @@ class Thermal2DPPXML:
     """
 
     def __init__(self):
-        self.__data = None  # dict parsed from xml
-        self.__ns = None  # node indexes where temperatures are measured `ns=[n1, n2, ...]`
-        self.__xs = None  # x coordinates [x1, x2, ...]
-        self.__ys = None  # y coordinates [y1, y2, ...]
-        self.__ts = None  # time steps [30, 60, ...]
-        self.__Ts = None  # temperatures [T1, T2, ...], T1 = [T11, T12, ...]
+        self.__data: dict = None  # dict parsed from xml
+        self.__ns: np.ndarray = None  # node indexes where temperatures are measured `ns=[n1, n2, ...]`
+        self.__xs: np.ndarray = None  # x coordinates [x1, x2, ...]
+        self.__ys: np.ndarray = None  # y coordinates [y1, y2, ...]
+        self.__ts: np.ndarray = None  # time steps [30, 60, ...]
+        self.__Ts: np.ndarray = None  # temperatures [T1, T2, ...], T1 = [T11, T12, ...]
         self.__xml = None  # xml raw
         self.__xml_changed = True  # whether `self.__xml` has changed
         self.__ns_xys_changed = True  # whether `self.__ns` or `self.__xys` haved changed
@@ -38,24 +39,41 @@ class Thermal2DPPXML:
         temps = self.nodes2temp(Ts=self.__Ts, nodes=np.array(nodes))
         return temps
 
+    def get_line_temp(self, n1: Union[tuple, list], n2: Union[tuple, list], dx: float = None, ds: int = None):
+        if dx is not None:
+            pass
+        elif ds is not None:
+            pass
+        else:
+            raise ValueError('Either dx or dn need to be defined')
+
+        self.process_xml()
+
+        for i, t in enumerate(self.__ts):
+            pass
+
     def get_nodes_temp_ave(
             self,
             ns: ndarray = None, ws: ndarray = None, mode: str = 'ws', T_ns: ndarray = None,
-            fp_save_plot: str = None, figsize: Union[list, tuple] = (3.5, 3.5), ylim: Union[list, tuple] = (0, 1200), xlim: Union[list, tuple] = None, show_legnend: bool = False,
+            fp_save_plot: str = None, figsize: Union[list, tuple] = (3.5, 3.5), ylim: Union[list, tuple] = (0, 1200),
+            xlim: Union[list, tuple] = None, show_legnend: bool = False,
             fp_save_num: str = None,
     ):
         """
         Get average temperature based on the defined nodes :code:`ns` or temperatures :code:`T_ns`.
 
-        :param ns:              A list/tuple of integers describing node index. This is not required if :code:`T_ns` is provided.
+        :param ns:              A list/tuple of integers describing node index. This is not required if :code:`T_ns` is
+                                provided.
                                 :code:`ns = [n1, n2, ...]`
-        :param ws:              A list/tuple of floats describing weighting of the defined nodes when averaging temperatures.
+        :param ws:              A list/tuple of floats describing weighting of the defined nodes when averaging
+                                temperatures.
                                 :code:`ws = [w1, w2, ...]`
         :param mode:            `ws` for weighted average, k_y_theta for
         :param T_ns:            An array of temperatures. This will be derived from the xml if not provided.
                                 :code:`T_ns = [T_n1, T_n2, ...]`
                                 :code:`T_n1 = [float, float, ...]`
-        :param fp_save_plot:    A full file path with .png suffix which a plot will be saved. The plot includes `T_ns` and the calculated average temperature.
+        :param fp_save_plot:    A full file path with .png suffix which a plot will be saved. The plot includes `T_ns`
+                                and the calculated average temperature.
         :return:                [C] Averaged temperatures
 
         The below condition should be satisfied.
@@ -92,7 +110,8 @@ class Thermal2DPPXML:
                 ax.set_ylabel('Temperature [°C]')
                 ax.tick_params(axis='both', which='both', labelsize='xx-small')
                 if show_legnend:
-                    ax.legend(shadow=False, edgecolor='k', fancybox=False, ncol=3, fontsize='xx-small', loc='lower right').set_visible(True)
+                    ax.legend(shadow=False, edgecolor='k', fancybox=False, ncol=3, fontsize='xx-small',
+                              loc='lower right').set_visible(True)
                 else:
                     ax.legend().set_visible(False)
                 fig.savefig(fp_save_plot, dpi=300, bbox_inches='tight', transparent=True)
@@ -132,13 +151,29 @@ class Thermal2DPPXML:
             self.xml = self.xml  # assign xml
             self.__data = self.xml2dict(self.xml)  # convert xml to dict
             self.__xs, self.__ys = self.dict2xys(self.__data)  # obtain all node x and y coordinates
-            self.__ts, self.__Ts = self.dict2tsTs(self.__data)  # obtain all time steps and temperatures at each time step
+            self.__ts, self.__Ts = self.dict2tsTs(
+                self.__data)  # obtain all time steps and temperatures at each time step
             self.__xml_changed = False
 
     @property
     def t(self):
         self.process_xml()
         return self.__ts
+
+    @property
+    def T(self):
+        self.process_xml()
+        return self.__Ts
+
+    @property
+    def x(self):
+        self.process_xml()
+        return self.__xs
+
+    @property
+    def y(self):
+        self.process_xml()
+        return self.__ys
 
     @property
     def xml(self):
@@ -488,7 +523,8 @@ def batch_run_worker(args: List) -> List:
     return result
 
 
-def batch_run(list_kwargs_in: List[Dict], func_mp: Callable = batch_run_worker, n_proc: int = 1, dir_work: str = None, qt_progress_signal=None):
+def batch_run(list_kwargs_in: List[Dict], func_mp: Callable = batch_run_worker, n_proc: int = 1, dir_work: str = None,
+              qt_progress_signal=None):
     # ------------------------------------------
     # prepare variables used for multiprocessing
     # ------------------------------------------
@@ -533,4 +569,8 @@ def batch_run(list_kwargs_in: List[Dict], func_mp: Callable = batch_run_worker, 
 
 
 if __name__ == '__main__':
-    pass
+    model = Thermal2DPPXML()
+    fp = r'C:\Users\IanFu\Desktop\!MMC Trinity\01 analysis\trial_01\validation.gid\validation.XML'
+    with open(fp, 'r') as f:
+        model.xml = f.read()
+    model.get_nodes_temp([1, 2, 3])
