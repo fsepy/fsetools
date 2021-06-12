@@ -464,7 +464,6 @@ def _test_visual_CuboidRoomModel():
 
     figure_levels = np.linspace(np.amin(resultant_heat_flux), np.amax(resultant_heat_flux), 15)
 
-    figure_levels_contour = figure_levels
     figure_colors_contour = ['k'] * len(figure_levels)
     figure_colors_contourf = [cm.get_cmap('YlOrRd')(i / (len(figure_levels) - 1)) for i, _ in enumerate(figure_levels)]
     figure_colors_contourf = [(r_, g_, b_, 1) for r_, g_, b_, a_ in figure_colors_contourf]
@@ -490,8 +489,11 @@ def _test_visual_CuboidRoomModel():
 
     ax.set_aspect(1)
 
-    cbar = fig.colorbar(cs_f)
-    cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.') + '\nkW/m²' for i in figure_levels])
+    try:
+        cbar = fig.colorbar(cs_f)
+        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.') + '\nkW/m²' for i in figure_levels])
+    except:
+        pass
 
     fig.tight_layout()
 

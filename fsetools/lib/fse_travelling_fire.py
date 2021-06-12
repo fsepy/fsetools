@@ -114,7 +114,7 @@ def temperature(
 def temperature_si(
         t: np.ndarray,
         T_0: float,
-        q_fd: float,
+        q_f_d: float,
         hrrpua: float,
         l: float,
         w: float,
@@ -128,7 +128,7 @@ def temperature_si(
 
     :param t: ndarray, [s] An array representing time incorporating 'temperature'.
     :param T_0: float, [K] ,Initial temperature.
-    :param q_fd: float, [J/m2], Fire load density.
+    :param q_f_d: float, [J/m2], Fire load density.
     :param hrrpua: float, [W/m2], Heat release rate density.
     :param l: float, [m], Compartment length.
     :param w: float, [m], Compartment width.
@@ -140,7 +140,7 @@ def temperature_si(
 
     # UNIT CONVERSION TO FIT EQUATIONS
     T_0 -= 273.15
-    q_fd /= 1e6
+    q_f_d /= 1e6
     hrrpua /= 1e6
     T_max -= 273.15
 
@@ -148,7 +148,7 @@ def temperature_si(
     time_step = t[1] - t[0]
 
     # workout burning time etc.
-    t_burn = max([q_fd / hrrpua, 900.0])
+    t_burn = max([q_f_d / hrrpua, 900.0])
     t_decay = max([t_burn, l / s])
     t_lim = min([t_burn, l / s])
 
@@ -240,7 +240,7 @@ def _test_fire_backup():
         temperature_0 = temperature_si(
             t=time,
             T_0=293.15,
-            q_fd=900e6,
+            q_f_d=900e6,
             hrrpua=0.15e6,
             l=l,
             w=17.4,
@@ -301,7 +301,7 @@ def _test_fire_multiple_beam_location():
     ax.set_xlim((-10, 190))
     ax.grid(color="k", linestyle="--")
     plt.tight_layout()
-    # plt.show()
+    plt.show()
 
 
 def example():

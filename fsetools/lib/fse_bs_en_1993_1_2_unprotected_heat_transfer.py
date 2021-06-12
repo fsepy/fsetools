@@ -69,8 +69,9 @@ def temperature(
     return dict(temperature=temperature_steel)
 
 
-if __name__ == '__main__':
+def _test():
     import matplotlib.pyplot as plt
+    plt.style.use('seaborn-paper')
 
     time = np.arange(0, 180 * 60, 1.)
     temperature_fire = (345.0 * np.log10((time / 60.0) * 8.0 + 1.0) + 20.0) + 273.15
@@ -86,6 +87,23 @@ if __name__ == '__main__':
         emissivity_resultant=1.,
     )['temperature']
 
-    plt.plot(time / 60, temperature_fire - 273.15)
-    plt.plot(time / 60, temperature_steel - 273.15)
+    fig, ax = plt.subplots(figsize=(3.5, 3.5))
+
+    ax.plot(time / 60, temperature_fire - 273.15, label='ISO 834')
+    ax.plot(time / 60, temperature_steel - 273.15, label='Steel')
+    ax.set_xlim(0, 180)
+    ax.set_xticks(range(0, 181, 30))
+    ax.set_xlabel('Time [min]')
+    ax.set_ylim(0, 1200.)
+    ax.set_yticks(range(0, 1201, 200))
+    ax.set_ylabel('Temperature [$^oC$]')
+    ax.legend().set_visible(True)
+    ax.grid(which='both', c='k', ls='--')
+    fig.tight_layout()
+    t = 30
+    print(f'Steel temperature at {t} minutes is {np.amax(temperature_steel[time <= t * 60]) - 273.15} deg.C')
     plt.show()
+
+
+if __name__ == '__main__':
+    _test()

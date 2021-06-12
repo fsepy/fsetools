@@ -265,4 +265,5 @@ def _test_temperature():
 
 
 if __name__ == "__main__":
+    example_plot_interflam()
     _test_temperature()

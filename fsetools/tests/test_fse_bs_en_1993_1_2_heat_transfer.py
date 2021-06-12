@@ -12,7 +12,7 @@ def __trav_fire(t: np.ndarray):
     return trav_temp(
         t=t,
         T_0=273.15,
-        q_fd=600e6,
+        q_f_d=600e6,
         hrrpua=0.25e6,
         l=100,
         w=16,
