@@ -886,17 +886,17 @@ def travelling_fire(print_pdf=False):
         print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
 
     # Common parameters
-    W_1 = 9.0
-    W_2 = 12.3
+    W_1 = 27.06
+    W_2 = 7.03030303
     H = 3.05
     A_f = W_1 * W_2
     A_t = 2 * (W_1 * W_2 + W_2 * H + H * W_1)
 
-    h_eq = 3.05
-    w_t = 9.0
+    h_eq = 3.25
+    w_t = min(W_1, 34.39 * 0.926693916)
     A_v = h_eq * w_t
 
-    q_fd = 396.9
+    q_fd = 1195.133632 * 0.926132613
 
     # Calculation
 
@@ -1081,8 +1081,6 @@ def parametric_fire_1(print_pdf=False):
     import numpy as np
     import os
 
-    fake_modules = [os, np]
-
     try:
         from fsetools.tests.test_fse_ec_external_steel_fleet_st_dirwork import dirwork
     except ModuleNotFoundError:
@@ -1106,17 +1104,17 @@ def parametric_fire_1(print_pdf=False):
         print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
 
     # Common parameters
-    W_1 = 9.55
-    W_2 = 6.36
+    W_1 = 7.03030303
+    W_2 = 27.06
     H = 3.05
     A_f = W_1 * W_2
     A_t = 2 * (W_1 * W_2 + W_2 * H + H * W_1)
 
-    h_eq = 3.05
-    w_t = 1.27
+    h_eq = 3.25
+    w_t = 34.39 * 0.150611988
     A_v = h_eq * w_t
 
-    q_fd = 287.81
+    q_fd = 499.0416706 * 0.872587259
 
     # Calculation
 
@@ -1325,17 +1323,17 @@ def parametric_fire_2(print_pdf=False):
         print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
 
     # Common parameters
-    W_1 = 14.58
-    W_2 = 7.04
+    W_1 = 8.31
+    W_2 = 5.332129964
     H = 3.05
     A_f = W_1 * W_2
     A_t = 2 * (W_1 * W_2 + W_2 * H + H * W_1)
 
-    h_eq = 3.05
-    w_t = 6.17
+    h_eq = 3.25
+    w_t = 6.84 * 0.092335166
     A_v = h_eq * w_t
 
-    q_fd = 536.16
+    q_fd = 427.449799 * 0.811521152
 
     # Calculation
 
@@ -1514,9 +1512,9 @@ def parametric_fire_2(print_pdf=False):
 
 
 if __name__ == '__main__':
-    parametric_fire_1(False)
-    parametric_fire_2(False)
-    travelling_fire(False)
+    # parametric_fire_1(True)
+    # parametric_fire_2(True)
+    travelling_fire(True)
 
     # parametric_fire_1(True)
     # parametric_fire_2(True)
