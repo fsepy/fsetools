@@ -14,9 +14,18 @@ fake_modules = [np, csr_matrix, maximum_flow]
 class Vertex:
     _ids = count(0)
 
-    def __init__(self, capacity: int, is_enabled: bool = True, is_visible: bool = True, *args, **kwargs):
+    def __init__(self, capacity: int, is_enabled: bool = True, is_visible: bool = True, id: int = None, *args,
+                 **kwargs):
         super().__init__(*args, **kwargs)
-        self.__id = next(self._ids)
+        if id is None:
+            self.__id = next(self._ids)
+        else:
+            self.__id = id
+            ids = next(self._ids)
+            if ids < id:
+                self._ids = count(id + 1)
+            else:
+                self._ids = count(ids)
 
         self.__capacity = None
 
@@ -62,12 +71,24 @@ class Vertex:
     def __str__(self):
         return str(self.id)
 
+    def __repr__(self):
+        return str(self.id)
+
 
 class Edge:
     _ids = count(0)
 
-    def __init__(self, v1: Vertex, v2: Vertex, weight: int = 1, bidirectional: bool = False, *args, **kwargs):
-        self.__id = next(self._ids)
+    def __init__(self, v1: Vertex, v2: Vertex, weight: int = 1, bidirectional: bool = False, id: int = None, *args,
+                 **kwargs):
+        if id is None:
+            self.__id = next(self._ids)
+        else:
+            self.__id = int(id)
+            ids = next(self._ids)
+            if ids < id:
+                self._ids = count(id + 1)
+            else:
+                self._ids = count(ids)
         self.__vertex_1 = v1
         self.__vertex_2 = v2
         self.__weight = weight
