@@ -36,31 +36,6 @@ class Route(PropertyManager, Edge):
         super(Route, self).__init__(v1=v1, v2=v2, bidirectional=bidirectional, *args, **kwargs)
 
 
-class Shape2D:
-    def __init__(self, *args, **kwargs):
-        super(Shape2D, self).__init__(*args, **kwargs)
-        self.__x = None
-        self.__y = None
-
-    @property
-    def x(self):
-        return self.__x
-
-    @property
-    def y(self):
-        return self.__y
-
-    @x.setter
-    def x(self, v: float):
-        if not isinstance(v, (int, float)): raise TypeError
-        self.__x = v
-
-    @y.setter
-    def y(self, v: float):
-        if not isinstance(v, (int, float)): raise TypeError
-        self.__y = v
-
-
 class Room(PropertyManager, Vertex):
     def __init__(self, capacity, *args, **kwargs):
         super().__init__(capacity=capacity, *args, **kwargs)
@@ -104,10 +79,10 @@ class USink(PropertyManager, Vertex):
 class ExitCapacityModel(PropertyManager, Graph):
     def __init__(self, *args, **kwargs):
         super(ExitCapacityModel, self).__init__(*args, **kwargs)
-        self.source = USource()
-        self.sink = USink()
+        self.source = USource(name='__START__')
+        self.sink = USink(name='__END__')
 
-    def plot_residual(self, ax):
+    def plot_residual(self, ax, show_name:bool=False):
         from matplotlib.pyplot import Axes
         if not isinstance(ax, Axes):
             raise TypeError
@@ -119,10 +94,18 @@ class ExitCapacityModel(PropertyManager, Graph):
             for j in range(residual.shape[1]):
                 ax.text(i, j, str(residual[i, j]), color='k', ha='center', va='center')
 
-        ax.set_xticks(range(residual.shape[0]))
-        ax.set_yticks(range(residual.shape[1]))
+        if show_name:
+            index2name = self.index2name
+            ax.set_xticks(range(residual.shape[0]))
+            ax.set_yticks(range(residual.shape[1]))
+            ax.set_xticklabels([index2name[i] for i in range(residual.shape[0])], rotation=90)
+            ax.set_yticklabels([index2name[i] for i in range(residual.shape[0])])
+        else:
+            ax.set_xticks(range(residual.shape[0]))
+            ax.set_yticks(range(residual.shape[1]))
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
+        ax.axis('equal')
 
     def plot_residual_graph(self, ax):
         from matplotlib.pyplot import Axes
@@ -144,6 +127,13 @@ class ExitCapacityModel(PropertyManager, Graph):
         super(ExitCapacityModel, self).build(
             vertices=list(vertices) + [self.source, self.sink], edges=list(edges) + edges_new
         )
+
+    def get_total_occupancy(self):
+        occ = 0
+        for v in self.vertices:
+            if isinstance(v, Room):
+                occ += v.capacity
+        return occ
 
     def export_to_dict(self):
         export_data = dict()
@@ -172,7 +162,6 @@ class ExitCapacityModel(PropertyManager, Graph):
         return json.dumps(self.export_to_dict(), indent=4, default=obj2basic_types)
 
 
-
 def json2graph(json_string: str) -> ExitCapacityModel:
     dict_data = json.loads(json_string)
 
@@ -193,8 +182,6 @@ def json2graph(json_string: str) -> ExitCapacityModel:
     model.add_vertex(list(vertices.values()))
     model.add_edge(list(edges.values()))
     return model
-    # import pprint
-    # pprint.pprint(model.export_to_dict())
 
 
 def csv2exit_capacity_model(fp_vertices: str, fp_edges: str) -> ExitCapacityModel:
