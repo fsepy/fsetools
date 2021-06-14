@@ -1,9 +1,0 @@
-from fsetools.lib.fse_thermal_radiation_2d_ortho import _test_Plane as test_Plane
-from fsetools.lib.fse_thermal_radiation_2d_ortho import _test_CuboidRoomModel as test_CuboidRoomModel
-from fsetools.lib.fse_thermal_radiation_2d_ortho import _test_Emitter_Receiver as test_Emitter_Receiver
-from fsetools.lib.fse_thermal_radiation_2d_ortho import _test_visual_CuboidRoomModel as test_visual_CuboidRoomModel
-
-test_Plane()
-test_CuboidRoomModel()
-test_Emitter_Receiver()
-test_visual_CuboidRoomModel()

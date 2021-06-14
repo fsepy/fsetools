@@ -54,29 +54,31 @@ def test_ExitCapacityModel():
     except ImportError:
         pass
 
-    print(f'flow achieved {model.flow_value}')
     assert model.flow_value == 200
 
 
 def test_ExitCapacityModel_undirected_flow():
-    room_1 = Room(1000)
-    room_1_door = Door(100)
-    room_2 = Room(1000)
-    room_2_door = Door(10)
-    room_3 = Room(1000)
-    room_3_door = Door(10)
-    room_4 = Room(1000)
-    room_4_door = Door(10)
-    corridor_1 = Corridor(400)
-    corridor_2 = Corridor(400)
-    stair_1 = Stair(2)
-    stair_1_door = Door(200)
-    stair_2 = Stair(200)
-    stair_2_door = Door(200)
-    final_exit_1 = FinalExit(200)
-    final_exit_2 = FinalExit(300)
+    # Define rooms
+    room_1 = Room(1000, name='room_1')
+    room_1_door = Door(100, name='room_1_door')
+    room_2 = Room(1000, name='room_2')
+    room_2_door = Door(10, name='room_2_door')
+    room_3 = Room(1000, name='room_3')
+    room_3_door = Door(10, name='room_3_door')
+    room_4 = Room(1000, name='room_4')
+    room_4_door = Door(10, name='room_4_door')
+    corridor_1 = Corridor(400, name='corridor_1')
+    corridor_2 = Corridor(400, name='corridor_2')
+    stair_1 = Stair(2, name='stair_1')
+    stair_1_door = Door(200, name='stair_1_door')
+    stair_2 = Stair(200, name='stair_2')
+    stair_2_door = Door(200, name='stair_2_door')
+    final_exit_1 = FinalExit(200, name='final_exit_1')
+    final_exit_2 = FinalExit(300, name='final_exit_2')
     vertices_d = dict(locals())
+    [print(k, v.id) for k, v in vertices_d.items()]
 
+    # Define escape routes
     edges = (
         Route(room_1, room_1_door),
         Route(room_2, room_2_door),
@@ -95,16 +97,22 @@ def test_ExitCapacityModel_undirected_flow():
         Route(stair_2, final_exit_2),
     )
 
+    # Construct exit capacity model
     model = ExitCapacityModel()
     model.add_vertex(tuple(vertices_d.values()))
     model.add_edge(edges)
     model.build()
     model.maximum_flow()
-    print(f'flow achieved {model.flow_value}')
+
+    # Plot results
     try:
         import matplotlib.pyplot as plt
-        fig, ax = plt.subplots(figsize=(6, 6))
-        model.plot_residual(ax)
+        fig, ax = plt.subplots(figsize=(0.35*len(vertices_d), 0.35*len(vertices_d)))
+        model.plot_residual(ax, show_name=True)
+        # print(f'capacity  :   {model.flow_value}')
+        # print(f'total occ.: {model.get_total_occupancy()}')
+        fig.tight_layout()
+        plt.show()
     except ImportError:
         pass
     assert model.flow_value == 130
@@ -130,7 +138,7 @@ def test_export_to_json():
     model.add_vertex(vertices)
     model.build()
     model.maximum_flow()
-    print(model.flow_value)
+    assert model.flow_value == 160
     return model.export_to_json()
 
 
@@ -138,16 +146,16 @@ def test_json2graph():
     model = json2graph(test_export_to_json())
     model.build()
     model.maximum_flow()
-    print(model.flow_value)
+    assert model.flow_value == 160
 
 
 def test_csv2exit_capacity_model():
-    from fsetools.tests.graph.data import vertices_csv, edges_csv
+    from fsetools.tests import vertices_csv, edges_csv
     model = csv2exit_capacity_model(fp_vertices=vertices_csv, fp_edges=edges_csv)
     model.build()
     model.maximum_flow()
-    print(model.flow_value)
+    assert model.flow_value == 160
 
 
 if __name__ == '__main__':
-    pass
+    test_ExitCapacityModel_undirected_flow()

@@ -11,7 +11,7 @@ from fsetools import logger
 fake_modules = [np, csr_matrix, maximum_flow]
 
 
-class Vertex:
+class Vertex(object):
     _ids = count(0)
 
     def __init__(self, capacity: int, is_enabled: bool = True, is_visible: bool = True, id: int = None, *args,
@@ -75,7 +75,7 @@ class Vertex:
         return str(self.id)
 
 
-class Edge:
+class Edge(object):
     _ids = count(0)
 
     def __init__(self, v1: Vertex, v2: Vertex, weight: int = 1, bidirectional: bool = False, id: int = None, *args,
@@ -127,7 +127,7 @@ class Edge:
         return str(self.id)
 
 
-class Graph:
+class Graph(object):
     def __init__(self, *args, **kwargs):
         super(Graph, self).__init__(*args, **kwargs)
         self.__adjacency_matrix_c = None  # capacity adjacency matrix, based upon Vertex capacity
@@ -142,9 +142,22 @@ class Graph:
 
         self.__vertices_id2index = dict()
         self.__vertices_index2id = dict()
+        self.__vertices_index2name = dict()
 
         self.__maximum_flow = None
         self.__shortest_path = None
+
+    @property
+    def id2index(self) -> dict:
+        return self.__vertices_id2index
+
+    @property
+    def index2id(self) -> dict:
+        return self.__vertices_index2id
+
+    @property
+    def index2name(self)-> dict:
+        return self.__vertices_index2name
 
     @property
     def vertices(self):
@@ -233,8 +246,10 @@ class Graph:
         # ================================================================
         index2id = {i: vertice.id for i, vertice in enumerate(vertices)}
         id2index = {vertice.id: i for i, vertice in enumerate(vertices)}
+        index2name = {i: vertice.name for i, vertice in enumerate(vertices)}
         self.__vertices_index2id = index2id
         self.__vertices_id2index = id2index
+        self.__vertices_index2name = index2name
 
         # =================================
         # Compute capacity adjacency matrix
