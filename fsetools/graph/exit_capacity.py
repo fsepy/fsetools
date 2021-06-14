@@ -197,21 +197,27 @@ def json2graph(json_string: str) -> ExitCapacityModel:
     # pprint.pprint(model.export_to_dict())
 
 
-
 def csv2exit_capacity_model(fp_vertices: str, fp_edges: str) -> ExitCapacityModel:
     import csv
-    with open(fp_vertices, 'r') as f:
-        r = csv.reader(f)
-        vertices_l = list(r)[1:]
+    try:
+        with open(fp_vertices, 'r') as f:
+            r = csv.reader(f)
+    except:
+        r = csv.reader(fp_vertices)
+    vertices_l = list(r)[1:]
     vertices = dict()
     vertex_type = dict(Room=Room, Door=Door, FinalExit=FinalExit, Corridor=Corridor, Stair=Stair)
     for vl in vertices_l:
         name, type_, capacity = vl
         vertices[name] = vertex_type[type_](capacity=int(capacity), name=name)
 
-    with open(fp_edges, 'r') as f:
-        r = csv.reader(f)
-        edges_l = list(r)[1:]
+    try:
+        with open(fp_edges, 'r') as f:
+            r = csv.reader(f)
+    except:
+        r = csv.reader(fp_edges)
+
+    edges_l = list(r)[1:]
     edges = list()
     for el in edges_l:
         v1name, v0name, v2name, bidirectional = el

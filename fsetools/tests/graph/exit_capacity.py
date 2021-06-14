@@ -142,7 +142,8 @@ def test_json2graph():
 
 
 def test_csv2exit_capacity_model():
-    model = csv2exit_capacity_model(fp_vertices='vertices.csv', fp_edges='edges.csv')
+    from fsetools.tests.graph.data import vertices_csv, edges_csv
+    model = csv2exit_capacity_model(fp_vertices=vertices_csv, fp_edges=edges_csv)
     model.build()
     model.maximum_flow()
     print(model.flow_value)
