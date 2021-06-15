@@ -28,6 +28,7 @@ class Vertex(object):
                 self._ids = count(ids)
 
         self.__capacity = None
+        self.__utilisation = None
 
         self.capacity = capacity
 
@@ -156,7 +157,7 @@ class Graph(object):
         return self.__vertices_index2id
 
     @property
-    def index2name(self)-> dict:
+    def index2name(self) -> dict:
         return self.__vertices_index2name
 
     @property
@@ -282,7 +283,8 @@ class Graph(object):
         # Compute maximum flow
         # ====================
         graph = csr_matrix(adjacency_matrix)
-        self.__maximum_flow = maximum_flow(graph, id2index[self.source.id], id2index[self.sink.id])
+        maximum_flow_ = maximum_flow(graph, id2index[self.source.id], id2index[self.sink.id])
+        self.__maximum_flow = maximum_flow_
 
     def shortest_path(self):
         adjacency_matrix = self.adjacency_matrix_w

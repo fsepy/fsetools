@@ -7,19 +7,33 @@ from fsetools.graph import Edge, Vertex
 from fsetools.graph import Graph
 
 
-class PropertyManager:
+class EnclosureBase(object):
     def __init__(self, name: str = None, *args, **kwargs):
         self.__kwargs = dict(kwargs)
         self.__name = name
-        super(PropertyManager, self).__init__(*args, **kwargs)
+        super(EnclosureBase, self).__init__(*args, **kwargs)
+
+        self.__utilisation = None
 
     @property
     def name(self):
         return self.__name
 
+    @property
+    def utilisation(self) -> int:
+        return self.__utilisation
+
     @name.setter
     def name(self, name: str):
         self.__name = name
+
+    @utilisation.setter
+    def utilisation(self, utilisation: int):
+        try:
+            assert isinstance(utilisation, int) and utilisation >= 0
+        except AssertionError as e:
+            raise TypeError(f'capacity should be integer (provided {utilisation}), {e}')
+        self.__utilisation = utilisation
 
     def to_dict(self):
         self.__kwargs['name'] = self.name
@@ -31,58 +45,58 @@ class PropertyManager:
         return self.__kwargs
 
 
-class Route(PropertyManager, Edge):
+class Route(EnclosureBase, Edge):
     def __init__(self, v1: Vertex, v2: Union[Vertex, List[Vertex]], bidirectional: bool = False, *args, **kwargs):
         super(Route, self).__init__(v1=v1, v2=v2, bidirectional=bidirectional, *args, **kwargs)
 
 
-class Room(PropertyManager, Vertex):
+class Room(EnclosureBase, Vertex):
     def __init__(self, capacity, *args, **kwargs):
         super().__init__(capacity=capacity, *args, **kwargs)
 
 
-class Corridor(PropertyManager, Vertex):
+class Corridor(EnclosureBase, Vertex):
     def __init__(self, capacity, *args, **kwargs):
         super().__init__(capacity=capacity, *args, **kwargs)
 
 
-class Floor(PropertyManager, Vertex):
+class Floor(EnclosureBase, Vertex):
     def __init__(self, *args, **kwargs):
         super().__init__(capacity=sys.maxsize, *args, **kwargs)
 
 
-class Stair(PropertyManager, Vertex):
+class Stair(EnclosureBase, Vertex):
     def __init__(self, capacity, *args, **kwargs):
         super().__init__(capacity=capacity, *args, **kwargs)
 
 
-class Door(PropertyManager, Vertex):
+class Door(EnclosureBase, Vertex):
     def __init__(self, capacity, *args, **kwargs):
         super().__init__(capacity=capacity, *args, **kwargs)
 
 
-class FinalExit(PropertyManager, Vertex):
+class FinalExit(EnclosureBase, Vertex):
     def __init__(self, capacity, *args, **kwargs):
         super(FinalExit, self).__init__(capacity=capacity, *args, **kwargs)
 
 
-class USource(PropertyManager, Vertex):
+class USource(EnclosureBase, Vertex):
     def __init__(self, *args, **kwargs):
         super().__init__(capacity=sys.maxsize, *args, **kwargs)
 
 
-class USink(PropertyManager, Vertex):
+class USink(EnclosureBase, Vertex):
     def __init__(self, *args, **kwargs):
         super().__init__(capacity=sys.maxsize, *args, **kwargs)
 
 
-class ExitCapacityModel(PropertyManager, Graph):
+class ExitCapacityModel(EnclosureBase, Graph):
     def __init__(self, *args, **kwargs):
         super(ExitCapacityModel, self).__init__(*args, **kwargs)
-        self.source = USource(name='__START__')
-        self.sink = USink(name='__END__')
+        self.source: USource = USource(name='__START__')
+        self.sink: USink = USink(name='__END__')
 
-    def plot_residual(self, ax, show_name:bool=False):
+    def plot_residual(self, ax, show_name: bool = False):
         from matplotlib.pyplot import Axes
         if not isinstance(ax, Axes):
             raise TypeError
@@ -107,12 +121,6 @@ class ExitCapacityModel(PropertyManager, Graph):
         ax.xaxis.set_label_position('top')
         ax.axis('equal')
 
-    def plot_residual_graph(self, ax):
-        from matplotlib.pyplot import Axes
-        if not isinstance(ax, Axes):
-            raise TypeError
-        pass
-
     def build(self, *args, **kwargs):
         vertices = self.vertices
         edges = self.edges
@@ -128,12 +136,23 @@ class ExitCapacityModel(PropertyManager, Graph):
             vertices=list(vertices) + [self.source, self.sink], edges=list(edges) + edges_new
         )
 
+    def assign_utilisation(self):
+        residual = self.residual.toarray()
+        residual[residual < 0] = 0
+        for v in self.vertices:
+            v.utilisation = int(sum(residual[:, self.id2index[v.id]]))
+
     def get_total_occupancy(self):
+        """Calculate the total capacity assigned to all Room objects"""
         occ = 0
         for v in self.vertices:
             if isinstance(v, Room):
                 occ += v.capacity
         return occ
+
+    def get_total_exit_capacity(self):
+        """Calculate the sum of all flows to self.sink"""
+        return sum(self.residual.toarray()[:, self.id2index[self.sink.id]])
 
     def export_to_dict(self):
         export_data = dict()
