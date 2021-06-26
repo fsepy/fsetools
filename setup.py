@@ -54,7 +54,6 @@ setuptools.setup(
         "fsetools.lib",
         "fsetools.libstd",
         "fsetools.ht1d",
-        "fsetools.graph",
     ],
     ext_modules=cythonize(extensions),
     install_requires=requirements,
