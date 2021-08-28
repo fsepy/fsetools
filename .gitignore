@@ -151,6 +151,7 @@ fsetools/gui/layout/*.py
 
 # Include project files
 !fsetools/lib/
+!fsetools/tests/
 *key.txt
 *__key__.py
 *.png
