@@ -20,53 +20,56 @@ def c_steel_T(T):
 
 
 def temperature(
-        fire_time: np.ndarray,
-        fire_temperature: np.ndarray,
-        member_section_perimeter: float,
-        member_section_area: float,
-        member_perimeter_box: float,
-        member_density: float = 7850.,
-        h_conv: float = 25.,
-        emissivity_resultant: float = 1.,
+        t: np.ndarray,
+        T_g: np.ndarray,
+        k_sh: float,
+        A_m: float,
+        V: float,
+        epsilon_m: float,  # Section 2.2 (2), 0.7 for carbon, 0.4 for stainless
+        alpha_c: float = 25.,
+        rho_a: float = 7850.,
 ):
     """
+    BS EN 1993-1-2 4.2.5
     SI UNITS FOR ALL INPUTS AND OUTPUTS.
+
     :param fire_time:
-    :param fire_temperature:
-    :param member_section_perimeter:
-    :param member_section_area:
+    :param T_g:
+    :param A_m:
+    :param V:
     :param member_perimeter_box:
-    :param member_density:
+    :param rho_a:
     :param c_steel_T:
-    :param h_conv:
-    :param emissivity_resultant:
+    :param h_net_d:
+    :param epsilon:
     :return:
     """
 
     # Create steel temperature change array s
-    temperature_steel = np.zeros_like(fire_time, dtype=np.float)
+    T_a = np.zeros_like(t, dtype=float)
 
-    # BS EN 1993-1-2:2005 (e4.26a)
-    k_sh = 0.9 * (member_perimeter_box / member_section_area) / (member_section_perimeter / member_section_area)
-    F = member_section_perimeter
-    V = member_section_area
-    rho_s = member_density
-    h_c = h_conv
     sigma = 56.7e-9
-    epsilon = emissivity_resultant
+    epsilon_f = 1.0  # Section 4.2.5.1 (3)
+    Phi = 1.0  # Assumed, should be 1.0 within a fire compartment
 
-    temperature_steel[0] = fire_temperature[0]
-    for i in range(1, len(fire_time), 1):
+    T_a[0] = T_g[0]
+    for i in range(1, len(t), 1):
+        # h_net_d defined in BS EN 1991-1-2 Section 3.1, Equation 3.1
+        # h_net = h_net_c + h_net_r
+        # h_net_c = alpha_c * (T_g - T_m)
+        # h_net_r = Phi * epsilon_m * epsilon_f * sigma * (T_g ** 4 - T_m ** 4)
+        h_net_c = alpha_c * (T_g[i] - T_a[i - 1])
+        h_net_r = Phi * epsilon_m * epsilon_f * sigma * (T_g[i] ** 4 - T_a[i - 1] ** 4)
+        h_net_d = h_net_c + h_net_r
+
         # BS EN 1993-1-2:2005 (e4.25)
-        a = h_c * (fire_temperature[i] - temperature_steel[i - 1])
-        b = sigma * epsilon * (np.power(fire_temperature[i], 4) - np.power(temperature_steel[i - 1], 4))
-        c = k_sh * F / V / rho_s / c_steel_T(temperature_steel[i - 1])
-        d = fire_time[i] - fire_time[i - 1]
+        const = (A_m / V) / rho_a / c_steel_T(T_a[i - 1])
+        dt = t[i] - t[i - 1]
 
-        temperature_rate_steel = c * (a + b) * d
-        temperature_steel[i] = temperature_steel[i - 1] + temperature_rate_steel
+        T_a_i = k_sh * const * h_net_d * dt
+        T_a[i] = T_a[i - 1] + T_a_i
 
-    return dict(temperature=temperature_steel)
+    return dict(T_a=T_a)
 
 
 def _test():
@@ -77,15 +80,15 @@ def _test():
     temperature_fire = (345.0 * np.log10((time / 60.0) * 8.0 + 1.0) + 20.0) + 273.15
 
     temperature_steel = temperature(
-        fire_time=time,
-        fire_temperature=temperature_fire,
-        member_section_perimeter=1.768,
-        member_section_area=0.01408,
-        member_perimeter_box=300 * 4 / 1000,
-        member_density=7850,
-        h_conv=25.,
-        emissivity_resultant=1.,
-    )['temperature']
+        t=time,
+        T_g=temperature_fire,
+        k_sh=1.0,
+        A_m=1.768,
+        V=0.01408,
+        rho_a=7850,
+        alpha_c=25.,
+        epsilon_m=0.7
+    )['T_a']
 
     fig, ax = plt.subplots(figsize=(3.5, 3.5))
 
