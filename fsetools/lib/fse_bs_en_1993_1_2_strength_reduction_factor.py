@@ -44,28 +44,3 @@ def func_prob_vector_test():
 def _test_probabilistic():
     assert abs(k_y_theta_prob(0., 0.5) - 1.161499) <= 0.00001
     assert abs(k_y_theta_prob(673.15, 0.5) - 1.001560) <= 0.0001
-
-
-if __name__ == "__main__":
-    _test_probabilistic()
-    import matplotlib.pyplot as plt
-    plt.style.use('seaborn-paper')
-
-    theta_a = np.linspace(273.15 + 0, 273.15 + 1500, 5000)
-    print(k_y_theta_prob(673.15, 0.5))
-
-    fig, ax = plt.subplots(figsize=(3.5, 3.5))
-
-    ax.scatter(theta_a - 273.15, k_y_theta_prob(theta_a, np.random.random_sample(len(theta_a))), c="grey", s=1, label="Random Sampled Points")
-    ax.plot(theta_a - 273.15, k_y_theta_prob(theta_a, 0.5), "--k", label=r"$\epsilon$ Percentile 0.05, 0.5, 0.95", )
-    ax.plot(theta_a - 273.15, k_y_theta_prob(theta_a, 0.05), "--k")
-    ax.plot(theta_a - 273.15, k_y_theta_prob(theta_a, 0.95), "--k")
-    ax.plot(theta_a - 273.15, k_y_theta(theta_a), "k", label=r"Eurocode $k_{y,\Theta}$")
-    ax.set_xlabel(r"Temperature [$^\circ C$]")
-    ax.set_ylabel(r"$k_{y,ach}$")
-
-    ax.tick_params(axis='both', which='both', labelsize='xx-small')
-
-    ax.legend(loc=0, fontsize='xx-small').set_visible(True)
-    plt.tight_layout()
-    plt.show()

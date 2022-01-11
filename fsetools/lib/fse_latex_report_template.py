@@ -1,16 +1,16 @@
 import json
 import subprocess
+import tempfile
 import webbrowser
 from abc import ABC, abstractmethod
 from sys import platform
-import tempfile
 
 try:
     import requests
-    from pylatex import NoEscape, Document, Package
 except ModuleNotFoundError:
     pass
 
+from pylatex import NoEscape, Document, Package
 
 class ReportBase(ABC):
     def __init__(self):

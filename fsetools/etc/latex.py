@@ -2,11 +2,7 @@ from operator import itemgetter
 from typing import List, Union
 
 from pylatex import Alignat, NoEscape, LongTable, MultiColumn
-
-try:
-    from pytexit import py2tex
-except ModuleNotFoundError:
-    pass
+from pytexit import py2tex
 
 
 def py2tex_modified(exps: Union[List, tuple, str], ignore_error: bool = True):
@@ -35,12 +31,6 @@ def py2tex_modified(exps: Union[List, tuple, str], ignore_error: bool = True):
     return exps
 
 
-def _test_py2tex_modified():
-    assert py2tex_modified(r'a = b ** 2 + c ** 2') == '$a=b^2+c^2$'
-    assert py2tex_modified(r'E = m * c ** 2') == '$E=m c^2$'
-    assert py2tex_modified([r'a = b ** 2 + c ** 2', r'E = m * c ** 2',], ignore_error=False)
-
-
 def make_alginat_equations(exps: List[str], sym: str = '=') -> Alignat:
     """For a given list of equations, generate pylatex alginat object
 
@@ -54,17 +44,12 @@ def make_alginat_equations(exps: List[str], sym: str = '=') -> Alignat:
         if i < len(exps) - 1:
             exp += '\\\\'
 
-        sym_loc = exp.find(sym)                         # Find the alignment symbol location
-        if sym_loc >= 0:                                # If alignment symbol exists
-            exp = f'{exp[:sym_loc]}&{exp[sym_loc:]}'    # Insert &
-        alignat.append(exp)     # Add expression
+        sym_loc = exp.find(sym)  # Find the alignment symbol location
+        if sym_loc >= 0:  # If alignment symbol exists
+            exp = f'{exp[:sym_loc]}&{exp[sym_loc:]}'  # Insert &
+        alignat.append(exp)  # Add expression
 
     return alignat
-
-
-def _test_make_alginat_equations():
-    obj = make_alginat_equations(py2tex_modified([r'a = b ** 2 + c ** 2', r'E = m * c ** 2',], ignore_error=False))
-    assert obj.dumps() == '\\begin{alignat*}{2}%\n$a&=b^2+c^2$\\\\%\n$E&=m c^2$%\n\\end{alignat*}'
 
 
 def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: List[str]) -> LongTable:
@@ -96,15 +81,6 @@ def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: Li
     table_symbols_content.add_hline()
 
     return table_symbols_content
-
-
-def _test_make_table_of_symbols():
-    obj = make_table_of_symbols(
-        symbols=['\\rho_a', 'T_0', '\\lambda_\\theta'],
-        units=['kg/m**3', 'K', '-'],
-        descriptions=['Density of steel', 'Initial temperature', 'Reduction factor']
-    )
-    print(obj.dumps())
 
 
 def make_summary_table(symbols: list, units: dict, descriptions: dict, values: dict):
@@ -146,20 +122,3 @@ def make_summary_table(symbols: list, units: dict, descriptions: dict, values: d
         [description[0].upper() + description[1:] for description in itemgetter(*true_values)(descriptions)],
     )
     return table
-
-
-def _test_make_summary_table():
-    obj = make_summary_table(
-        symbols=['rho_a', 'T_0', 'lambda_theta'],
-        units={'rho_a': 'kg/m**3', 'T_0': 'K', 'lambda_theta': '-'},
-        descriptions={'rho_a': 'Density of steel', 'T_0': 'Initial temperature', 'lambda_theta': 'Reduction factor'},
-        values={'rho_a': 1, 'T_0': 2, 'lambda_theta': 3}
-    )
-    print(obj.dumps())
-
-
-if __name__ == '__main__':
-    _test_py2tex_modified()
-    _test_make_alginat_equations()
-    _test_make_table_of_symbols()
-    _test_make_summary_table()

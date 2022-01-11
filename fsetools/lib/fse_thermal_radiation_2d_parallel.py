@@ -61,11 +61,13 @@ def main_plot(
 
     if emitter_receiver_line_thickness > 0:
         for i in range(len(param_dict['emitter_list'])):
-            ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'], lw=emitter_receiver_line_thickness, c='r', ls='--')
+            ax.plot(param_dict['emitter_list'][i]['x'], param_dict['emitter_list'][i]['y'],
+                    lw=emitter_receiver_line_thickness, c='r', ls='--')
 
         try:
             for i in range(len(param_dict['receiver_list'])):
-                ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'], lw=emitter_receiver_line_thickness, c='k', ls='--')
+                ax.plot(param_dict['receiver_list'][i]['x'], param_dict['receiver_list'][i]['y'],
+                        lw=emitter_receiver_line_thickness, c='k', ls='--')
         except KeyError:
             pass
 
@@ -75,7 +77,7 @@ def main_plot(
     # colour bar, only plot colorbar when figure object is provided to prevent double plotting
     if fig:
         cbar = fig.colorbar(cs_f)
-        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.')+'\nkW/m²' for i in figure_levels])
+        cbar.ax.set_yticklabels([f'{i:.1f}'.rstrip('0').rstrip('.') + '\nkW/m²' for i in figure_levels])
 
     return fig, ax
 
@@ -166,88 +168,6 @@ def solver_phi_2d(
     return vv
 
 
-def _test_solve_phi():
-    def helper_get_phi_at_specific_point(xx, yy, vv, x, y):
-        v = vv[(np.isclose(xx, x)) & np.isclose(yy, y)]
-        print('measured location and value', x, y, v, '.')
-        return v
-
-    xx, yy = np.meshgrid(np.arange(-20, 20, .1), np.arange(-20, 20, .1))
-
-    width = 7
-    height = 5
-    separation = 5
-
-    x_emitter_centre = 0
-    y_emitter_centre = 0
-    z_emitter_centre = 0
-
-    phi = solver_phi_2d(
-        emitter_xy1=[-width / 2 + x_emitter_centre, y_emitter_centre],
-        emitter_xy2=[width / 2 + x_emitter_centre, y_emitter_centre],
-        emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
-        xx=xx,
-        yy=yy,
-        z=height / 2
-    )
-
-    # measure at 5 m from the emitter front
-    solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre, 0.5 * height + y_emitter_centre,
-                                    separation)
-    print('assertion values', solved, answer)
-    assert np.isclose(solved, answer, atol=1e-6)
-
-    # measure at 5 m from the emitter front, offset 5 m x-axis (i.e. edge centre)
-    solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 5, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 5, 0.5 * height + y_emitter_centre,
-                                    separation)
-    print('assertion values', solved, answer)
-    assert np.isclose(solved, answer, atol=1e-6)
-
-    # measure at 5 m from the emitter back
-    solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre, 0.5 * height + y_emitter_centre,
-                                    separation)
-    print('assertion values', solved, answer)
-    assert np.isclose(solved, answer, atol=1e-6)
-
-    # measure at 5 m from the emitter front, offset 5 m x-axis and 2.5 m z-zxis (i.e. corner)
-    phi = solver_phi_2d(
-        emitter_xy1=[-width / 2 + x_emitter_centre, y_emitter_centre],
-        emitter_xy2=[width / 2 + x_emitter_centre, y_emitter_centre],
-        emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
-        xx=xx,
-        yy=yy,
-        z=height / 2 - 2.5
-    )
-    solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 5, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 5,
-                                    0.5 * height + y_emitter_centre - 2.5, separation)
-    print('assertion values', solved, answer)
-    assert np.isclose(solved, answer, atol=1e-6)
-
-    # measure at 5 m from the emitter front, offset 7.5 m x-axis and 5 m z-zxis (i.e. outside of the rectangle by 2.5 and 2.5 m)
-    phi = solver_phi_2d(
-        emitter_xy1=[-width / 2 + x_emitter_centre, y_emitter_centre],
-        emitter_xy2=[width / 2 + x_emitter_centre, y_emitter_centre],
-        emitter_z=[-height / 2 + z_emitter_centre, height / 2 + z_emitter_centre],
-        xx=xx,
-        yy=yy,
-        z=height / 2 - 5
-    )
-    solved = helper_get_phi_at_specific_point(xx, yy, phi, x_emitter_centre - 7.5, separation + y_emitter_centre)
-    answer = phi_parallel_any_br187(width, height, 0.5 * width + x_emitter_centre - 7.5,
-                                    0.5 * height + y_emitter_centre - 5., separation)
-    print('assertion values', solved, answer)
-    assert np.isclose(solved, answer, atol=1e-6)
-
-    # fig, ax = plt.subplots()
-    # ax.contourf(xx, yy, phi)
-    # ax.set_aspect(1)
-    # plt.show()
-
-
 def main(params_dict: dict, QtCore_ProgressSignal=None):
     """
 
@@ -327,7 +247,8 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
     if params_dict['solver_domain']['z']:
         if len(params_dict['solver_domain']['z']) == 2:
             delta_z = 0.5
-            zz = np.arange(params_dict['solver_domain']['z'][0], params_dict['solver_domain']['z'][1] + 0.5 * delta_z, delta_z)
+            zz = np.arange(params_dict['solver_domain']['z'][0], params_dict['solver_domain']['z'][1] + 0.5 * delta_z,
+                           delta_z)
         elif len(params_dict['solver_domain']['z']) == 1:
             zz = params_dict['solver_domain']['z']
         else:
@@ -382,66 +303,3 @@ def main(params_dict: dict, QtCore_ProgressSignal=None):
     # main_plot(params_dict)
 
     return params_dict
-
-
-def _test_main():
-    # ======
-    # test 0
-    # ======
-    # test interface
-
-    param_dict = dict(
-        emitter_list=[
-            dict(
-                x=[-5, 0],
-                y=[0, 0],
-                z=[0, 2],
-                heat_flux=100,
-            ),
-            dict(
-                x=[0, 5],
-                y=[0, 0],
-                z=[0, 4],
-                heat_flux=100,
-            )
-        ],
-        receiver_list=[
-            dict(
-                x=[-0.5, 0.5],
-                y=[-0.5, -0.5],
-            )
-        ],
-        solver_domain=dict(
-            x=(-10, 10),
-            y=(-1, 10),
-            z=None
-        ),
-        solver_delta=.2
-    )
-
-    out = main(param_dict)
-
-    # check phi dimension
-    x1, x2 = out['solver_domain']['x']
-    y1, y2 = out['solver_domain']['y']
-    delta = out['solver_delta']
-    xx, yy = np.meshgrid(np.arange(x1, x2 + 0.5 * delta, delta), np.arange(y1, y2 + 0.5 * delta, delta))
-    print('assertion', out['heat_flux'].shape, xx.shape, yy.shape)
-    assert out['heat_flux'].shape == xx.shape == yy.shape
-
-    # check output elements
-    print('assertion', list(out['emitter_list'][0].keys()))
-    for emitter in out['emitter_list']:
-        assert 'phi_dict' in emitter
-        assert 'height' in emitter
-        assert 'width' in emitter
-
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots()
-    _, ax = main_plot(out, ax, fig)
-    plt.show()
-
-
-if __name__ == '__main__':
-    _test_main()
-    _test_solve_phi()

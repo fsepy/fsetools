@@ -112,6 +112,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+venv*/
 
 # Spyder project settings
 .spyderproject
@@ -151,7 +152,7 @@ fsetools/gui/layout/*.py
 
 # Include project files
 !fsetools/lib/
-!fsetools/tests/
+!test/*
 *key.txt
 *__key__.py
 *.png

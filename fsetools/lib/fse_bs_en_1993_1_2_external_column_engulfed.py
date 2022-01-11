@@ -1,10 +1,9 @@
-import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
 from pylatex import NoEscape, Section, Subsection
 
 from fsetools.etc.latex import make_alginat_equations, make_summary_table
 from fsetools.lib.fse_latex_report_template import ReportBase
-from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import clause_b_4_1_10_T_z, clause_b_4_2_9_T_z, clause_b_4_1_12_alpha_c, clause_b_4_2_11_alpha_c
+from fsetools.libstd.bs_en_1991_1_2_2002_annex_b import clause_b_4_1_10_T_z, clause_b_4_2_9_T_z, \
+    clause_b_4_1_12_alpha_c, clause_b_4_2_11_alpha_c
 from fsetools.libstd.bs_en_1993_1_2_2005_annex_b import *
 
 
@@ -279,66 +278,66 @@ class ExternalSteelTemperatureFullyEngulfedColumn(ReportBase):
             W_TH=0.2,
             *_, **__
     ):
-
-        xlim1, xlim2 = -1.1, L_H + 0.1,
-        ylim1, ylim2 = -(w_f - w_t) / 2 - 0.1, w_t + (w_f - w_t) / 2 + 0.1
-        zlim1, zlim2 = -1.1, L_L + h_eq + 0.1,
-
-        total_width = (xlim2 - xlim1) * 1.2
-        total_height = (zlim2 - zlim1 + ylim2 - ylim1)
-        scale = min(6 / total_width, 8.7 / total_height)
-
-        # fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True)
-        fig = plt.figure(constrained_layout=True, figsize=(total_width * scale, total_height * scale))
-        gridspec = fig.add_gridspec(
-            ncols=1,
-            nrows=2,
-            height_ratios=(zlim2 - zlim1 + 0.4, ylim2 - ylim1 + 0.4)
-        )
-
-        # plot x-z plane, i.e. vertical slice
-        ax1 = fig.add_subplot(gridspec[0])
-        patches = [
-            Polygon([[0, 0], [0, zlim1], [0 - W_TH, zlim1], [0 - W_TH, 0]], color=(128 / 255, 128 / 255, 128 / 255, 1),
-                    closed=True, fill=True, lw=0),
-            Polygon([[0, zlim2], [0, h_eq], [-W_TH, h_eq], [-W_TH, zlim2]], color=(128 / 255, 128 / 255, 128 / 255, 1)),
-            Polygon([[lambda_3 + d_1, zlim2], [lambda_3 + d_1, zlim1], [lambda_3, zlim1], [lambda_3, zlim2]],
-                    color=(128 / 255, 128 / 255, 128 / 255, 1)),
-            Polygon([[L_H, L_L + h_eq], [L_H, L_L], [0, 0], [0, h_eq]], color=(255 / 255, 0 / 255, 0 / 255, 0.5)),
-        ]
-        for p in patches:
-            ax1.add_patch(p)
-        ax1.annotate(
-            '', xy=(0, 0), xycoords='data',
-            xytext=(lambda_3, 0), textcoords='data',
-            arrowprops={'arrowstyle': '<->'})
-        ax1.annotate(
-            '$\\lambda_3$', xy=(1, 1), xycoords='data',
-            xytext=(5, 0), textcoords='offset points')
-
-        ax1.set_xlim((xlim1, xlim2))
-        ax1.set_ylim((zlim1, zlim2))
-
-        # plot x-y plane, i.e. horizontal slice
-        ax2 = fig.add_subplot(gridspec[1], sharex=ax1)
-        patches = [
-            Polygon([(0, 0), (0, ylim1), (-W_TH, ylim1), (-W_TH, 0)], color=(128 / 255, 128 / 255, 128 / 255, 1)),
-            Polygon([(0, ylim2), (0, w_t), (-W_TH, w_t), (-W_TH, ylim2)], color=(128 / 255, 128 / 255, 128 / 255, 1)),
-            Polygon([(L_H, 0.5 * (w_f - w_t) + w_t), (L_H, -0.5 * (w_f - w_t)), (0, 0), (0, w_t)],
-                    color=(255 / 255, 0 / 255, 0 / 255, 0.5)),
-            Polygon([(lambda_3 + d_1, w_t - lambda_1), (lambda_3 + d_1, w_t - lambda_1 - d_2),
-                     (lambda_3, w_t - lambda_1 - d_2), (lambda_3, w_t - lambda_1)],
-                    color=(128 / 255, 128 / 255, 128 / 255, 1)),
-        ]
-        for p in patches:
-            ax2.add_patch(p)
-        ax2.set_ylim((ylim1, ylim2))
-
-        ax1.set_aspect(1)
-        ax2.set_aspect(1)
-
-        plt.show()
-        fig.savefig('test.png')
+        # xlim1, xlim2 = -1.1, L_H + 0.1,
+        # ylim1, ylim2 = -(w_f - w_t) / 2 - 0.1, w_t + (w_f - w_t) / 2 + 0.1
+        # zlim1, zlim2 = -1.1, L_L + h_eq + 0.1,
+        #
+        # total_width = (xlim2 - xlim1) * 1.2
+        # total_height = (zlim2 - zlim1 + ylim2 - ylim1)
+        # scale = min(6 / total_width, 8.7 / total_height)
+        #
+        # # fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True)
+        # fig = plt.figure(constrained_layout=True, figsize=(total_width * scale, total_height * scale))
+        # gridspec = fig.add_gridspec(
+        #     ncols=1,
+        #     nrows=2,
+        #     height_ratios=(zlim2 - zlim1 + 0.4, ylim2 - ylim1 + 0.4)
+        # )
+        #
+        # # plot x-z plane, i.e. vertical slice
+        # ax1 = fig.add_subplot(gridspec[0])
+        # patches = [
+        #     Polygon([[0, 0], [0, zlim1], [0 - W_TH, zlim1], [0 - W_TH, 0]], color=(128 / 255, 128 / 255, 128 / 255, 1),
+        #             closed=True, fill=True, lw=0),
+        #     Polygon([[0, zlim2], [0, h_eq], [-W_TH, h_eq], [-W_TH, zlim2]], color=(128 / 255, 128 / 255, 128 / 255, 1)),
+        #     Polygon([[lambda_3 + d_1, zlim2], [lambda_3 + d_1, zlim1], [lambda_3, zlim1], [lambda_3, zlim2]],
+        #             color=(128 / 255, 128 / 255, 128 / 255, 1)),
+        #     Polygon([[L_H, L_L + h_eq], [L_H, L_L], [0, 0], [0, h_eq]], color=(255 / 255, 0 / 255, 0 / 255, 0.5)),
+        # ]
+        # for p in patches:
+        #     ax1.add_patch(p)
+        # ax1.annotate(
+        #     '', xy=(0, 0), xycoords='data',
+        #     xytext=(lambda_3, 0), textcoords='data',
+        #     arrowprops={'arrowstyle': '<->'})
+        # ax1.annotate(
+        #     '$\\lambda_3$', xy=(1, 1), xycoords='data',
+        #     xytext=(5, 0), textcoords='offset points')
+        #
+        # ax1.set_xlim((xlim1, xlim2))
+        # ax1.set_ylim((zlim1, zlim2))
+        #
+        # # plot x-y plane, i.e. horizontal slice
+        # ax2 = fig.add_subplot(gridspec[1], sharex=ax1)
+        # patches = [
+        #     Polygon([(0, 0), (0, ylim1), (-W_TH, ylim1), (-W_TH, 0)], color=(128 / 255, 128 / 255, 128 / 255, 1)),
+        #     Polygon([(0, ylim2), (0, w_t), (-W_TH, w_t), (-W_TH, ylim2)], color=(128 / 255, 128 / 255, 128 / 255, 1)),
+        #     Polygon([(L_H, 0.5 * (w_f - w_t) + w_t), (L_H, -0.5 * (w_f - w_t)), (0, 0), (0, w_t)],
+        #             color=(255 / 255, 0 / 255, 0 / 255, 0.5)),
+        #     Polygon([(lambda_3 + d_1, w_t - lambda_1), (lambda_3 + d_1, w_t - lambda_1 - d_2),
+        #              (lambda_3, w_t - lambda_1 - d_2), (lambda_3, w_t - lambda_1)],
+        #             color=(128 / 255, 128 / 255, 128 / 255, 1)),
+        # ]
+        # for p in patches:
+        #     ax2.add_patch(p)
+        # ax2.set_ylim((ylim1, ylim2))
+        #
+        # ax1.set_aspect(1)
+        # ax2.set_aspect(1)
+        #
+        # plt.show()
+        # fig.savefig('test.png')
+        raise NotImplemented
 
 
 def _test_fully_engulfed_column():

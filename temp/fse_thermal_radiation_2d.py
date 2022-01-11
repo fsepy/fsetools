@@ -1,9 +1,7 @@
 import typing
 from os.path import join, realpath
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import cm
 
 from fsetools.etc.transforms2d import rotation_meshgrid, angle_between_two_vectors_2d
 from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187
@@ -135,10 +133,6 @@ def solve_phi(
 
     emitter_x_centre = np.average(emitter_x)
 
-    # check meshgrid rotation
-    # plt.contourf(xx, yy, np.ones_like(xx))
-    # plt.show()
-
     vv = np.zeros_like(xx)
     emitter_height = emitter['height']
     emitter_width = emitter['width']
@@ -153,11 +147,6 @@ def solve_phi(
                     h_m=zz[0],
                     S_m=y - surface_level_y
                 )
-
-    # check phi
-    # plt.contourf(xx, yy, vv)
-    # plt.show()
-    # print(theta_in_radians)
 
     return vv
 
@@ -181,52 +170,6 @@ def _test_solve_phi():
 
     plt.contourf(xx, yy, zz)
     plt.show()
-
-
-def plot_heat_flux_on_ax(
-        ax,
-        xx: np.ndarray,
-        yy: np.ndarray,
-        zz: np.ndarray,
-        levels: tuple = (0, 12.6, 20, 40, 60, 80, 200),
-):
-    levels_contour = levels
-    colors_contour = ['r' if i == 12.6 else 'k' for i in levels_contour]
-    levels_contourf = levels_contour
-    colors_contourf = [cm.get_cmap('YlOrRd')(i / (len(levels_contour) - 1)) for i, _ in enumerate(levels_contour)]
-    colors_contourf = [(r_, g_, b_, 0.65) for r_, g_, b_, a_ in colors_contourf]
-    colors_contourf[0] = (195 / 255, 255 / 255, 143 / 255, 0.65)
-
-    # create axes
-    cs = ax.contour(xx, yy, zz, levels=levels_contour, colors=colors_contour)
-    cs_f = ax.contourf(xx, yy, zz, levels=levels_contourf, colors=colors_contourf)
-
-    ax.clabel(cs, inline=1, fontsize=12, fmt='%1.1f kW')
-
-    ax.grid(b=True, which='major', axis='both')
-    ax.set_aspect(aspect=1)
-
-    # colour bar
-    # fig.colorbar(cs_f)
-
-    # axis labels
-    # ax.set_xlabel('Building Facade')
-    # ax.set_ylabel('Separation to Surface')
-
-    # axis ticks
-    # ax.set_xticks(np.arange(xx.min(), xx.max() + d_ticks, d_ticks))
-    # ax.set_yticks(np.arange(yy.min(), xx.max() + d_ticks, d_ticks))
-
-    # axis limits
-    # ax.set_xlim((xx.min(), xx.max()))
-    # ax.set_ylim((yy.min(), xx.max()))
-
-    # axis visibility
-    # ax.get_xaxis().set_visible(False)
-    # ax.get_yaxis().set_visible(False)
-    ax.axis('off')
-
-    return ax, (cs, cs_f)
 
 
 def main_plot(input_param_dict: dict, dir_cwd: str = None, save_figure: bool = True):

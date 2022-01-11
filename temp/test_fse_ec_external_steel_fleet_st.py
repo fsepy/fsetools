@@ -880,7 +880,8 @@ def travelling_fire(print_pdf=False):
         reduction_factors = np.zeros(shape=(4, len(reports)))
         for i, v in enumerate(['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']):
             for j, report in enumerate(reports):
-                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'], report.output_kwargs['T_o'])
+                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'],
+                                                                        report.output_kwargs['T_o'])
 
         print(reduction_factors)
         print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
@@ -1036,15 +1037,23 @@ def travelling_fire(print_pdf=False):
         T_0=293.15,
     )
 
-    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
-    print_outputs(report_flame_forced_draught, heading='forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
-    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire',
+                  params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_flame_forced_draught, heading='forced draught fire',
+                  params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
 
-    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught, report_beam_temperature_forced_draught)
-    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught, report_column_temperature_forced_draught)
+    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught,
+                            report_beam_temperature_forced_draught)
+    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught,
+                            report_column_temperature_forced_draught)
 
     # report_flame_no_forced_draught.make_pdf_web()
     # report_flame_forced_draught.make_pdf_web()
@@ -1098,7 +1107,8 @@ def parametric_fire_1(print_pdf=False):
         reduction_factors = np.zeros(shape=(4, len(reports)))
         for i, v in enumerate(['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']):
             for j, report in enumerate(reports):
-                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'], report.output_kwargs['T_o'])
+                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'],
+                                                                        report.output_kwargs['T_o'])
 
         print(reduction_factors)
         print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
@@ -1255,15 +1265,23 @@ def parametric_fire_1(print_pdf=False):
         T_0=293.15,
     )
 
-    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
-    print_outputs(report_flame_forced_draught, heading='forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
-    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire',
+                  params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_flame_forced_draught, heading='forced draught fire',
+                  params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
 
-    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught, report_beam_temperature_forced_draught)
-    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught, report_column_temperature_forced_draught)
+    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught,
+                            report_beam_temperature_forced_draught)
+    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught,
+                            report_column_temperature_forced_draught)
 
     # report_flame_no_forced_draught.make_pdf_web()
     # report_flame_forced_draught.make_pdf_web()
@@ -1317,7 +1335,8 @@ def parametric_fire_2(print_pdf=False):
         reduction_factors = np.zeros(shape=(4, len(reports)))
         for i, v in enumerate(['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4']):
             for j, report in enumerate(reports):
-                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'], report.output_kwargs['T_o'])
+                reduction_factors[i, j] = report.output_kwargs[v] / max(report.output_kwargs['T_f'],
+                                                                        report.output_kwargs['T_o'])
 
         print(reduction_factors)
         print(reduction_factors[:, np.argmax(np.max(reduction_factors, axis=0))])
@@ -1474,15 +1493,23 @@ def parametric_fire_2(print_pdf=False):
         T_0=293.15,
     )
 
-    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
-    print_outputs(report_flame_forced_draught, heading='forced draught fire', params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
-    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
-    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire', params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_flame_no_forced_draught, heading='non forced draught fire',
+                  params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_flame_forced_draught, heading='forced draught fire',
+                  params=['L_L', 'L_H', 'L_f', 'Q', 'T_f', 'T_w'])
+    print_outputs(report_beam_temperature_no_forced_draught, heading='beam in non forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_beam_temperature_forced_draught, heading='beam in forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_no_forced_draught, heading='column in non forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
+    print_outputs(report_column_temperature_forced_draught, heading='column in forced draught fire',
+                  params=['T_m_1', 'T_m_2', 'T_m_3', 'T_m_4'])
 
-    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught, report_beam_temperature_forced_draught)
-    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught, report_column_temperature_forced_draught)
+    print_reduction_factors('beam reduction factors', report_beam_temperature_no_forced_draught,
+                            report_beam_temperature_forced_draught)
+    print_reduction_factors('column reduction factors', report_column_temperature_no_forced_draught,
+                            report_column_temperature_forced_draught)
 
     # report_flame_no_forced_draught.make_pdf_web()
     # report_flame_forced_draught.make_pdf_web()

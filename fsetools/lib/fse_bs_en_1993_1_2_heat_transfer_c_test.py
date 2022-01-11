@@ -1,10 +1,10 @@
 import numpy as np
-from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import protection_thickness as protection_thickness_c
-from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
-from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature_max as temperature_max_c
 
 from fsetools.lib.fse_bs_en_1991_1_2_parametric_fire import temperature as param_temp
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
+from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import protection_thickness as protection_thickness_c
+from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
+from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature_max as temperature_max_c
 from fsetools.lib.fse_travelling_fire import temperature_si as trav_temp
 
 

@@ -252,7 +252,6 @@ def _test_solve_phi():
 
 def main(params_dict: dict, QtCore_ProgressSignal=None):
     """
-
     :param params_dict:
         A dict object with the following structure.
             dict(

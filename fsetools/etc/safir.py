@@ -1,3 +1,4 @@
+import importlib
 import multiprocessing as mp
 import os
 import subprocess
@@ -6,16 +7,12 @@ from os import path
 from typing import List, Dict, Callable
 from typing import Union
 
-import matplotlib.pyplot as plt
 import numpy as np
-import xmltodict
 from numpy import ndarray
 
 from fsetools import logger
 from fsetools.libstd.bs_en_1993_1_2_2005_k_y_theta import clause_3_2_1_1_k_y_theta_mod, \
     clause_3_2_1_1_k_y_theta_mod_reversed
-
-plt.style.use('seaborn-paper')
 
 
 class Thermal2DPPXML:
@@ -80,6 +77,9 @@ class Thermal2DPPXML:
 
         :code:`len(ns) == len(ws) == T_ns.shape[0]`
         """
+        plt = getattr(importlib.import_module('matplotlib'), 'pyplot')
+        plt.style.use('seaborn-paper')
+
         self.process_xml()
 
         if T_ns is None:
@@ -186,7 +186,7 @@ class Thermal2DPPXML:
 
     @staticmethod
     def xml2dict(xml: str) -> dict:
-        data_dict = xmltodict.parse(xml)
+        data_dict = getattr(importlib.import_module('xmltodict'), 'parse')(xml)
         return data_dict
 
     @staticmethod

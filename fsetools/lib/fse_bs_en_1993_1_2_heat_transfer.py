@@ -61,16 +61,16 @@ def temperature(
     A_p = protection_protected_perimeter
     c_p = protection_c
 
-    T_a = np.zeros_like(fire_time, dtype=np.float)
-    dT_a = np.zeros_like(fire_time, dtype=np.float)
-    c_a = np.zeros_like(fire_time, dtype=np.float)
+    T_a = np.zeros_like(fire_time, dtype=np.float32)
+    dT_a = np.zeros_like(fire_time, dtype=np.float32)
+    c_a = np.zeros_like(fire_time, dtype=np.float32)
 
     # Check time step <= 30 seconds. [BS EN 1993-1-2:2005, Clauses 4.2.5.2 (3)]
 
     # the following parameters are used for debug purposes
     is_debug = False
     if is_debug:
-        phi_, a_, b_, c_, d_ = [np.zeros_like(fire_time, dtype=np.float) for i in range(5)]
+        phi_, a_, b_, c_, d_ = [np.zeros_like(fire_time, dtype=np.float16) for i in range(5)]
 
     T_a[0] = T_g[0]  # initially, steel temperature is equal to ambient
     for i in range(1, len(fire_time)):
@@ -195,97 +195,3 @@ def temperature_max(
             T -= dT * d
             break
     return T
-
-
-def _interflam_figures():
-    import numpy as np
-
-    import matplotlib.pyplot as plt
-
-    plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.5, 3.5))
-
-    rho = 7850
-    t = np.arange(0, 60 * 60, 1)
-    T = 293.15+345.*np.log10(8*t/60+1)
-    ax.plot(t / 60, T - 273.15, "k", label="ISO 834 fire")
-
-    list_dp = np.arange(0.0001, 0.01 + 0.002, 0.002)
-
-    for d_p in list_dp:
-        T_s = temperature(
-            fire_time=t,
-            fire_temperature=T,
-            beam_rho=rho,
-            beam_cross_section_area=0.017,
-            protection_k=0.2,
-            protection_rho=800,
-            protection_c=1700,
-            protection_thickness=d_p,
-            protection_protected_perimeter=2.14,
-        )
-        ax.plot(
-            t / 60,
-            T_s - 273.15,
-            label="Protection thickness {:2.0f} mm".format(d_p * 1000),
-        )
-
-    ax.set_xlabel("Time [minute]", fontsize='small')
-    ax.set_xlim(0, 60)
-    ax.set_xticks(np.arange(0, 61, 10))
-    ax.set_ylabel("Temperature [$^oC$]", fontsize='small')
-    ax.set_ylim(0, 900)
-    ax.set_yticks(np.arange(0, 1050.1, 150))
-    ax.tick_params(axis='both', labelsize='xx-small')
-    ax.legend(fontsize='xx-small').set_visible(True)
-    ax.grid(color="k", linestyle="--")
-
-    plt.tight_layout()
-    plt.show()
-
-
-def _stephy_figure():
-    import numpy as np
-
-    import matplotlib.pyplot as plt
-
-    plt.style.use("seaborn-paper")
-
-    rho = 7850
-    t = np.arange(0, 180 * 60, 1)
-    T = 293.15+345.*np.log10(8*t/60+1)
-
-    list_dp = np.arange(0.0001, 0.05 + 0.002, 0.002)
-    Ts = list()
-    for d_p in list_dp:
-        Ts.append(temperature(
-            fire_time=t,
-            fire_temperature=T,
-            beam_rho=rho,
-            beam_cross_section_area=0.017,
-            protection_k=0.2,
-            protection_rho=800,
-            protection_c=1700,
-            protection_thickness=d_p,
-            protection_protected_perimeter=2.14,
-        ))
-
-    fig, ax = plt.subplots(figsize=(5.3, 5))
-    for i, T_s in enumerate(Ts):
-        ax.plot(
-            t / 60,
-            T_s - 273.15,
-        )
-
-    ax.set_xlabel("Time [minute]", fontsize='small')
-    ax.set_xlim(0, 180)
-    ax.set_ylabel("Temperature [$^oC$]", fontsize='small')
-
-    plt.tight_layout()
-    fig.savefig('stephy.png', ppi=300)
-    plt.show()
-
-
-if __name__ == '__main__':
-    # _interflam_figures()
-    _stephy_figure()
