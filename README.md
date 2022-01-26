@@ -1,6 +1,6 @@
 # fsetools
 
-[![Build Status](https://travis-ci.com/fsepy/fsetools.svg?branch=master)](https://travis-ci.com/fsepy/fsetools)
+[![Build Status](https://app.travis-ci.com/fsepy/fsetools.svg?branch=master)](https://app.travis-ci.com/fsepy/fsetools)
 
 Fire Safety Engineering Tools.
 
