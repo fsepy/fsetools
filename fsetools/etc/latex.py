@@ -2,7 +2,8 @@ from operator import itemgetter
 from typing import List, Union
 
 from pylatex import Alignat, NoEscape, LongTable, MultiColumn
-from pytexit import py2tex
+
+from fsetools.pytexit import py2tex
 
 
 def py2tex_modified(exps: Union[List, tuple, str], ignore_error: bool = True):

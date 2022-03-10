@@ -54,6 +54,8 @@ setuptools.setup(
         "fsetools.lib",
         "fsetools.libstd",
         "fsetools.ht1d",
+        "fsetools.pytexit",
+        "fsetools.pytexit.core",
     ],
     ext_modules=cythonize(extensions),
     install_requires=requirements,
