@@ -111,9 +111,7 @@ def temperature(
         t_2 = t_1 + Q_2 / Q_max_v_d  # [s] AA.9(b)
 
         # AA.10
-        T_2_v = min(
-            1134, (0.004 * b_Jm2s05K - 17) / O - 0.4 * b_Jm2s05K + 2175
-        )  # [deg.C] AA.10
+        if (T_2_v := (0.004 * b_Jm2s05K - 17) / O - 0.4 * b_Jm2s05K + 2175) > 1134: T_2_v = 1134  # [deg.C] AA.10
 
         # AA.11
         Q_3 = 0.3 * Q_d
