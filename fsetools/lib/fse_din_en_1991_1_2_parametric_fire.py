@@ -75,7 +75,7 @@ def temperature(
     Q_max_f_k = hrrpua_MWm2 * A_f_m2  # [MW] AA.2
 
     # AA.3, Characteristic value of the maximum HRR, is the lower value of the Q_max_f_k and Q_max_v_k
-    Q_max_k = min(Q_max_f_k, Q_max_v_k)  # [MW]
+    Q_max_k = Q_max_f_k if Q_max_f_k < Q_max_v_k else Q_max_v_k  # [MW]
 
     # AA.5
     Q_max_v_d = gamma_fi_Q * Q_max_v_k  # [MW] AA.5
@@ -98,7 +98,6 @@ def temperature(
     O = A_w_m2 * h_w_m2 ** 0.5 / A_t_m2
     Q_d = q_ref * A_f_m2  # [MJ], total fire load in the compartment
     if fire_type == 0:  # ventilation controlled fire
-
         # AA.7
         t_1 = t_alpha_s * np.sqrt(Q_max_v_d)  # [s] AA.7
 
@@ -112,9 +111,7 @@ def temperature(
         t_2 = t_1 + Q_2 / Q_max_v_d  # [s] AA.9(b)
 
         # AA.10
-        T_2_v = min(
-            1134, (0.004 * b_Jm2s05K - 17) / O - 0.4 * b_Jm2s05K + 2175
-        )  # [deg.C] AA.10
+        if (T_2_v := (0.004 * b_Jm2s05K - 17) / O - 0.4 * b_Jm2s05K + 2175) > 1134: T_2_v = 1134  # [deg.C] AA.10
 
         # AA.11
         Q_3 = 0.3 * Q_d
@@ -126,12 +123,8 @@ def temperature(
         T_1, T_2, T_3 = T_1_v, T_2_v, T_3_v
 
     elif fire_type == 1:  # fuel controlled fire
-
         # AA.19
-        k = (
-                    (Q_max_f_d ** 2) / (A_w_m2 * h_w_m2 ** 0.5 * (A_t_m2 - A_w_m2) * b_Jm2s05K)
-            ) ** (1 / 3)
-        # print(h_w_m2, A_t_m2, A_w_m2, A_w_m2 * h_w_m2**0.5 * (A_t_m2-A_w_m2) * b_Jm2s05K)
+        k = ((Q_max_f_d ** 2) / (A_w_m2 * h_w_m2 ** 0.5 * (A_t_m2 - A_w_m2) * b_Jm2s05K)) ** (1 / 3)
 
         # AA.13
         t_1 = t_alpha_s * Q_max_f_d ** 0.5
@@ -139,21 +132,21 @@ def temperature(
         Q_1 *= 1e-3
 
         # AA.14
-        T_1_f = min(980, 24000 * k + 20)  # [deg.C]
+        if (T_1_f := 24000 * k + 20) > 980: T_1_f = 980  # [deg.C]
 
         # AA.15
         Q_2 = 0.7 * Q_d - Q_1
         t_2 = t_1 + Q_2 / Q_max_f_d
 
         # AA.16
-        T_2_f = min(1340, 33000 * k + 20)  # [deg.C]
+        if (T_2_f := 33000 * k + 20) > 1340: T_2_f = 1340  # [deg.C]
 
         # AA.17
         Q_3 = 0.3 * Q_d
         t_3 = t_2 + (2 * Q_3) / Q_max_f_d
 
         # AA.18
-        T_3_f = min(660, 16000 * k + 20)  # [deg.C]
+        if (T_3_f := 16000 * k + 20) > 660: T_3_f = 660  # [deg.C]
 
         # AA.19
         # See above
@@ -225,7 +218,7 @@ def T_t(
     # AA.29
     t_1_fo = (t_alpha ** 2 * Q_fo) ** 0.5  # [s]
 
-    t_1 = min(t_1, t_1_fo)
+    t_1 = t_1 if t_1 < t_1_fo else t_1_fo
 
     # AA.26
     t_1_ = np.logical_and(0 <= t, t <= t_1)
