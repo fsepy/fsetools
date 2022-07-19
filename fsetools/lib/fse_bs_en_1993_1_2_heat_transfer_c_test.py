@@ -1,10 +1,10 @@
 import numpy as np
-
-from fsetools.lib.fse_bs_en_1991_1_2_parametric_fire import temperature as param_temp
-from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import protection_thickness as protection_thickness_c
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
 from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature_max as temperature_max_c
+
+from fsetools.lib.fse_bs_en_1991_1_2_parametric_fire import temperature as param_temp
+from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
 from fsetools.lib.fse_travelling_fire import temperature_si as trav_temp
 
 
@@ -31,7 +31,7 @@ def __param_fire(t: np.ndarray):
         A_v=20,
         h_eq=2,
         q_fd=420e6,
-        lambda_=720 ** 2,
+        lbd=720 ** 2,
         rho=1,
         c=1,
         t_lim=0.333,
@@ -46,7 +46,7 @@ def __param_fire_2(t: np.ndarray):
         A_v=115.2,
         h_eq=2,
         q_fd=336e6,
-        lambda_=720 ** 2,
+        lbd=720 ** 2,
         rho=1,
         c=1,
         t_lim=0.333,
@@ -155,7 +155,7 @@ def test_temperature_param_2():
 def test_temperature_extreme():
     import matplotlib.pyplot as plt
 
-    t = np.arange(0, 210 * 60, 1, dtype=np.float)
+    t = np.arange(0, 210 * 60, 1, dtype=float)
     kwargs = __test_heat_transfer_kwargs(t, __param_fire(t))
 
     fig, ax1 = plt.subplots()
@@ -174,7 +174,7 @@ def test_temperature_extreme():
 def test_protection_thickness_c():
     import matplotlib.pyplot as plt
 
-    t = np.arange(0, 210 * 60, 1, dtype=np.float)
+    t = np.arange(0, 210 * 60, 1, dtype=float)
     kwargs = __test_heat_transfer_kwargs(t, __trav_fire(t))
     kwargs.pop('protection_thickness')
     kwargs['solver_temperature_goal'] = 873.15 + 20
@@ -206,7 +206,7 @@ def test_protection_thickness_c():
 def test_protection_thickness_c_extreme():
     import matplotlib.pyplot as plt
 
-    t = np.arange(0, 210 * 60, 1, dtype=np.float)
+    t = np.arange(0, 210 * 60, 1, dtype=float)
     kwargs = __test_heat_transfer_kwargs(t, __param_fire_2(t))
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)

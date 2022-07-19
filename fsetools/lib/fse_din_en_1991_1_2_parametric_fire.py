@@ -5,18 +5,18 @@ import numpy as np
 
 
 def temperature(
-        t_array_s,
-        A_w_m2,
-        h_w_m2,
-        A_t_m2,
-        A_f_m2,
-        t_alpha_s,
-        b_Jm2s05K,
-        q_x_d_MJm2,
-        gamma_fi_Q=1.0,
-        q_ref=1300,
-        alpha=0.0117,
-        hrrpua_MWm2=0.25,
+        t: np.ndarray,
+        A_w: float,
+        h_w: float,
+        A_t: float,
+        A_f: float,
+        t_alpha: float,
+        b: float,
+        q_x_d: float,
+        gamma_fi_Q: float = 1.0,
+        q_ref: float = 1300e6,
+        rho_Q_dot: float = 0.25e6,
+        outputs: dict = None,
 ):
     """This piece of code calculates a time dependent temperature array in accordance of Appendix AA in German Annex "
     Simplified natural fire model for fully developed room fires" to DIN EN 1991-1-2/NA:2010-12.
@@ -29,19 +29,18 @@ def temperature(
       - maximum vertical vent opening to floor area 50 %
 
     PARAMETERS:
-    :param t_array_s: numpy.array, in [s], time
-    :param A_w_m2: float, [m2], is window opening area
-    :param h_w_m2: float, [m2], is weighted window opening height
-    :param A_t_m2: float, [m2], is total enclosure internal surface area, including openings
-    :param A_f_m2: float, [m2], is total floor area
-    :param t_alpha_s: float, [s], is the fire growth factor, Table BB.2, for residential/office t_alpha = 300 [s]
-    :param b_Jm2s05K: float, [J/m2/s0.5/K], is the weighted heat storage capacity, see equation AA.31 and Table AA.1
-    :param q_x_d_MJm2: float, [MJ/m2], is the design value for fire load density, same as q_f_d
-    :param gamma_fi_Q: float, is the partial factor according to BB.5.3
-    :param q_ref: float, [MJ/m2], is the reference upper bound heat release rate, 1300 [MJ/m2] for offices and residential
-    :param alpha: float, [kW/s2], is the growth constant for t-square fire
-    :param hrrpua_MWm2: float, [MW], is the heat release rate per unit area
-    :return T: numpy.ndarray, in [K], is calculated gas temperature within fire enclosure
+    :param t:           [s]     time
+    :param A_w:         [m²]    is window opening area
+    :param h_w:         [m²]    is weighted window opening height
+    :param A_t:         [m²]    is total enclosure internal surface area, including openings
+    :param A_f:         [m²]    is total floor area
+    :param t_alpha:     [s]     is the fire growth factor, Table BB.2, for residential/office t_alpha = 300 [s]
+    :param b:           [J/m²/s0.5/K] is the weighted heat storage capacity, see equation AA.31 and Table AA.1
+    :param q_x_d:       [J/m²]  is the design value for fire load density, same as q_f_d
+    :param gamma_fi_Q:  [1]     is the partial factor according to BB.5.3
+    :param q_ref:       [J/m²]  is the reference upper bound heat release rate, 1300 [MJ/m²] for offices/residential
+    :param rho_Q_dot:   [W/m²]  is the heat release rate per unit area
+    :return T:          [K]     is calculated gas temperature within fire enclosure
 
     SUPPLEMENTAL DATA:
 
@@ -67,15 +66,18 @@ def temperature(
     |    8 | Place of public assembly (theatre, cinema) | fast             |         150 |          0.50 |
     |    9 | Public transport                           | slow             |         600 |          0.25 |
     """
+    q_x_d /= 1e6  # J -> MJ
+    rho_Q_dot /= 1e6  # W/m2 -> MW/m2
+    q_ref /= 1e6  # J/m2 -> MJ/m2
 
     # AA.1
-    Q_max_v_k = 1.21 * A_w_m2 * np.sqrt(h_w_m2)  # [MW] AA.1
+    Q_max_v_k = 1.21 * A_w * np.sqrt(h_w)  # [MW] AA.1
 
     # AA.2
-    Q_max_f_k = hrrpua_MWm2 * A_f_m2  # [MW] AA.2
+    Q_max_f_k = rho_Q_dot * A_f  # [MW] AA.2
 
     # AA.3, Characteristic value of the maximum HRR, is the lower value of the Q_max_f_k and Q_max_v_k
-    Q_max_k = Q_max_f_k if Q_max_f_k < Q_max_v_k else Q_max_v_k  # [MW]
+    Q_max_k = min(Q_max_f_k, Q_max_v_k)  # [MW]
 
     # AA.5
     Q_max_v_d = gamma_fi_Q * Q_max_v_k  # [MW] AA.5
@@ -86,67 +88,66 @@ def temperature(
 
     # Work out fire type
     if Q_max_v_k == Q_max_k:
-        fire_type = 0
+        fire_type = 0  # ventilation controlled fire
     elif Q_max_f_k == Q_max_k:
-        fire_type = 1
+        fire_type = 1  # fuel controlled fire
     else:
-        fire_type = np.nan
-
-    # print(fire_type)
+        raise ValueError('Unknown fire type. Q_max_v_k={Q_max_v_k}, Q_max_k={Q_max_k}.')
 
     # AA.7 - AA.19: Calculate location of t and Q
-    O = A_w_m2 * h_w_m2 ** 0.5 / A_t_m2
-    Q_d = q_ref * A_f_m2  # [MJ], total fire load in the compartment
+    O = A_w * h_w ** 0.5 / A_t
+    Q_d = q_ref * A_f  # [MJ], total fire load in the compartment
     if fire_type == 0:  # ventilation controlled fire
         # AA.7
-        t_1 = t_alpha_s * np.sqrt(Q_max_v_d)  # [s] AA.7
+        t_1 = t_alpha * np.sqrt(Q_max_v_d)  # [s] AA.7
 
         # AA.8
-        T_1_v = -8.75 / O - 0.1 * b_Jm2s05K + 1175  # [deg.C]
+        T_1_v = -8.75 / O - 0.1 * b + 1175  # [°C]
 
-        Q_1 = t_1 ** 3 / (3 * t_alpha_s ** 2)
+        Q_1 = t_1 ** 3 / (3 * t_alpha ** 2)
 
         # AA.9
         Q_2 = 0.7 * Q_d - Q_1  # AA.9(a)
         t_2 = t_1 + Q_2 / Q_max_v_d  # [s] AA.9(b)
 
         # AA.10
-        if (T_2_v := (0.004 * b_Jm2s05K - 17) / O - 0.4 * b_Jm2s05K + 2175) > 1340: T_2_v = 1340  # [deg.C] AA.10
+        T_2_v = min((1340, (0.004 * b - 17) / O - 0.4 * b + 2175))
 
         # AA.11
         Q_3 = 0.3 * Q_d
         t_3 = t_2 + (2 * Q_3)
 
         # AA.12
-        T_3_v = -5.0 / O - 0.16 * b_Jm2s05K + 1060  # [deg.C]
+        T_3_v = -5.0 / O - 0.16 * b + 1060  # [°C]
 
         T_1, T_2, T_3 = T_1_v, T_2_v, T_3_v
 
     elif fire_type == 1:  # fuel controlled fire
         # AA.19
-        k = ((Q_max_f_d ** 2) / (A_w_m2 * h_w_m2 ** 0.5 * (A_t_m2 - A_w_m2) * b_Jm2s05K)) ** (1 / 3)
+        k = ((Q_max_f_d ** 2) / (A_w * h_w ** 0.5 * (A_t - A_w) * b)) ** (1 / 3)
 
         # AA.13
-        t_1 = t_alpha_s * Q_max_f_d ** 0.5
-        Q_1 = 1 / 3 * alpha * t_alpha_s ** 3
-        Q_1 *= 1e-3
+        t_1 = t_alpha * Q_max_f_d ** 0.5
+
+        # AA.21
+        Q_1 = t_1 ** 3 / (3 * t_alpha ** 2)  # [MW]
 
         # AA.14
-        if (T_1_f := 24000 * k + 20) > 980: T_1_f = 980  # [deg.C]
+        T_1_f = min(980, 24000 * k + 20)  # [°C]
 
         # AA.15
         Q_2 = 0.7 * Q_d - Q_1
         t_2 = t_1 + Q_2 / Q_max_f_d
 
         # AA.16
-        if (T_2_f := 33000 * k + 20) > 1340: T_2_f = 1340  # [deg.C]
+        T_2_f = min(1340, 33000 * k + 20)  # [°C]
 
         # AA.17
         Q_3 = 0.3 * Q_d
         t_3 = t_2 + (2 * Q_3) / Q_max_f_d
 
         # AA.18
-        if (T_3_f := 16000 * k + 20) > 660: T_3_f = 660  # [deg.C]
+        T_3_f = min(660, 16000 * k + 20)  # [°C]
 
         # AA.19
         # See above
@@ -154,26 +155,25 @@ def temperature(
         T_1, T_2, T_3 = T_1_f, T_2_f, T_3_f
 
     else:
-        warnings.warn(f"WTH, I do not know what type of fire ({fire_type}) this is, bugs?")
-        k = t_1 = T_1 = Q_2 = t_2 = Q_2_f = Q_3 = t_3 = Q_3_f = T_2 = T_3 = np.nan
+        raise ValueError('Unexpected fire type.')
 
     # Prerequisite for AA.20 and AA.21
-    Q_1 = t_1 ** 3 / (3 * t_alpha_s ** 2)  # [MW]
-    Q_x_d = q_x_d_MJm2 * A_f_m2
+    Q_1 = t_1 ** 3 / (3 * t_alpha ** 2)  # [MW]
+    Q_x_d = q_x_d * A_f
 
     if Q_1 < 0.7 * Q_x_d:
         # AA.20
-        t_2_x = t_1 + (0.7 * Q_x_d - t_1 ** 3 / (3 * t_alpha_s ** 2)) / Q_max_d  # [s]
+        t_2_x = t_1 + (0.7 * Q_x_d - t_1 ** 3 / (3 * t_alpha ** 2)) / Q_max_d  # [s]
 
         # AA.21
-        T_2_x = (T_2 - T_1) * ((t_2_x - t_1) / (t_2 - t_1)) ** 0.5 + T_1  # [deg.C]
+        T_2_x = (T_2 - T_1) * ((t_2_x - t_1) / (t_2 - t_1)) ** 0.5 + T_1  # [°C]
     elif Q_1 >= 0.7:
         # AA.22
-        t_1_x = (0.7 * Q_x_d * 3 * t_alpha_s ** 2) ** (1 / 3)  # [s]
-        t_2_x = (0.7 * Q_x_d * 3 * t_alpha_s ** 2) ** (1 / 3)  # [s]
+        t_1_x = (0.7 * Q_x_d * 3 * t_alpha ** 2) ** (1 / 3)  # [s]
+        t_2_x = (0.7 * Q_x_d * 3 * t_alpha ** 2) ** (1 / 3)  # [s]
 
         # AA.23
-        T_2_x = (T_1 - 20) / (t_1 ** 2) * t_1_x ** 2 + 20  # [deg.C]
+        T_2_x = (T_1 - 20) / (t_1 ** 2) * t_1_x ** 2 + 20  # [°C]
     else:
         warnings.warn("Q_1 out of bound for AA.20 to AA.23.")
         t_1_x = t_2_x = T_2_x = np.nan
@@ -182,33 +182,22 @@ def temperature(
     t_3_x = 0.6 * Q_x_d / Q_max_d + t_2_x  # [s]
 
     # AA.24
-    T_3_x = T_3 * np.log10(t_3_x / 60 + 1) / np.log10(t_3 / 60 + 1)  # [deg.C]
+    T_3_x = T_3 * np.log10(t_3_x / 60 + 1) / np.log10(t_3 / 60 + 1)  # [°C]
 
-    T = T_t(
-        t_array_s,
-        t_1,
-        t_2,
-        t_2_x,
-        t_3_x,
-        T_1,
-        T_2_x,
-        T_3_x,
-        A_t_m2,
-        A_w_m2,
-        h_w_m2,
-        t_alpha_s,
-    )
+    if 't_2_x' in outputs:
+        outputs['t_2_x'] = t_2_x
+
+    if outputs:
+        for k in outputs.keys():
+            if k in locals():
+                outputs[k] = locals()[k]
 
     # CONVERT UNITS TO SI
-    T += 273.15
-
-    return T
+    return T_t(t, t_1, t_2, t_2_x, t_3_x, T_1, T_2_x, T_3_x, A_t, A_w, h_w, t_alpha) + 273.15
 
 
 # AA.26 - AA.28
-def T_t(
-        t, t_1, t_2, t_2_x, t_3_x, T_1, T_2_x, T_3_x, A_t, A_w, h_w, t_alpha, T_initial=20
-):
+def T_t(t, t_1, t_2, t_2_x, t_3_x, T_1, T_2_x, T_3_x, A_t, A_w, h_w, t_alpha, T_0=20):
     # Initialise container for return value
     T = np.zeros(len(t))
 
@@ -218,35 +207,35 @@ def T_t(
     # AA.29
     t_1_fo = (t_alpha ** 2 * Q_fo) ** 0.5  # [s]
 
-    t_1 = t_1 if t_1 < t_1_fo else t_1_fo
+    t_1 = min(t_1, t_1_fo)
 
     # AA.26
     t_1_ = np.logical_and(0 <= t, t <= t_1)
 
     T_1_ = (T_1 - 20) / t_1 ** 2 * t[t_1_] ** 2 + 20
-    T[t_1_] = T_1_  # [deg.C]
+    T[t_1_] = T_1_  # [°C]
 
     # AA.27
     # t_2_ = np.logical_and(t_1 <= t, t <= t_2)
     # T_2_ = (T_2_x - T_1) * ((t[t_2_] - t_1) / (t_2_x - t_1)) ** 0.5 + T_1
-    # T[t_2_] = T_2_  # [deg.C]
+    # T[t_2_] = T_2_  # [°C]
 
     # AA.27 MOD
     t_2_ = np.logical_and(t_1 <= t, t <= t_2_x)
     T_2_ = (T_2_x - T_1) * ((t[t_2_] - t_1) / (t_2_x - t_1)) ** 0.5 + T_1
-    T[t_2_] = T_2_  # [deg.C]
+    T[t_2_] = T_2_  # [°C]
 
     # AA.28
     # t_3_ = t > t_2
     # T_3_ = (T_3_x - T_2_x) * ((t[t_3_] - t_2) / (t_3_x - t_2_x)) ** 0.5 + T_2_x
-    # T[t_3_] = T_3_  # [deg.C]
+    # T[t_3_] = T_3_  # [°C]
 
     # AA.28 MOD
     t_3_ = t > t_2_x
     T_3_ = (T_3_x - T_2_x) * ((t[t_3_] - t_2_x) / (t_3_x - t_2_x)) ** 0.5 + T_2_x
-    T[t_3_] = T_3_  # [deg.C]
+    T[t_3_] = T_3_  # [°C]
 
     # No temperate below T_initial
-    T[T < T_initial] = T_initial
+    T[T < T_0] = T_0
 
     return T
