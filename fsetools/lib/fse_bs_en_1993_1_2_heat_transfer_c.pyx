@@ -156,6 +156,7 @@ cpdef tuple temperature_max(
         c_s = c_steel_T(T)
 
         # Steel temperature equations are from [BS EN 1993-1-2:2005, Clauses 4.2.5.2, Eq. 4.27]
+        # If below get divide by zero error, it's very likely due to T = nan and causing c_s = 0
         phi = (c_p * rho_p / c_s / rho_a) * d_p * A_p / V
 
         a = (lambda_p * A_p / V) / (d_p * c_s * rho_a)
