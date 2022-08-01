@@ -23,24 +23,3 @@ def k_y_theta_prob(theta_a: Union[float, np.ndarray], epsilon_q: Union[float, np
     k_y_theta_prob_ = (1.7 * b6) / (b6 + 1)
 
     return k_y_theta_prob_
-
-
-def func_test():
-    T = np.linspace(273.15 + 0, 273.15 + 1500, 5000)
-    return T, map(k_y_theta, T)
-
-
-def func_vector_test():
-    T = np.linspace(273.15 + 0, 273.15 + 1500, 5000)
-    return T, k_y_theta(T)
-
-
-def func_prob_vector_test():
-    T = np.linspace(273.15 + 0, 273.15 + 1500, 5000)
-    q = np.random.random_sample(len(T))
-    return T, k_y_theta_prob(T, q)
-
-
-def _test_probabilistic():
-    assert abs(k_y_theta_prob(0., 0.5) - 1.161499) <= 0.00001
-    assert abs(k_y_theta_prob(673.15, 0.5) - 1.001560) <= 0.0001
