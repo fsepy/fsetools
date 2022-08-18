@@ -82,12 +82,8 @@ def temperature(
     # workout the far field temperature of gas T_g
     if isinstance(l_s, float) or isinstance(l_s, int):
         r = np.absolute(l_s - l_fire_median)
-        T_g = np.where((r / h_s) > 0.8, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0)
-        T_g = np.where(
-            (r / h_s) <= 0.8,
-            (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0,
-            T_g,
-        )
+        T_g = np.where((r / h_s) > 0.18, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0)
+        T_g = np.where((r / h_s) <= 0.18, (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0, T_g)
         T_g[T_g >= fire_nft_limit_c] = fire_nft_limit_c
         return T_g
     elif isinstance(l_s, np.ndarray) or isinstance(l_s, list):
@@ -95,14 +91,8 @@ def temperature(
         T_g_list = list()
         for l_s in l_s_list:
             r = np.absolute(l_s - l_fire_median)
-            T_g = np.where(
-                (r / h_s) > 0.8, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0
-            )
-            T_g = np.where(
-                (r / h_s) <= 0.8,
-                (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0,
-                T_g,
-            )
+            T_g = np.where((r / h_s) > 0.18, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0)
+            T_g = np.where((r / h_s) <= 0.18, (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0, T_g)
             T_g[T_g >= fire_nft_limit_c] = fire_nft_limit_c
             T_g_list.append(T_g)
         return T_g_list

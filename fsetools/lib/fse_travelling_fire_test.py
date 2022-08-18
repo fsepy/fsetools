@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+import numpy as np
 
-from fsetools.lib.fse_travelling_fire import *
+from fsetools.lib.fse_travelling_fire import temperature, temperature_si
 
 
 def test_fire_travelling():
@@ -117,6 +117,7 @@ def test_fire_travelling_multiple():
     plt.show()
 
 
-test_fire_travelling()
-test_fire_travelling_backup()
-test_fire_travelling_multiple()
+if __name__ == '__main__':
+    # test_fire_travelling()
+    test_fire_travelling_backup()
+    # test_fire_travelling_multiple()
