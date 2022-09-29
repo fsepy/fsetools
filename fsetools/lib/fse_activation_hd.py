@@ -1,4 +1,4 @@
-import typing
+from typing import Optional, Union
 
 import numpy as np
 
@@ -11,31 +11,32 @@ from fsetools.libstd.pd_7974_1_2019 import eq_55_activation_of_heat_detector_dev
 
 
 def heat_detector_temperature_pd7974(
-        gas_time: typing.Union[np.ndarray, list],
-        gas_hrr_kW: typing.Union[np.ndarray, list],
+        fire_time: Union[np.ndarray, list],
+        fire_hrr_kW: Union[np.ndarray, list],
         detector_to_fire_vertical_distance: float,
         detector_to_fire_horizontal_distance: float,
         detector_response_time_index: float,
         detector_conduction_factor: float,
         fire_hrr_density_kWm2: float,
-        fire_convection_fraction: float,
-        ambient_gravity_acceleration: float = 9.81,
-        ambient_gas_temperature: float = 293.15,
-        ambient_gas_specific_heat: float = 1.2,
-        ambient_gas_density: float = 1.0,
-        force_plume_temperature_correlation: bool = False,
-):
+        fire_conv_frac: float,
+        ambient_gravity_acceleration: Optional[float] = 9.81,
+        ambient_gas_temperature: Optional[float] = 293.15,
+        ambient_gas_specific_heat: Optional[float] = 1.2,
+        ambient_gas_density: Optional[float] = 1.0,
+        force_plume_temperature_correlation: Optional[bool] = False,
+        *_, **__
+) -> dict:
     """This function calculates heat detector device time - temperature revolution based on specified fire heat release
     rate.
 
-    :param gas_time:
-    :param gas_hrr_kW:
+    :param fire_time:
+    :param fire_hrr_kW:
     :param detector_to_fire_vertical_distance:
     :param detector_to_fire_horizontal_distance:
     :param detector_response_time_index:
     :param detector_conduction_factor:
     :param fire_hrr_density_kWm2:
-    :param fire_convection_fraction:
+    :param fire_conv_frac:
     :param ambient_gas_temperature:
     :param ambient_gas_density:
     :param ambient_gas_specific_heat:
@@ -44,23 +45,27 @@ def heat_detector_temperature_pd7974(
     :return:
     """
 
+    # refactor with common variable names
+    z_H = detector_to_fire_vertical_distance
+    r = detector_to_fire_horizontal_distance
+
     # Check and convert input types
-    if isinstance(gas_time, list):
-        gas_time = np.array(gas_time)
-    if isinstance(gas_hrr_kW, list):
-        gas_hrr_kW = np.array(gas_hrr_kW)
+    if isinstance(fire_time, list):
+        fire_time = np.array(fire_time)
+    if isinstance(fire_hrr_kW, list):
+        fire_hrr_kW = np.array(fire_hrr_kW)
 
     # Validate parameters
     # ===================
     try:
-        assert len(gas_time) == len(gas_hrr_kW)
+        assert len(fire_time) == len(fire_hrr_kW)
     except AssertionError:
         raise ValueError('Gas time `gas_time` and temperature array `gas_temperature` length do not match.')
 
     # Result containers
     # =================
 
-    fire_diameter = [((gas_hrr_kW[0] * fire_convection_fraction / fire_hrr_density_kWm2) / 3.1415926) ** 0.5 * 2]
+    fire_diameter = [((fire_hrr_kW[0] * fire_conv_frac / fire_hrr_density_kWm2) / 3.1415926) ** 0.5 * 2]
     jet_temperature = [ambient_gas_temperature]
     jet_velocity = [0.]
     detector_temperature = [ambient_gas_temperature]
@@ -69,28 +74,28 @@ def heat_detector_temperature_pd7974(
     # Main heat detector temperature calculation starts
     # =================================================
 
-    for i in range(1, len(gas_time), 1):
+    for i in range(1, len(fire_time), 1):
 
         # Calculate change in time, dt
         # ----------------------------
-        dt = gas_time[i] - gas_time[i - 1]
+        dt = fire_time[i] - fire_time[i - 1]
 
         # Calculate convective heat release rate
         # --------------------------------------
-        Q_dot_c_kW = gas_hrr_kW[i] * fire_convection_fraction
+        Q_dot_c_kW = fire_hrr_kW[i] * fire_conv_frac
 
         # Calculate fire diameter
         # -----------------------
-        D = ((gas_hrr_kW[i] / fire_hrr_density_kWm2) / 3.1415926) ** 0.5 * 2
+        D = ((fire_hrr_kW[i] / fire_hrr_density_kWm2) / 3.1415926) ** 0.5 * 2
 
         # Calculate virtual fire origin
         # -----------------------------
-        z_0 = eq_10_virtual_origin(D=D, Q_dot_kW=gas_hrr_kW[i])
+        z_0 = eq_10_virtual_origin(D=D, Q_dot_kW=fire_hrr_kW[i])
         virtual_origin.append(z_0)
 
         # Calculate ceiling jet temperature
         # ---------------------------------
-        if not force_plume_temperature_correlation:
+        if not force_plume_temperature_correlation and (r / (z_H - z_0) > 0.134):
             theta_jet_rise = eq_26_axisymmetric_ceiling_jet_temperature(
                 Q_dot_c_kW=Q_dot_c_kW,
                 z_H=detector_to_fire_vertical_distance,
@@ -111,7 +116,7 @@ def heat_detector_temperature_pd7974(
 
         # Calculate ceiling jet velocity
         # ------------------------------
-        if not force_plume_temperature_correlation:
+        if not force_plume_temperature_correlation and (r / (z_H - z_0) > 0.246):
             u_jet = eq_27_axisymmetric_ceiling_jet_velocity(
                 Q_dot_c_kW=Q_dot_c_kW,
                 z_H=detector_to_fire_vertical_distance,
@@ -151,16 +156,10 @@ def heat_detector_temperature_pd7974(
 
     # Pack up results
     # ===============
-
-    res = dict(
+    return dict(
         detector_temperature=np.array(detector_temperature),
         jet_temperature=np.array(jet_temperature),
         jet_velocity=np.array(jet_velocity),
         fire_diameter=np.array(fire_diameter),
         virtual_origin=np.array(virtual_origin),
     )
-
-    return res
-
-
-
