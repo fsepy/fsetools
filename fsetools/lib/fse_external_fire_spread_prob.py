@@ -82,8 +82,8 @@ def smoke_radiation(  # Radiation due to smoke
 
 
 def radiative_heat_flux_from_fire(
-        fire_duration: float,
-        fire_time_step: float,
+        t_end: float,
+        t_step: float,
         fire_hrr_density_kWm2: float,
         fire_alpha,
         detector_to_fire_vertical_distance,
@@ -101,7 +101,7 @@ def radiative_heat_flux_from_fire(
     inputs.pop('_')
     inputs.pop('__')
 
-    inputs['fire_time'] = np.arange(0, fire_duration + fire_time_step / 2, fire_time_step)
+    inputs['fire_time'] = np.arange(0, t_end + t_step / 2, t_step)
     inputs['fire_hrr_kW'] = fire_alpha * inputs['fire_time'] ** 2
 
     outputs = heat_detector_temperature_pd7974(**inputs)

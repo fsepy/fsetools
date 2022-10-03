@@ -3,8 +3,8 @@ from fsetools.lib.fse_external_fire_spread_prob import *
 
 def test_radiative_heat_flux_from_fire():
     res = radiative_heat_flux_from_fire(
-        fire_duration=30 * 60,  # Fire duration [mins]
-        fire_time_step=1,  # Time step [sec]
+        t_end=30 * 60,  # Fire duration [mins]
+        t_step=1,  # Time step [sec]
         fire_hrr_density_kWm2=1000,  # HRR per unit area [kw/m²]
         fire_alpha=0.047,  # Fire growth parameter [kW/s²]
         fire_conv_frac=0.7,  # Convective fraction
