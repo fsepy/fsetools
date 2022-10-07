@@ -136,23 +136,22 @@ def heat_detector_temperature_pd7974(
 
         # Calculate detector temperature
         # ------------------------------
-        dTe_dt = eq_55_activation_of_heat_detector_device(
+        d_Delta_Te_dt = eq_55_activation_of_heat_detector_device(
             u=u_jet,
             RTI=detector_response_time_index,
             Delta_T_g=theta_jet - ambient_gas_temperature,
             Delta_T_e=detector_temperature[i - 1] - ambient_gas_temperature,
             C=detector_conduction_factor
         )
-        dTe = dTe_dt * dt
-        Te = dTe + detector_temperature[i - 1]
-        # Te = dTe + ambient_gas_temperature
+        d_Delta_Te = d_Delta_Te_dt * dt
+        Delta_Te = d_Delta_Te + detector_temperature[i - 1]
 
         # Record results
         # --------------
         fire_diameter.append(D)
         jet_temperature.append(theta_jet)
         jet_velocity.append(u_jet)
-        detector_temperature.append(Te)
+        detector_temperature.append(Delta_Te)
 
     # Pack up results
     # ===============
