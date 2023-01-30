@@ -23,7 +23,6 @@ def heat_detector_temperature_pd7974(
         ambient_gas_temperature: Optional[float] = 293.15,
         ambient_gas_specific_heat: Optional[float] = 1.2,
         ambient_gas_density: Optional[float] = 1.0,
-        force_plume_temperature_correlation: Optional[bool] = False,
         *_, **__
 ) -> dict:
     """This function calculates heat detector device time - temperature revolution based on specified fire heat release
@@ -41,7 +40,6 @@ def heat_detector_temperature_pd7974(
     :param ambient_gas_density:
     :param ambient_gas_specific_heat:
     :param ambient_gravity_acceleration:
-    :param force_plume_temperature_correlation:
     :return:
     """
 
@@ -65,11 +63,18 @@ def heat_detector_temperature_pd7974(
     # Result containers
     # =================
 
-    fire_diameter = [((fire_hrr_kW[0] * fire_conv_frac / fire_hrr_density_kWm2) / 3.1415926) ** 0.5 * 2]
-    jet_temperature = [ambient_gas_temperature]
-    jet_velocity = [0.]
-    detector_temperature = [ambient_gas_temperature]
-    virtual_origin = [0]
+    fire_diameter = np.zeros_like(fire_time, dtype=float)
+    jet_temperature = np.zeros_like(fire_time, dtype=float)
+    jet_velocity = np.zeros_like(fire_time, dtype=float)
+    detector_temperature = np.zeros_like(fire_time, dtype=float)
+    virtual_origin = np.zeros_like(fire_time, dtype=float)
+    air_type_arr = np.zeros_like(fire_time, dtype=int)
+
+    # assign initial conditions
+    fire_diameter[0] = ((fire_hrr_kW[0] * fire_conv_frac / fire_hrr_density_kWm2) / 3.1415926) ** 0.5 * 2
+    jet_temperature[0] = ambient_gas_temperature
+    detector_temperature[0] = ambient_gas_temperature
+    air_type_arr[0] = -1
 
     # Main heat detector temperature calculation starts
     # =================================================
@@ -91,18 +96,22 @@ def heat_detector_temperature_pd7974(
         # Calculate virtual fire origin
         # -----------------------------
         z_0 = eq_10_virtual_origin(D=D, Q_dot_kW=fire_hrr_kW[i])
-        virtual_origin.append(z_0)
 
-        # Calculate ceiling jet temperature
-        # ---------------------------------
-        if not force_plume_temperature_correlation and (r / (z_H - z_0) > 0.134):
-            theta_jet_rise = eq_26_axisymmetric_ceiling_jet_temperature(
-                Q_dot_c_kW=Q_dot_c_kW,
-                z_H=detector_to_fire_vertical_distance,
-                z_0=z_0,
-                r=detector_to_fire_horizontal_distance,
-            )
+        # Decide whehter to use plume or jet
+        # ----------------------------------
+        if (r / (z_H - z_0) > 0.134) and (r / (z_H - z_0) > 0.246):
+            air_type = 2  # jet
         else:
+            air_type = 1  # plume
+
+        if i > 2 and air_type_arr[i - 1] != air_type:
+            raise ValueError(f'Air temperature correlation transitioned between Jet and Plume at {fire_time[i]} s '
+                             f'with r / (z_H - z_0) = {r / (z_H - z_0):g}. '
+                             f'This is currently not supported by this function.')
+
+        # Calculate ceiling jet temperature and velocity
+        # ----------------------------------------------
+        if air_type == 1:
             theta_jet_rise = eq_14_plume_temperature(
                 T_0=ambient_gas_temperature,
                 g=ambient_gravity_acceleration,
@@ -112,18 +121,6 @@ def heat_detector_temperature_pd7974(
                 z=detector_to_fire_vertical_distance,
                 z_0=z_0
             )
-        theta_jet = theta_jet_rise + ambient_gas_temperature
-
-        # Calculate ceiling jet velocity
-        # ------------------------------
-        if not force_plume_temperature_correlation and (r / (z_H - z_0) > 0.246):
-            u_jet = eq_27_axisymmetric_ceiling_jet_velocity(
-                Q_dot_c_kW=Q_dot_c_kW,
-                z_H=detector_to_fire_vertical_distance,
-                z_0=z_0,
-                r=detector_to_fire_horizontal_distance,
-            )
-        else:
             u_jet = eq_15_plume_velocity(
                 T_0=ambient_gas_temperature,
                 g=ambient_gravity_acceleration,
@@ -133,6 +130,23 @@ def heat_detector_temperature_pd7974(
                 z=detector_to_fire_vertical_distance,
                 z_0=z_0,
             )
+        elif air_type == 2:
+            theta_jet_rise = eq_26_axisymmetric_ceiling_jet_temperature(
+                Q_dot_c_kW=Q_dot_c_kW,
+                z_H=detector_to_fire_vertical_distance,
+                z_0=z_0,
+                r=detector_to_fire_horizontal_distance,
+            )
+            u_jet = eq_27_axisymmetric_ceiling_jet_velocity(
+                Q_dot_c_kW=Q_dot_c_kW,
+                z_H=detector_to_fire_vertical_distance,
+                z_0=z_0,
+                r=detector_to_fire_horizontal_distance,
+            )
+        else:
+            raise ValueError(f'Unknown `air_type` {air_type}')
+
+        theta_jet = theta_jet_rise + ambient_gas_temperature
 
         # Calculate detector temperature
         # ------------------------------
@@ -148,17 +162,20 @@ def heat_detector_temperature_pd7974(
 
         # Record results
         # --------------
-        fire_diameter.append(D)
-        jet_temperature.append(theta_jet)
-        jet_velocity.append(u_jet)
-        detector_temperature.append(Delta_Te)
+        fire_diameter[i] = D
+        virtual_origin[i] = z_0
+        air_type_arr[i] = air_type
+        jet_velocity[i] = u_jet
+        jet_temperature[i] = theta_jet
+        detector_temperature[i] = Delta_Te
 
     # Pack up results
     # ===============
     return dict(
-        detector_temperature=np.array(detector_temperature),
-        jet_temperature=np.array(jet_temperature),
-        jet_velocity=np.array(jet_velocity),
-        fire_diameter=np.array(fire_diameter),
-        virtual_origin=np.array(virtual_origin),
+        fire_diameter=fire_diameter,
+        virtual_origin=virtual_origin,
+        air_type=air_type_arr,
+        jet_velocity=jet_velocity,
+        jet_temperature=jet_temperature,
+        detector_temperature=detector_temperature,
     )
