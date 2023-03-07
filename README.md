@@ -1,47 +1,6 @@
 # fsetools
 
-[![Build Status](https://travis-ci.com/fsepy/fsetools.svg?branch=master)](https://travis-ci.com/fsepy/fsetools)
-
 Fire Safety Engineering Tools.
-
-## Getting Started
-
-Documentation is work in progress.
-
-### Installation
-
-[Python](https://www.python.org/downloads/) 3.7 or later is required. [Anaconda Distribution](https://www.anaconda.com/distribution/#download-section) is recommended for new starters, it includes Python and few useful packages including a package management tool pip (see below).
-
-[pip](https://pypi.org/) is a package management system for installing and updating Python packages. pip comes with Python, so you get pip simply by installing Python. On Ubuntu and Fedora Linux, you can simply use your system package manager to install the `python3-pip` package. [The Hitchhiker's Guide to Python](https://docs.python-guide.org/starting/installation/) provides some guidance on how to install Python on your system if it isn't already; you can also install Python directly from [python.org](https://www.python.org/getit/). You might want to [upgrade pip](https://pip.pypa.io/en/stable/installing/) before using it to install other programs.
-
-1. to use `pip` install from PyPI:
-
-    ```sh
-    pip install --upgrade fsetools
-    ```
-
-2. to use `pip` install from GitHub (requires [git](https://git-scm.com/downloads)):  
-
-    *Note installing `fsetools` via this route will include the latest commits/changes to the library.*  
-
-    ```sh
-    pip install --upgrade "git+https://github.com/fsepy/fsetools.git@dev"
-    ```
-
-
-### Command line interface
-
-Once `fsetools` is installed, CLI help can be summoned using the following command in a terminal:
-
-```shell
-(base) C:\Users\Fu>fsetools -h
-```
-
-Remember to change to the correct Python environment if appropriate.
-
-## Authors
-
-**Ian Fu** - *fuyans@gmail.com*
 
 ## License
 
