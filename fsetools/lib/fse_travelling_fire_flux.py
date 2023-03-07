@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from typing import Union
 
 import numpy as np
@@ -23,7 +22,7 @@ def Q_star_D(
 
 
 def flame_ext_length(
-        q_star: float,
+        q_star: Union[float, np.ndarray],
         height: float
 ):
     # Calculates flame extension under the ceiling according to Annex C of EN 1991-1-2
@@ -58,7 +57,7 @@ def y_param(
     return y
 
 
-def fire(
+def heat_flux(
         t: np.array,
         fire_load_density_MJm2: float,
         fire_hrr_density_MWm2: float,
@@ -80,9 +79,6 @@ def fire(
     :param beam_location_height_m: in m, is the beam lateral distance to fire origin
     :param beam_location_length_m: in m, is the beam height above the floor
     :param fire_nff_limit_kW: in kW, is the maximum near field heat flux
-    :param opening_fraction: in -, is the ventilation opening proportion between 0 to 1
-    :param opening_width_m: in m, is ventilation opening width
-    :param opening_height_m: in m, is ventilation opening height
     :return q_inc: in kW, is calculated incident heat flux
     """
 
@@ -118,12 +114,11 @@ def fire(
 
     # workout the heat release rate ARRAY (corrected with time)
     Q_growth = (HRRPUA * w * s * t) * (t < t_lim_)
-    Q_peak = (
-            min([HRRPUA * w * s * t_burn, HRRPUA * w * l]) * (t >= t_lim_) * (t <= t_decay_)
-    )
+    Q_peak = min([HRRPUA * w * s * t_burn, HRRPUA * w * l]) * (t >= t_lim_) * (t <= t_decay_)
     Q_decay = (max(Q_peak) - (t - t_decay_) * w * s * HRRPUA) * (t > t_decay_)
     Q_decay[Q_decay < 0] = 0
     Q = (Q_growth + Q_peak + Q_decay) * 1000.0
+    Q[Q == 0.] = 1e-3  # increase zero heat release rate to 0.001 to avoid divide by zero warning
 
     # workout the distance between fire median to the structural element r
     l_fire_front = s * t
@@ -161,54 +156,6 @@ def fire(
     return q_inc
 
 
-def _test_fire():
-    time = np.arange(0, 120 * 60, 10)
-    list_l = [5, 10, 15, 20, 25, 30, 35]
-
-    try:
-        import matplotlib.pyplot as plt
-        import pandas as pd
-    except:
-        pass
-
-    plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.94, 2.76))
-    ax.set_xlabel("Time [minute]")
-    ax.set_xlim(0, 90)
-    ax.set_ylim(0, 130)
-    ax.set_ylabel('Incident heat flux [kW/m$^2$]')
-
-    dict_data = {
-        'time': time,
-    }
-
-    for beam_location_length_m in list_l:
-        heat_flux = fire(
-            t=time,
-            fire_load_density_MJm2=760 * 0.8,
-            fire_hrr_density_MWm2=0.5,
-            room_length_m=40,
-            room_width_m=16,
-            fire_spread_rate_ms=0.018,
-            beam_location_height_m=3,
-            beam_location_length_m=beam_location_length_m,
-            fire_nff_limit_kW=120,
-        )
-
-        dict_data['Ceiling location = ' + str(beam_location_length_m) + ' [m]'] = heat_flux
-
-        ax.plot(time / 60, heat_flux, label="Ceiling position {:4.0f} m".format(beam_location_length_m))
-
-    ax.legend(loc=4).set_visible(True)
-    ax.grid(color="k", linestyle="--")
-    plt.tight_layout()
-    plt.show()
-
-    df_data = pd.DataFrame.from_dict(dict_data)
-
-    print(df_data)
-
-    df_data.to_csv('test.csv')
 
 
 if __name__ == "__main__":

@@ -1,5 +1,2 @@
-packaging>=20.1
-scipy
-seaborn
-pandas
-cython>=0.29.21
+pandas>=1.1.1
+matplotlib

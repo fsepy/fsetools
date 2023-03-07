@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 from typing import Union
 
@@ -29,9 +28,6 @@ def temperature(
     :param beam_location_height_m: in m, is the beam lateral distance to fire origin
     :param beam_location_length_m: in m, is the beam height above the floor
     :param fire_nft_limit_c: in deg.C, is the maximum near field temperature
-    :param opening_fraction: in -, is the ventilation opening proportion between 0 to 1
-    :param opening_width_m: in m, is ventilation opening width
-    :param opening_height_m: in m, is ventilation opening height
     :return T_g: in deg.C, is calculated gas temperature
     """
 
@@ -86,12 +82,8 @@ def temperature(
     # workout the far field temperature of gas T_g
     if isinstance(l_s, float) or isinstance(l_s, int):
         r = np.absolute(l_s - l_fire_median)
-        T_g = np.where((r / h_s) > 0.8, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0)
-        T_g = np.where(
-            (r / h_s) <= 0.8,
-            (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0,
-            T_g,
-        )
+        T_g = np.where((r / h_s) > 0.18, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0)
+        T_g = np.where((r / h_s) <= 0.18, (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0, T_g)
         T_g[T_g >= fire_nft_limit_c] = fire_nft_limit_c
         return T_g
     elif isinstance(l_s, np.ndarray) or isinstance(l_s, list):
@@ -99,14 +91,8 @@ def temperature(
         T_g_list = list()
         for l_s in l_s_list:
             r = np.absolute(l_s - l_fire_median)
-            T_g = np.where(
-                (r / h_s) > 0.8, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0
-            )
-            T_g = np.where(
-                (r / h_s) <= 0.8,
-                (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0,
-                T_g,
-            )
+            T_g = np.where((r / h_s) > 0.18, (5.38 * np.power(Q / r, 2 / 3) / h_s) + 20.0, 0)
+            T_g = np.where((r / h_s) <= 0.18, (16.9 * np.power(Q, 2 / 3) / np.power(h_s, 5 / 3)) + 20.0, T_g)
             T_g[T_g >= fire_nft_limit_c] = fire_nft_limit_c
             T_g_list.append(T_g)
         return T_g_list
@@ -117,7 +103,7 @@ def temperature(
 def temperature_si(
         t: np.ndarray,
         T_0: float,
-        q_fd: float,
+        q_f_d: float,
         hrrpua: float,
         l: float,
         w: float,
@@ -131,7 +117,7 @@ def temperature_si(
 
     :param t: ndarray, [s] An array representing time incorporating 'temperature'.
     :param T_0: float, [K] ,Initial temperature.
-    :param q_fd: float, [J/m2], Fire load density.
+    :param q_f_d: float, [J/m2], Fire load density.
     :param hrrpua: float, [W/m2], Heat release rate density.
     :param l: float, [m], Compartment length.
     :param w: float, [m], Compartment width.
@@ -143,7 +129,7 @@ def temperature_si(
 
     # UNIT CONVERSION TO FIT EQUATIONS
     T_0 -= 273.15
-    q_fd /= 1e6
+    q_f_d /= 1e6
     hrrpua /= 1e6
     T_max -= 273.15
 
@@ -151,7 +137,7 @@ def temperature_si(
     time_step = t[1] - t[0]
 
     # workout burning time etc.
-    t_burn = max([q_fd / hrrpua, 900.0])
+    t_burn = max([q_f_d / hrrpua, 900.0])
     t_decay = max([t_burn, l / s])
     t_lim = min([t_burn, l / s])
 
@@ -191,158 +177,3 @@ def temperature_si(
     Q *= 10e6  # MJ -> J
 
     return T_g
-
-
-def _test_fire():
-    time = np.arange(0, 210 * 60, 30)
-    list_l = [25, 50, 100, 150]
-
-    import matplotlib.pyplot as plt
-
-    plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.94, 2.76))
-    ax.set_xlabel("Time [minute]")
-    ax.set_ylabel(u"Temperature [$℃$]")
-
-    for length in list_l:
-        temperature_ = temperature(
-            t=time,
-            fire_load_density_MJm2=600,
-            fire_hrr_density_MWm2=0.25,
-            room_length_m=length,
-            room_width_m=16,
-            fire_spread_rate_ms=0.012,
-            beam_location_height_m=3,
-            beam_location_length_m=length / 2,
-            fire_nft_limit_c=1050,
-        )
-
-        ax.plot(time / 60, temperature_, label="Room length {:4.0f} m".format(length))
-
-    ax.legend(loc=4).set_visible(True)
-    ax.set_xlim((-10, 190))
-    ax.grid(color="k", linestyle="--")
-    plt.tight_layout()
-    plt.show()
-
-
-def _test_fire_backup():
-    import numpy as np
-
-    time = np.arange(0, 22080, 30)
-    list_l = [50, 100, 150]
-
-    import matplotlib.pyplot as plt
-
-    plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.94, 2.76))
-    ax.set_xlabel("Time [minute]")
-    ax.set_ylabel("Temperature [$℃$]")
-
-    for l in list_l:
-        temperature_0 = temperature_si(
-            t=time,
-            T_0=293.15,
-            q_fd=900e6,
-            hrrpua=0.15e6,
-            l=l,
-            w=17.4,
-            s=0.012,
-            e_h=3.5,
-            e_l=l / 2,
-        )
-        temperature_1 = temperature(
-            t=time,
-            fire_load_density_MJm2=900,
-            fire_hrr_density_MWm2=0.15,
-            room_length_m=l,
-            room_width_m=17.4,
-            fire_spread_rate_ms=0.012,
-            beam_location_height_m=3.5,
-            beam_location_length_m=l / 2,
-            fire_nft_limit_c=1323.15 - 273.15
-        )
-        ax.plot(time / 60, temperature_0 - 273.15)
-        ax.plot(time / 60, temperature_1, ls=':', c='r')
-
-        assert np.allclose(temperature_0 - 273.15, temperature_1)
-
-    ax.legend().set_visible(True)
-    ax.set_xlim((0, 180))
-    ax.grid(color="grey", linestyle="--", linewidth=0.5)
-    plt.tight_layout()
-    plt.show()
-
-
-def _test_fire_multiple_beam_location():
-    time = np.arange(0, 210 * 60, 30)
-    length = 100
-
-    import matplotlib.pyplot as plt
-
-    plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.94, 2.76))
-    ax.set_xlabel("Time [minute]")
-    ax.set_ylabel("Temperature [$℃$]")
-
-    temperature_list = temperature(
-        t=time,
-        fire_load_density_MJm2=600,
-        fire_hrr_density_MWm2=0.25,
-        room_length_m=length,
-        room_width_m=16,
-        fire_spread_rate_ms=0.012,
-        beam_location_height_m=3,
-        beam_location_length_m=np.linspace(0, length, 12)[1:-1],
-        fire_nft_limit_c=1050,
-    )
-
-    for temperature_ in temperature_list:
-        ax.plot(time / 60, temperature_, label="Room length {:4.0f} m".format(length))
-
-    ax.legend(loc=4).set_visible(True)
-    ax.set_xlim((-10, 190))
-    ax.grid(color="k", linestyle="--")
-    plt.tight_layout()
-    # plt.show()
-
-
-def example():
-    time = np.arange(0, 210 * 60, 30)
-    list_l = [25, 50, 100, 150]
-
-    import matplotlib.pyplot as plt
-
-    plt.style.use("seaborn-paper")
-    fig, ax = plt.subplots(figsize=(3.94, 2.76))
-    ax.set_xlabel("Time [minute]")
-    ax.set_ylabel("Temperature [$℃$]")
-
-    for length in list_l:
-        temperature_ = temperature(
-            t=time,
-            fire_load_density_MJm2=600,
-            fire_hrr_density_MWm2=0.25,
-            room_length_m=length,
-            room_width_m=16,
-            fire_spread_rate_ms=0.012,
-            beam_location_height_m=3,
-            beam_location_length_m=length / 2,
-            fire_nft_limit_c=1050,
-        )
-
-        ax.plot(time / 60, temperature_, label="Room length {:4.0f} m".format(length))
-
-    ax.legend(loc=4).set_visible(True)
-    ax.set_xlim((0, 180))
-    ax.set_ylim((0, 1400))
-    ax.grid(color="k", linestyle="--")
-    plt.tight_layout()
-    plt.show()
-
-
-if __name__ == "__main__":
-    _test_fire()
-    _test_fire_backup()
-    _test_fire_multiple_beam_location()
-    example()

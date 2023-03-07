@@ -3,13 +3,10 @@ from typing import List, Union
 
 from pylatex import Alignat, NoEscape, LongTable, MultiColumn
 
-try:
-    from pytexit import py2tex
-except ModuleNotFoundError:
-    pass
+from fsetools.pytexit import py2tex
 
 
-def py2tex_modified(exps: Union[List, tuple, str]):
+def py2tex_modified(exps: Union[List, tuple, str], ignore_error: bool = True):
     if isinstance(exps, tuple):
         exps = list(exps)
 
@@ -17,34 +14,46 @@ def py2tex_modified(exps: Union[List, tuple, str]):
         for i in range(len(exps)):
             try:
                 exps[i] = f"${py2tex(f'{exps[i]}', print_latex=False, print_formula=False).replace('$', '')}$"
-            except:
-                pass
+            except Exception as e:
+                if ignore_error:
+                    pass
+                else:
+                    raise e
     elif isinstance(exps, str):
         try:
             exps = f"${py2tex(f'{exps}', print_latex=False, print_formula=False).replace('$', '')}$"
-        except:
-            pass
+        except Exception as e:
+            if ignore_error:
+                pass
+            else:
+                raise e
     else:
         raise TypeError('`exps` not list or str')
     return exps
 
 
-def make_alginat_equations(latex_expressions: List[str], alignment_symbol: str = '='):
+def make_alginat_equations(exps: List[str], sym: str = '=') -> Alignat:
+    """For a given list of equations, generate pylatex alginat object
+
+    :param exps: A list of LaTeX math expressions
+    :param sym: The symbol to be aligned against
+    :return: A pylatex Alginat object
+    """
+
     alignat = Alignat(numbering=False, escape=False)
-    for i, latex_expression in enumerate(latex_expressions):
-        if i < len(latex_expressions) - 1:
-            latex_expression += '\\\\'
+    for i, exp in enumerate(exps):
+        if i < len(exps) - 1:
+            exp += '\\\\'
 
-        alignment_symbol_i = latex_expression.find(alignment_symbol)
-        if alignment_symbol_i >= 0:
-            latex_expression = f'{latex_expression[:alignment_symbol_i]}&{latex_expression[alignment_symbol_i:]}'
-
-        alignat.append(latex_expression)
+        sym_loc = exp.find(sym)  # Find the alignment symbol location
+        if sym_loc >= 0:  # If alignment symbol exists
+            exp = f'{exp[:sym_loc]}&{exp[sym_loc:]}'  # Insert &
+        alignat.append(exp)  # Add expression
 
     return alignat
 
 
-def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: List[str]):
+def make_table_of_symbols(symbols: List[str], units: List[str], descriptions: List[str]) -> LongTable:
     table_symbols_content = LongTable("l l l")
     table_symbols_content.add_hline()
     table_symbols_content.add_row(["Symbol", "Unit", "Description"])

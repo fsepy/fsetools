@@ -7,9 +7,22 @@ import numpy as np
 
 class AsciiPlot:
     """
-    ┏━━━┓
-    ┫   ┃
-    ┗━┳━┛
+          ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+     1.00 ┫      ***                     ***                  ┃
+          ┃                            **   **                ┃
+     0.66 ┫                           *       *               ┃
+          ┃                          *         *              ┃
+     0.33 ┫                          *         *              ┃
+          ┃                         *           *             ┃
+     0.00 ┫ *           *           *           *           * ┃
+          ┃                        *             *            ┃
+    -0.33 ┫                                      *            ┃
+          ┃                                       *           ┃
+    -0.66 ┫                                        *          ┃
+          ┃                                         *         ┃
+    -1.00 ┫                  ***                     ***      ┃
+          ┗━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━┛
+          -3.14       -1.57        0.00        1.57        3.14
     """
 
     def __init__(
@@ -20,6 +33,7 @@ class AsciiPlot:
         self.__xlim = None
         self.__ylim = None
         self.__plot_canvas = None
+        self.__plot_canvas_frame = None
         self.__plot_yaxis = None
         self.__plot_xaxis = None
         self.__plot = None
@@ -63,16 +77,20 @@ class AsciiPlot:
         # Make canvas string
         # ------------------
         canvas_size = (
-            self.size[0] - self.__plot_yaxis.shape[1] - 5,
-            self.size[1] - self.__plot_xaxis.shape[0] - 5
+            self.size[0] - self.__plot_yaxis.shape[1],  # width = total width - width taken by y-axis ticks/label
+            self.size[1] - self.__plot_xaxis.shape[0]  # height = total height - height taken by x-axis ticks/label
         )
         self.__plot_canvas = self._make_canvas(x, y, xlim, ylim, canvas_size)
 
         # ------------------------------
         # Assemble all figure components
         # ------------------------------
-        self.__plot = self.__assemble(self.__plot_canvas_frame, self.__plot_canvas, self.__plot_xaxis,
-                                      self.__plot_yaxis)
+        self.__plot = self.__assemble(
+            self.__plot_canvas_frame,
+            self.__plot_canvas,
+            self.__plot_xaxis,
+            self.__plot_yaxis
+        )
 
         return self
 
@@ -104,7 +122,7 @@ class AsciiPlot:
     def _make_canvas_frame(
             size: tuple = (81, 41)
     ):
-        mat_canvas_frame = np.full(shape=size, fill_value=' ', dtype='<U1')
+        mat_canvas_frame = np.full(shape=size[::-1], fill_value=' ', dtype='<U1')
         mat_canvas_frame[0, :] = '━'
         mat_canvas_frame[-1, :] = '━'
         mat_canvas_frame[:, -1] = '┃'
@@ -243,14 +261,16 @@ class AsciiPlot:
         # -----------------------------
         # assign canvas frame to figure
         # -----------------------------
-        i, j = 0, mat_yaxis.shape[1]
-        mat_figure[i:i + mat_plot_canvas_frame.shape[0], j:j + mat_plot_canvas_frame.shape[1]] = mat_plot_canvas_frame[::-1, :]
+        # i1, j1 = 0, mat_yaxis.shape[1]
+        # i2 = i1 + mat_plot_canvas_frame.shape[0]
+        # j2 = j1 + mat_plot_canvas_frame.shape[1]
+        # mat_figure[i1:i2, j1:j2] = mat_plot_canvas_frame[::-1, :]
 
         # -----------------------
         # assign canvas to figure
         # -----------------------
         i, j = 0, mat_yaxis.shape[1]
-        # mat_figure[i:i+mat_canvas.shape[0], j:j+mat_canvas.shape[1]] = mat_canvas[::-1, :]
+        mat_figure[i:i + mat_canvas.shape[0], j:j + mat_canvas.shape[1]] = mat_canvas[::-1, :]
 
         # ----------------------
         # assign yaxis to figure
@@ -308,21 +328,3 @@ class AsciiPlot:
         self.__ylim = v
 
 
-def _test_asciiplot():
-    size = (80, 25)
-    xlim = (-2 * np.pi, 2 * np.pi)
-    ylim = (-1.1, 1.1)
-
-    aplot = AsciiPlot(size=size)
-
-    x = np.linspace(-2 * np.pi, 2 * np.pi, 50)
-    aplot.plot(
-        x=x,
-        y=np.sin(x),
-        xlim=xlim,
-        ylim=ylim,
-    ).show()
-
-
-if __name__ == '__main__':
-    _test_asciiplot()

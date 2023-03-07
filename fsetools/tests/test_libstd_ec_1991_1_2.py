@@ -1,3 +1,0 @@
-from fsetools.libstd.ec_1991_1_2 import _test_appendix_a_parametric_fire as test_appendix_a_parametric_fire
-
-test_appendix_a_parametric_fire()
