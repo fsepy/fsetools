@@ -34,11 +34,34 @@ def clause_g_3_phi(w, h, s, theta):
     return dict(phi=phi, _latex=_latex)
 
 
-def _test_clause_g_3_phi():
+def test_clause_g_3_phi():
     res = clause_g_3_phi(w=6, h=10, s=2, theta=pi / 2)
 
     print(res['phi'])
     [print(i) for i in res['_latex']]
+
+
+def clause_g_3_c_phi(W: float, H: float, theta: float, S: float):
+    """
+    Clause G.3, page 57
+    :param w:
+    :param h:
+    :param s:
+    :param theta:
+    :return:
+    """
+
+    a = H / S
+    b = W / S
+
+    _c = (1 - b * np.cos(theta)) / ((1 + b ** 2 - 2 * np.cos(theta)) ** 0.5)
+    _d = (a / (1 + b ** 2 - 2 * b * np.cos(theta)) ** 0.5)
+    _e = (a * np.cos(theta)) / ((a ** 2 + np.sin(theta) ** 2) ** 0.5)
+    _f = np.arctan((b - np.cos(theta)) / ((a ** 2 + np.sin(theta) ** 2) ** 0.5))
+    _g = np.arctan((np.cos(theta)) / ((a ** 2 + np.sin(theta) ** 2) ** 0.5))
+
+    Phi = 0.5 / np.pi * (np.arctan(a) - _c * _d + _e * (_f + _g))
+    return Phi
 
 
 class Phi:
@@ -84,7 +107,8 @@ class Phi:
     @staticmethod
     def __clause_5_c(phi: float, a: float, b: float, c: float) -> float:
         """
-        Configuration factor for rectangular emitter and receiver at an angle phi as per Clause 5 c. NB the equation defined in BS EN 1991-1-2 might be incorrect as only three
+        Configuration factor for rectangular emitter and receiver at an angle phi as per Clause 5 c. NB the equation
+        defined in BS EN 1991-1-2 might be incorrect as only three
         variables are present. Equation from SFPE p. 3479 is used.
 
         :param phi: [rad]   is the internal angle between emitter and receiver
