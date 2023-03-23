@@ -108,8 +108,7 @@ class Phi:
     def __clause_5_c(phi: float, a: float, b: float, c: float) -> float:
         """
         Configuration factor for rectangular emitter and receiver at an angle phi as per Clause 5 c. NB the equation
-        defined in BS EN 1991-1-2 might be incorrect as only three
-        variables are present. Equation from SFPE p. 3479 is used.
+        defined in BS EN 1991-1-2 might be incorrect as only three variables are present. Equation from SFPE p. 3479 is used.
 
         :param phi: [rad]   is the internal angle between emitter and receiver
         :param a:   [m]     is the emitter width
