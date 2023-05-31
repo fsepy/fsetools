@@ -23,8 +23,7 @@ def heat_detector_temperature_pd7974(
         ambient_gas_temperature: Optional[float] = 293.15,
         ambient_gas_specific_heat: Optional[float] = 1.2,
         ambient_gas_density: Optional[float] = 1.0,
-        *_, **__
-) -> dict:
+) -> tuple:
     """This function calculates heat detector device time - temperature revolution based on specified fire heat release
     rate.
 
@@ -171,6 +170,46 @@ def heat_detector_temperature_pd7974(
 
     # Pack up results
     # ===============
+    return fire_diameter, virtual_origin, air_type_arr, jet_velocity, jet_temperature, detector_temperature,
+
+
+def heat_detector_temperature_pd7974_dict(
+        fire_time: Union[np.ndarray, list],
+        fire_hrr_kW: Union[np.ndarray, list],
+        detector_to_fire_vertical_distance: float,
+        detector_to_fire_horizontal_distance: float,
+        detector_response_time_index: float,
+        detector_conduction_factor: float,
+        fire_hrr_density_kWm2: float,
+        fire_conv_frac: float,
+        ambient_gravity_acceleration: Optional[float] = 9.81,
+        ambient_gas_temperature: Optional[float] = 293.15,
+        ambient_gas_specific_heat: Optional[float] = 1.2,
+        ambient_gas_density: Optional[float] = 1.0,
+        *_, **__
+) -> dict:
+    (
+        fire_diameter,
+        virtual_origin,
+        air_type_arr,
+        jet_velocity,
+        jet_temperature,
+        detector_temperature,
+    ) = heat_detector_temperature_pd7974(
+        fire_time=fire_time,
+        fire_hrr_kW=fire_hrr_kW,
+        detector_to_fire_vertical_distance=detector_to_fire_vertical_distance,
+        detector_to_fire_horizontal_distance=detector_to_fire_horizontal_distance,
+        detector_response_time_index=detector_response_time_index,
+        detector_conduction_factor=detector_conduction_factor,
+        fire_hrr_density_kWm2=fire_hrr_density_kWm2,
+        fire_conv_frac=fire_conv_frac,
+        ambient_gravity_acceleration=ambient_gravity_acceleration,
+        ambient_gas_temperature=ambient_gas_temperature,
+        ambient_gas_specific_heat=ambient_gas_specific_heat,
+        ambient_gas_density=ambient_gas_density,
+    )
+
     return dict(
         fire_diameter=fire_diameter,
         virtual_origin=virtual_origin,

@@ -8,7 +8,7 @@ def test_heat_detector_activation_ceiling_pd7974():
 
     # Code results
     t = np.array([i * 0.5 for i in range(1200)])
-    res = heat_detector_temperature_pd7974(
+    res = heat_detector_temperature_pd7974_dict(
         fire_time=t,
         fire_hrr_kW=[eq_22_t_squared_fire_growth(alpha=0.0117, t=i) / 1000. for i in t],
         detector_to_fire_vertical_distance=3.6,
@@ -34,7 +34,7 @@ def test_heat_detector_activation_ceiling_pd7974_2():
     # Code results
     gas_time = np.array([i * 0.5 for i in range(1200)])
     gas_hrr_kWm2 = eq_22_t_squared_fire_growth(0.0117, gas_time) / 1000.
-    res = heat_detector_temperature_pd7974(
+    res = heat_detector_temperature_pd7974_dict(
         fire_time=gas_time,
         fire_hrr_kW=gas_hrr_kWm2,
         detector_to_fire_vertical_distance=3.,
@@ -51,3 +51,8 @@ def test_heat_detector_activation_ceiling_pd7974_2():
         np.argmin(np.abs(res['detector_temperature'] - detector_activation_temperature))]
     given_activation_time = 287  # checked against Danny Hopkin's calculation on 7th Feb 2020 16:20, Bicester
     assert abs(calculated_activation_time - given_activation_time) <= 1.
+
+
+if __name__ == '__main__':
+    test_heat_detector_activation_ceiling_pd7974()
+    test_heat_detector_activation_ceiling_pd7974_2()
