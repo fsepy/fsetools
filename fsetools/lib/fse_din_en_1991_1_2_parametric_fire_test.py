@@ -59,5 +59,57 @@ def test_0():
     assert abs(res['T_3_x'] - 316.) <= 1.
 
 
+def test_temperature_and_key_locations():
+    res = {k: -1 for k in (
+        't_1', 't_2', 't_3',
+        't_1_x', 't_2_x', 't_3_x',
+        'Q_1', 'Q_2', 'Q_3',
+        'Q_1_x', 'Q_2_x', 'Q_3_x',
+    )}
+    t = np.arange(0., 180. * 60. + 1. / 2., 1.)
+    T = temperature(
+        t=t,
+        A_w=6.,
+        h_w=1.,
+        A_t=220.,
+        A_f=100.,
+        t_alpha=300.,
+        b=1500.,
+        q_x_d=400. * 1e6,
+        gamma_fi_Q=1.0,
+        q_ref=1300. * 1e6,
+        rho_Q_dot=0.25 * 1e6,
+        outputs=res
+    )
+
+    try:
+        import matplotlib.pyplot as plt
+
+        fig, ax = plt.subplots()
+        ax2 = ax.twinx()
+        ax.plot(t / 60., T - 273.15, '-k')
+        ax.set_xlabel('Time [min]')
+        ax.set_ylabel('Temperature [$^oC$]')
+
+        def func_(t_1, t_2_x, t_3_x, Q_1, Q_2, Q_3, **__):
+            ax2.plot(
+                [0, t_1 / 60., t_2_x / 60., t_3_x / 60.],
+                [0, Q_2 / 1e3, Q_2 / 1e3, 0],
+                '--r'
+            )
+            ax2.set_ylabel('HRR [MW]')
+            ax2.set_ylim(0, Q_2 / 1e3 + Q_2 / 1e3 * 0.3)
+
+        func_(**res)
+        ax.plot([])
+        plt.show()
+    except:
+        pass
+
+    assert abs(res['Q_2'] - 89043.83749141336) < 1e-6
+    assert abs(t[np.argmin(np.abs(t - res['t_2_x']))] - t[np.argmax(T)]) < 2
+
+
 if __name__ == '__main__':
-    test_0()
+    # test_0()
+    test_temperature_and_key_locations()

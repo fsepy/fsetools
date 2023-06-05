@@ -133,21 +133,21 @@ def temperature(
         Q_1 = t_1 ** 3 / (3 * t_alpha ** 2)  # [MW]
 
         # AA.14
-        T_1_f = min(980, 24000 * k + 20)  # [°C]
+        T_1_f = min(980., 24000 * k + 20)  # [°C]
 
         # AA.15
         Q_2 = 0.7 * Q_d - Q_1
         t_2 = t_1 + Q_2 / Q_max_f_d
 
         # AA.16
-        T_2_f = min(1340, 33000 * k + 20)  # [°C]
+        T_2_f = min(1340., 33000 * k + 20)  # [°C]
 
         # AA.17
         Q_3 = 0.3 * Q_d
         t_3 = t_2 + (2 * Q_3) / Q_max_f_d
 
         # AA.18
-        T_3_f = min(660, 16000 * k + 20)  # [°C]
+        T_3_f = min(660., 16000 * k + 20)  # [°C]
 
         # AA.19
         # See above
@@ -184,6 +184,14 @@ def temperature(
     # AA.24
     T_3_x = T_3 * np.log10(t_3_x / 60 + 1) / np.log10(t_3 / 60 + 1)  # [°C]
 
+    # Check flash-over, this has to be behind all calcs above!!!
+    # AA.30
+    Q_fo = 0.0078 * A_t + 0.378 * A_w * h_w ** 0.5  # [MW]
+    # AA.29
+    t_1_fo = (t_alpha ** 2 * Q_fo) ** 0.5  # [s]
+
+    t_1 = min(t_1, t_1_fo)
+
     if 't_2_x' in outputs:
         outputs['t_2_x'] = t_2_x
 
@@ -193,21 +201,13 @@ def temperature(
                 outputs[k] = locals()[k]
 
     # CONVERT UNITS TO SI
-    return T_t(t, t_1, t_2, t_2_x, t_3_x, T_1, T_2_x, T_3_x, A_t, A_w, h_w, t_alpha) + 273.15
+    return T_t(t, t_1, t_2, t_2_x, t_3_x, T_1, T_2_x, T_3_x, ) + 273.15
 
 
 # AA.26 - AA.28
-def T_t(t, t_1, t_2, t_2_x, t_3_x, T_1, T_2_x, T_3_x, A_t, A_w, h_w, t_alpha, T_0=20):
+def T_t(t, t_1, t_2, t_2_x, t_3_x, T_1, T_2_x, T_3_x, T_0=20):
     # Initialise container for return value
     T = np.zeros(len(t))
-
-    # Check flash-over
-    # AA.30
-    Q_fo = 0.0078 * A_t + 0.378 * A_w * h_w ** 0.5  # [MW]
-    # AA.29
-    t_1_fo = (t_alpha ** 2 * Q_fo) ** 0.5  # [s]
-
-    t_1 = min(t_1, t_1_fo)
 
     # AA.26
     t_1_ = np.logical_and(0 <= t, t <= t_1)
