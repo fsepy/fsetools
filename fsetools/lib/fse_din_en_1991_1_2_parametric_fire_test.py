@@ -65,6 +65,7 @@ def test_temperature_and_key_locations():
         't_1_x', 't_2_x', 't_3_x',
         'Q_1', 'Q_2', 'Q_3',
         'Q_1_x', 'Q_2_x', 'Q_3_x',
+        'T_1', 'T_2_x', 'T_3_x'
     )}
     t = np.arange(0., 180. * 60. + 1. / 2., 1.)
     T = temperature(
@@ -91,7 +92,8 @@ def test_temperature_and_key_locations():
         ax.set_xlabel('Time [min]')
         ax.set_ylabel('Temperature [$^oC$]')
 
-        def func_(t_1, t_2_x, t_3_x, Q_1, Q_2, Q_3, **__):
+        def func_(t_1, t_2_x, t_3_x, Q_1, Q_2, Q_3, T_1, T_2_x, T_3_x, **__):
+            ax.plot([t_1 / 60, t_2_x / 60, t_3_x / 60], [T_1, T_2_x, T_3_x])
             ax2.plot(
                 [0, t_1 / 60., t_2_x / 60., t_3_x / 60.],
                 [0, Q_2 / 1e3, Q_2 / 1e3, 0],
@@ -101,10 +103,9 @@ def test_temperature_and_key_locations():
             ax2.set_ylim(0, Q_2 / 1e3 + Q_2 / 1e3 * 0.3)
 
         func_(**res)
-        ax.plot([])
         plt.show()
-    except:
-        pass
+    except Exception as e:
+        raise e
 
     assert abs(res['Q_2'] - 89043.83749141336) < 1e-6
     assert abs(t[np.argmin(np.abs(t - res['t_2_x']))] - t[np.argmax(T)]) < 2
