@@ -23,6 +23,7 @@ def heat_detector_temperature_pd7974(
         ambient_gas_temperature: Optional[float] = 293.15,
         ambient_gas_specific_heat: Optional[float] = 1.2,
         ambient_gas_density: Optional[float] = 1.0,
+        activation_temperature: float = 1e9,
 ) -> tuple:
     """This function calculates heat detector device time - temperature revolution based on specified fire heat release
     rate.
@@ -39,6 +40,7 @@ def heat_detector_temperature_pd7974(
     :param ambient_gas_density:
     :param ambient_gas_specific_heat:
     :param ambient_gravity_acceleration:
+    :param activation_temperature: in [K], detector activation temperature, calculation stops when activation occurs
     :return:
     """
 
@@ -167,6 +169,12 @@ def heat_detector_temperature_pd7974(
         jet_velocity[i] = u_jet
         jet_temperature[i] = theta_jet
         detector_temperature[i] = Delta_Te
+
+        if Delta_Te >= activation_temperature:
+            return (
+                fire_diameter[:i + 1], virtual_origin[:i + 1], air_type_arr[:i + 1], jet_velocity[:i + 1],
+                jet_temperature[:i + 1], detector_temperature[:i + 1],
+            )
 
     # Pack up results
     # ===============
