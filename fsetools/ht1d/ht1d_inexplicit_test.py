@@ -37,4 +37,5 @@ def test_inexplicit():
     plt.show()
 
 
-test_inexplicit()
+if __name__ == '__main__':
+    test_inexplicit()

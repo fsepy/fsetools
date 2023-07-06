@@ -1,8 +1,7 @@
 from math import e
 from typing import Union
 
-from scipy.optimize import bisect
-
+from fsetools.etc.solver import linear_solver
 from fsetools.lib.fse_thermal_radiation import phi_parallel_any_br187, phi_perpendicular_any_br187
 
 SYMBOLS = dict(
@@ -95,7 +94,19 @@ def clause_b_1_3_3_T_m(
     ):
         return I_z_ + I_f_ + alpha_ * T_z_ - sigma_ * T_m_ ** 4 - alpha_ * T_m_
 
-    T_m = bisect(func, 0.001, 5000, (I_z, I_f, alpha, T_z, sigma))
+    # T_m = bisect(func, 0.001, 5000, (I_z, I_f, alpha, T_z, sigma))
+
+    T_m = linear_solver(
+        func=func,
+        func_kwargs=dict(T_m_=293.15, I_z_=I_z, I_f_=I_f, alpha_=alpha, T_z_=T_z, ),
+        x_name='T_m_',
+        y_target=0,
+        x_upper=2000 + 273.15,
+        x_lower=273.15,
+        y_tol=0.1,
+        iter_max=1000,
+        func_multiplier=-1
+    )
 
     _latex = (
         f'\\sigma\\cdot T_{{m}}^4 + \\alpha\\cdot T_{{m}} = I_{{z}} + I_{{f}} + \\alpha\\cdot T_{{z}}',
