@@ -143,7 +143,7 @@ def test_temperature_param_2():
 def test_temperature_extreme():
     import matplotlib.pyplot as plt
 
-    t = np.arange(0, 210 * 60, 1, dtype=np.float)
+    t = np.arange(0, 210 * 60, 1, dtype=float)
     kwargs = __test_heat_transfer_kwargs(t, __param_fire(t))
 
     fig, ax1 = plt.subplots()
