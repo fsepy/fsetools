@@ -206,7 +206,7 @@ def _ppf(p, mean, sd):
 def k_y_theta_prob(theta_a: Union[float, np.ndarray], epsilon_q: Union[float, np.ndarray]):
     k_y_2_T_bar = k_y_theta(theta_a=theta_a)
     k_y_2_T_star = (k_y_2_T_bar + 1e-6) / 1.7
-    epsilon = _ppf(epsilon_q)
+    epsilon = _ppf(epsilon_q, 0, 1)
 
     b1 = np.log(k_y_2_T_star / (1 - k_y_2_T_star))
     b2 = 0.412
