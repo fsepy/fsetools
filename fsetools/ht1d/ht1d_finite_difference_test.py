@@ -1,12 +1,10 @@
-import copy
-
-from matplotlib import pyplot as plt
-from scipy.interpolate import interp1d
-
-from fsetools.ht1d.ht1d_finite_difference import *
-
-
 def test():
+    import copy
+
+    from matplotlib import pyplot as plt
+    from scipy.interpolate import interp1d
+    import numpy as np
+
     # Set geometrical parameters & simulation time frame
 
     nodes = 100  # set the number of nodes
@@ -61,6 +59,15 @@ def test():
         # lamdaNL = lamda_interp(temp_arr)
         # cpNL = cp_interp(temp_arr)
         # rhoNL = rho_interp(temp_arr)
+        from fsetools.ht1d.ht1d_finite_difference import ONEDHT_QINC
+        from fsetools.ht1d.ht1d_finite_difference import ONEDHT_ELEM1
+        from fsetools.ht1d.ht1d_finite_difference import ONEDHT_ELEMJ
+        from fsetools.ht1d.ht1d_finite_difference import ONEDHT_QOUT
+        from fsetools.ht1d.ht1d_finite_difference import ONEDHT_ELEMF
+        from fsetools.ht1d.ht1d_finite_difference import k_steel_T
+        from fsetools.ht1d.ht1d_finite_difference import c_steel_T
+        from fsetools.ht1d.ht1d_finite_difference import ISO834_ft
+
         lamdaNL = np.array([k_steel_T(temp) for temp in temp_arr])
         cpNL = np.array([c_steel_T(temp) for temp in temp_arr])
         rhoNL = np.full_like(temp_arr, 7850)
@@ -73,7 +80,6 @@ def test():
             print("Time = ", time, " s ", "Gas temperature = ", gas_temp, " DegC")
 
         # First element calculations
-
         Qinc = ONEDHT_QINC(gas_temp, temp_arr[0], effemis, hchot)
         temp_arr[0] = ONEDHT_ELEM1(
             Qinc,
@@ -88,7 +94,6 @@ def test():
         )
 
         # Intermediate element calculations
-
         for nodenum in range(1, nodes - 1):
             temp_arr[nodenum] = ONEDHT_ELEMJ(
                 temp_arr[nodenum - 1],
@@ -104,7 +109,6 @@ def test():
             )
 
         # Final element calculations
-
         Qout = ONEDHT_QOUT(temp_arr[nodes - 1], tamb, effemis, hccold)
         temp_arr[nodes - 1] = ONEDHT_ELEMF(
             Qout,

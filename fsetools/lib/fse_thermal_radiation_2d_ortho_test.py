@@ -111,7 +111,7 @@ def test_visual_CuboidRoomModel():
 
     ax.clabel(cs, inline=1, fontsize='small', fmt='%1.1f kW')
 
-    ax.grid(b=True, which='major', axis='both', color='k', alpha=0.1)
+    ax.grid(which='major', axis='both', color='k', alpha=0.1)
 
     # axis ticks
     ax.set_xticks(np.arange(np.amin(xx), np.amax(xx) + .5, 1))
@@ -137,7 +137,8 @@ def test_visual_CuboidRoomModel():
     plt.show()
 
 
-test_Plane()
-test_CuboidRoomModel()
-test_Emitter_Receiver()
-test_visual_CuboidRoomModel()
+if __name__ == '__main__':
+    test_Plane()
+    test_CuboidRoomModel()
+    test_Emitter_Receiver()
+    test_visual_CuboidRoomModel()

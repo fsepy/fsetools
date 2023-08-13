@@ -1,8 +1,8 @@
 import numpy as np
 
-from .fse_thermal_radiation import linear_solver
-
 __all__ = 'phi_solver', 'phi_angled_any_en_1_converted',
+
+from fsetools.etc.solver import linear_solver
 
 
 def phi_angled_corner_en_1(w: float, h: float, theta: float, s: float):
@@ -138,7 +138,7 @@ def phi_solver(W: float, H: float, w: float, h: float, theta: float, Q: float, Q
             try:
                 S_solved = linear_solver(
                     func=phi_angled_any_en_1_converted,
-                    dict_params=dict(W=W, H=H, w=w, h=h, theta=theta, S=S),
+                    func_kwargs=dict(W=W, H=H, w=w, h=h, theta=theta, S=S),
                     x_name='S',
                     y_target=phi_target - 0.0001,
                     x_upper=10000,

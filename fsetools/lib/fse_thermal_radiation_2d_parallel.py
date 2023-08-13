@@ -44,7 +44,7 @@ def main_plot(
     if contour_line_font_size > 0:
         ax.clabel(cs, inline=1, fontsize=contour_line_font_size, fmt='%1.1f kW')
 
-    ax.grid(b=True, which='major', axis='both', color='k', alpha=0.1)
+    ax.grid(which='major', axis='both', color='k', alpha=0.1)
 
     # axis ticks
     ax.set_xticks(np.arange(np.amin(xx), np.amax(xx) + .5, 1))

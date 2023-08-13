@@ -150,7 +150,7 @@ def points_in_ploy(points_xy: list, poly_xy: list):
     poly_xy_list = list(poly_xy)
     poly_xy_list.append(poly_xy_list[0])
 
-    results = np.full((len(points_xy),), False, dtype=np.bool)
+    results = np.full((len(points_xy),), False, dtype=bool)
 
     for i, point in enumerate(points_xy):
         p1 = (-1e100, point[1])

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from scipy.interpolate import interp1d
 
 
 def protected_steel_bs13381(
@@ -65,11 +64,11 @@ def protected_steel_bs13381(
     # [BS EN 13381-8:2013, ANNEX E, Equation E.5]
     def _d_theta_at(c_a, rho_a, lambda_ave, d_p, A_p, V, theta_t, theta_at, dt):
         return (
-            (1 / (c_a + rho_a))
-            * (lambda_ave / d_p)
-            * (A_p / V)
-            * (theta_t - theta_at)
-            * dt
+                (1 / (c_a + rho_a))
+                * (lambda_ave / d_p)
+                * (A_p / V)
+                * (theta_t - theta_at)
+                * dt
         )
 
     # [BS EN 13381-8:2013, ANNEX E, Equation E.6]
@@ -79,7 +78,8 @@ def protected_steel_bs13381(
     # Note: only equation E.1 and E.2 are currently being used as it is assumed the conductivity of protection layer
     #       is known.
 
-    _temperature_gas = interp1d(time, temperature_ambient)
+    def _temperature_gas(x):
+        return np.interp(x, time, temperature_ambient)
 
     # Instantiate output containers
     time_ = [0]
