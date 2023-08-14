@@ -8,7 +8,6 @@ def test_fire():
     list_l = [5, 10, 15, 20, 25, 30, 35]
 
     import matplotlib.pyplot as plt
-    import pandas as pd
 
     plt.style.use("seaborn-paper")
     fig, ax = plt.subplots(figsize=(3.94, 2.76))
@@ -56,6 +55,6 @@ def test_fire():
     plt.tight_layout()
     plt.show()
 
-    df_data = pd.DataFrame.from_dict(dict_data)
+    # df_data = pd.DataFrame.from_dict(dict_data)
 
-    return df_data
+    return dict_data

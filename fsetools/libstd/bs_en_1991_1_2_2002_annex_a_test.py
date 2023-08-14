@@ -10,33 +10,31 @@ def test_appendix_a_parametric_fire():
     [1] Holicky, M., Meterna, A., Sedlacek, G. and Schleich, J.B., 2005. Implementation of eurocodes, handbook 5, design
     of buildings for the appendix_a_parametric_fire situation. Leonardo da Vinci Pilot Project: Luxembourg."""
     import copy
-    from io import StringIO
 
     try:
         from scipy.interpolate import interp1d
         from scipy import stats
     except ImportError:
         raise ImportError('Missing library `scipy`')
-    try:
-        import pandas
-    except ImportError:
-        raise ImportError('Missing library `pandas`')
 
     # LOAD VERIFICATION DATA
     # data are extracted from the referenced document
 
-    verification_data = StringIO(
-        """time_1,temperature_1,time_2,temperature_2,time_3,temperature_3,time_4,temperature_4,time_5,temperature_5,time_6,temperature_6,time_7,temperature_7
-        20,689.1109391,20,689.1109391,20,689.1109391,20,843.9616854,20,741.3497451,20,601.424372,20,269.3348197
-        30,782.7282474,30,782.7317977,30,782.7317977,30,946.9144525,30,827.5114674,30,726.7651987,30,430.1234077
-        40,167.4009827,40,402.4756096,40,508.8188932,40,781.2034026,40,885.6845648,40,777.4756096,40,533.0726245
-        50,20,50,20,50,236.7716603,50,540.8761379,50,818.8612125,50,813.2641976,50,604.3089737
-        60,20,60,20,60,20,60,304.2731159,60,692.3328174,60,843.4522203,60,651.2880412
-        70,20,70,20,70,20,70,69.53931579,70,565.8079725,70,780.3602113,70,685.2109576
-        80,20,80,20,80,20,80,20,80,441.145249,80,719.1303236,80,709.8019654"""
-    )
-    verification_data = pandas.read_csv(
-        verification_data, skip_blank_lines=True, skipinitialspace=True
+    verification_data = (
+        ((20, 30, 40, 50, 60, 70, 80),
+         (689.1109391, 782.7282474, 167.4009827, 20, 20, 20, 20)),
+        ((20, 30, 40, 50, 60, 70, 80),
+         (689.1109391, 782.7317977, 402.4756096, 20, 20, 20, 20)),
+        ((20, 30, 40, 50, 60, 70, 80),
+         (689.1109391, 782.7317977, 508.8188932, 236.7716603, 20, 20, 20)),
+        ((20, 30, 40, 50, 60, 70, 80),
+         (843.9616854, 946.9144525, 781.2034026, 540.8761379, 304.2731159, 69.53931579, 20)),
+        ((20, 30, 40, 50, 60, 70, 80),
+         (741.3497451, 827.5114674, 885.6845648, 818.8612125, 692.3328174, 565.8079725, 441.145249)),
+        ((20, 30, 40, 50, 60, 70, 80),
+         (601.424372, 726.7651987, 777.4756096, 813.2641976, 843.4522203, 780.3602113, 719.1303236)),
+        ((20, 30, 40, 50, 60, 70, 80),
+         (269.3348197, 430.1234077, 533.0726245, 604.3089737, 651.2880412, 685.2109576, 709.8019654)),
     )
 
     # CALCULATE TIME TEMPERATURE CURVE BASED ON THE VERIFICATION DATA INPUTS
@@ -79,6 +77,7 @@ def test_appendix_a_parametric_fire():
     for i in range(len(A_v_list)):
         x1 = x1_list[i]
         y1 = y1_list[i]
-        x2 = verification_data["time_{}".format(int(i + 1))]
-        y2 = verification_data["temperature_{}".format(int(i + 1))]
+        vd_ = verification_data[i]
+        x2 = vd_[0]
+        y2 = vd_[1]
         assert r_square(x1, y1, x2, y2) > 0.99
