@@ -2,7 +2,7 @@ from typing import Union
 
 import numpy as np
 
-from fsetools.libstd.bs_en_1993_1_2_2005_k_y_theta import clause_3_2_1_1_k_y_theta as k_y_theta
+from fsetools.libstd.bs_en_1993_1_2_2005_clause_3 import clause_3_2_1_3_k_y_theta as k_y_theta
 
 ROOT_2PI = (2 * np.pi) ** 0.5
 EXP_NEG2 = np.exp(-2)

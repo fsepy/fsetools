@@ -1,7 +1,7 @@
 import numpy as np
 
 from fsetools.lib.fse_bs_en_1993_1_2_strength_reduction_factor import k_y_theta_prob
-from fsetools.libstd.bs_en_1993_1_2_2005_k_y_theta import clause_3_2_1_1_k_y_theta as k_y_theta
+from fsetools.libstd.bs_en_1993_1_2_2005_clause_3 import clause_3_2_1_3_k_y_theta as k_y_theta
 
 
 def func_test():
