@@ -23,7 +23,6 @@ cdef double c_steel_T(double T):
 
 
 def temperature(
-        *,
         fire_time,
         double[:] fire_temperature,
         double beam_rho,
@@ -33,6 +32,7 @@ def temperature(
         double protection_c,
         double protection_thickness,
         double protection_protected_perimeter,
+        double steel_initial_temperature = 293.15,
         **__
 ):
     """
@@ -68,11 +68,10 @@ def temperature(
 
     # Check time step <= 30 seconds. [BS EN 1993-1-2:2005, Clauses 4.2.5.2 (3)]
 
-    T_a[0] = fire_temperature[0]  # initially, steel temperature is equal to ambient
+    T_a[0] = steel_initial_temperature  # assign steel initial temperature
     cdef int i
     cdef double a, b, c, d, phi, c_s, T_g, dT
     for i in range(1, len(fire_time)):
-
         T_g = fire_temperature[i]
 
         c_s = c_steel_T(T_a[i - 1])
@@ -90,6 +89,113 @@ def temperature(
             dT = 0
 
         T_a[i] = T_a[i - 1] + dT * d
+
+        # NOTE: Steel temperature can be in cooling phase at the beginning of calculation, even the ambient temperature
+        #       (fire) is hot. This is
+        #       due to the factor 'phi' which intends to address the energy locked within the protection layer.
+        #       The steel temperature is forced to be increased or remain as previous when ambient temperature and
+        #       its previous temperature are all higher than the current calculated temperature.
+        #       A better implementation is perhaps to use a 1-D heat transfer model.
+
+    return np.array(T_a)
+
+
+def temperature_2(
+        fire_time,
+        double[:] fire_temperature,
+        double beam_rho,
+        double beam_cross_section_area,
+        double protection_k,
+        double protection_rho,
+        double protection_c,
+        double protection_thickness,
+        double protection_protected_perimeter,
+        double protection_activation_temperature = 0,
+        double shadow_factor = 1.,
+        double emissivity_factor = 0.7,
+        double conductivity_factor = 25.,
+        double steel_initial_temperature = 293.15,
+):
+    """
+    SI UNITS!
+    Function calculates the steel temperature for a protected steel member based upon BS EN 1993-1-2.
+
+    :param fire_time:                       Time array [s]
+    :param fire_temperature:                Gas temperature array [K]
+    :param beam_rho:                        Steel beam density [kg/m3]
+    :param beam_cross_section_area:         Steel beam cross sectional area [m2]
+    :param protection_k:                    Protection thermal conductivity [K/kg/m]
+    :param protection_rho:                  Protection density [kg/m3]
+    :param protection_c:                    Protection specific heat capacity [J/K/kg]
+    :param protection_thickness:            Protection layer thickness [m]
+    :param protection_protected_perimeter:  Protection protected perimeter (of the steel beam section) [m]
+    :return:                                Steel beam temperature array [K]
+    """
+
+    # todo: 4.2.5.2 (2) - thermal properties for the insulation material
+    # todo: revise BS EN 1993-1-2:2005, Clauses 4.2.5.2
+
+    # BS EN 1993-1-2:2005, 3.4.1.2
+
+    cdef double V = beam_cross_section_area
+    cdef double rho_a = beam_rho
+    cdef double lambda_p = protection_k
+    cdef double rho_p = protection_rho
+    cdef double d_p = protection_thickness
+    cdef double A_p = protection_protected_perimeter
+    cdef double c_p = protection_c
+    cdef double T_act = protection_activation_temperature
+    cdef double k_sh = shadow_factor
+    cdef double e_m = emissivity_factor
+    cdef double a_c = conductivity_factor  # alpha_c
+
+    cdef double epsilon_f = 1.0  # Section 4.2.5.1 (3)
+    cdef double Phi = 1.0  # Assumed, should be 1.0 within a fire compartment
+
+    cdef double[:] T_a = fire_time * 0.0
+
+    # Check time step <= 30 seconds. [BS EN 1993-1-2:2005, Clauses 4.2.5.2 (3)]
+
+    T_a[0] = steel_initial_temperature  # assign steel initial temperature
+    cdef int i
+    cdef double a, b, c, dt, phi, c_s, T_g, dT, h_net_c, h_net_r, h_net_d,const
+    cdef double t_act = -1.
+
+    if T_act == 0.:
+        t_act = 0.
+
+    for i in range(1, len(fire_time)):
+        T_g = fire_temperature[i]
+
+        if t_act < 0 and T_a[i-1] > T_a[0] and T_a[i-1] > T_act:
+            t_act = fire_time[i]
+
+        if t_act>=0:
+            # if above protection activation temperature, use protected correlation
+            c_s = c_steel_T(T_a[i - 1])
+
+            # Steel temperature equations are from [BS EN 1993-1-2:2005, Clauses 4.2.5.2, Eq. 4.27]
+            phi = (c_p * rho_p / c_s / rho_a) * d_p * A_p / V
+
+            a = (lambda_p * A_p / V) / (d_p * c_s * rho_a)
+            b = (T_g - T_a[i - 1]) / (1.0 + phi / 3.0)
+            c = (2.718 ** (phi / 10.0) - 1.0) * (T_g - fire_temperature[i - 1])
+            dt = fire_time[i] - fire_time[i - 1]
+
+            dT = (a * b * dt - c) / dt  # deviated from e4.27, converted to rate [s-1]
+            if dT < 0 < (T_g - fire_temperature[i - 1]):
+                dT = 0
+        else:
+            h_net_c = a_c * (T_g - T_a[i - 1])
+            h_net_r = Phi * e_m * epsilon_f * 56.7e-9 * (T_g ** 4 - T_a[i - 1] ** 4)
+            h_net_d = h_net_c + h_net_r
+
+            # BS EN 1993-1-2:2005 (e4.25)
+            const = (A_p / V) / rho_a / c_steel_T(T_a[i - 1])
+            dt = fire_time[i] - fire_time[i - 1]
+            dT = k_sh * const * h_net_d
+
+        T_a[i] = T_a[i - 1] + dT * dt
 
         # NOTE: Steel temperature can be in cooling phase at the beginning of calculation, even the ambient temperature
         #       (fire) is hot. This is
