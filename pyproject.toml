@@ -1,2 +1,24 @@
 [build-system]
-requires = ["setuptools", "wheel", "numpy", "cython"]  # PEP 508 specifications.
+requires = ["setuptools>=77", "Cython","numpy>=1.19.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fsetools"
+version = "0.0.6"
+description = "Structural Fire Engineering - Probabilistic Reliability Assessment (Equivalent Time Exposure)"
+authors = [{ name = "Yan Fu", email = "fuyans@gmail.com" }]
+license = { text = "Apache-2.0" }
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pylatex>=1.4.0",
+    "numpy>=1.19.3",
+]
+
+[project.optional-dependencies]
+dev = ["pandas>=1.1.1", "matplotlib"]
+docs = ["sphinx>=6"]
+
+[tool.setuptools]
+packages = ["fsetools", "fsetools.etc", "fsetools.lib", "fsetools.libstd"]
+package-dir = { "fsetools" = "src/fsetools" }
