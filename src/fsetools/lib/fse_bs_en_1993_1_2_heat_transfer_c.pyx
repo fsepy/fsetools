@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# distutils: language=3
 import numpy as np
 
 
@@ -314,7 +314,7 @@ def protection_thickness(
     :param fire_time:                       Time array [s]
     :param fire_temperature:                Gas temperature array [K]
     :param beam_rho:                        Steel beam density [kg/m3]
-    :param beam_cross_section_area:         Steel beam cross sectional area [m2]
+    :param beam_cross_section_area:         Steel beam cross-sectional area [m2]
     :param protection_k:                    Protection thermal conductivity [K/kg/m]
     :param protection_rho:                  Protection density [kg/m3]
     :param protection_c:                    Protection specific heat capacity [J/K/kg]
@@ -434,7 +434,7 @@ def protection_thickness_2(
         double protection_protected_perimeter,
         double solver_temperature_goal,
         double solver_temperature_goal_tol,
-        int solver_max_iter = 20,
+        int solver_max_iter = 100,
         double d_p_1 = 0.0001,  # Lower bound of protection thickness
         double d_p_2 = 0.0300,  # Upper bound of protection thickness
         double d_p_i = 0.0010,  # Step size for initial search
@@ -543,6 +543,10 @@ def protection_thickness_2(
 
     # STEPS 3-6: Increase d_p by d_p_i and solve until T crosses target
     while True:
+        if total_iter_count > solver_max_iter:
+            # Max iterations reached in binary search - return best approximation
+            return best_d_p, best_T, best_t, total_iter_count, STATUS_MAX_ITERATIONS_REACHED
+
         # STEP 3: Calculate next d_p as previous + step
         d_p_current = d_p_previous + d_p_i
         if d_p_current > d_p_2:
@@ -575,11 +579,11 @@ def protection_thickness_2(
             d_p_high = d_p_current
 
             # Binary search refinement
-            for i in range(solver_max_iter):
+            for i in range(total_iter_count, solver_max_iter + 1):
                 d_p_mid = (d_p_low + d_p_high) * 0.5
 
                 # Evaluate temperature at midpoint
-                T_current, t_current = temperature_max( protection_thickness=d_p_mid, **common_params)
+                T_current, t_current = temperature_max(protection_thickness=d_p_mid, **common_params)
                 total_iter_count += 1
 
                 # Update best solution
@@ -590,9 +594,13 @@ def protection_thickness_2(
                     best_T = T_current
                     best_t = t_current
 
-                # Check if solution is within tolerance
                 if current_diff < solver_temperature_goal_tol:
+                    # Check if solution is within tolerance
                     return d_p_mid, T_current, t_current, total_iter_count, STATUS_SUCCESS
+                elif T_current > T_previous:
+                    # exit when max temp is no longer inversely proportional to protection thickness
+                    # The current max temperature should be lower than the previous max temperature
+                    return d_p_previous, T_previous, t_previous, total_iter_count, STATUS_OUT_OF_UPPER_BOUND
 
                 # Update binary search bounds
                 if T_current > solver_temperature_goal:
@@ -603,6 +611,10 @@ def protection_thickness_2(
                 # Early termination if bounds are very close
                 if (d_p_high - d_p_low) < 1e-12:
                     return best_d_p, best_T, best_t, total_iter_count, STATUS_SUCCESS
+
+                d_p_previous = d_p_current
+                T_previous = T_current
+                t_previous = t_current
 
             # Max iterations reached in binary search - return best approximation
             return best_d_p, best_T, best_t, total_iter_count, STATUS_MAX_ITERATIONS_REACHED

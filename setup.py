@@ -11,5 +11,5 @@ extensions = [
 ]
 
 setup(
-    ext_modules=cythonize(extensions, language='3')
+    ext_modules=cythonize(extensions)
 )
