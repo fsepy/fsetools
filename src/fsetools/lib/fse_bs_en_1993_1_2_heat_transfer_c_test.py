@@ -64,10 +64,19 @@ def __test_heat_transfer_kwargs(t, T):
     )
 
 
-def test_temperature_trav():
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
+# ---------------------------------------------------------------------------
+# Try to import the Cython module for comparison tests; skip if not available
+# ---------------------------------------------------------------------------
+try:
+    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c  # noqa
+    _HAS_CYTHON = True
+except ImportError:
+    _HAS_CYTHON = False
 
+
+def test_temperature_trav():
     from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
+
     import matplotlib.pyplot as plt
     plt.style.use("seaborn-v0_8")
     from matplotlib.lines import Line2D
@@ -84,22 +93,25 @@ def test_temperature_trav():
     for d_p in list_dp:
         kwargs['protection_thickness'] = d_p
         T = temperature(**kwargs)
-        T_c = temperature_c(**kwargs)
         ax.plot(t / 60, T - 273.15, c='k')
-        ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
-        assert np.allclose(T, T_c, rtol=1.e-4)  # Assertion
+        if _HAS_CYTHON:
+            T_c = temperature_c(**kwargs)
+            ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
+            assert np.allclose(T, T_c, rtol=1.e-4)
 
     ax.grid(ls='--', c='k', linewidth=0.5)
-    lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
-    labels = ['temperature', 'temperature_c']
+    lines = [Line2D([0], [0], color='k')]
+    labels = ['temperature']
+    if _HAS_CYTHON:
+        lines.append(Line2D([0], [0], color='r', linestyle='--'))
+        labels.append('temperature_c')
     ax.legend(lines, labels).set_visible(True)
     plt.show()
 
 
 def test_temperature_param():
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
-
     from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
+
     import matplotlib.pyplot as plt
     plt.style.use("seaborn-v0_8")
     from matplotlib.lines import Line2D
@@ -116,27 +128,31 @@ def test_temperature_param():
     for d_p in list_dp:
         kwargs['protection_thickness'] = d_p
         T = temperature(**kwargs)
-        T_c = temperature_c(**kwargs)
         ax.plot(t / 60, T - 273.15, c='k')
-        ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
-        assert np.allclose(T, T_c, rtol=1.e-4)  # Assertion
+        if _HAS_CYTHON:
+            T_c = temperature_c(**kwargs)
+            ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
+            assert np.allclose(T, T_c, rtol=1.e-4)
 
     ax.grid(ls='--', c='k', linewidth=0.5)
-    lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
-    labels = ['temperature', 'temperature_c']
+    lines = [Line2D([0], [0], color='k')]
+    labels = ['temperature']
+    if _HAS_CYTHON:
+        lines.append(Line2D([0], [0], color='r', linestyle='--'))
+        labels.append('temperature_c')
     ax.legend(lines, labels).set_visible(True)
     plt.show()
 
 
 def test_steel_temperature_protected_with_activation():
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature_2
+    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature_2
 
     import matplotlib.pyplot as plt
     plt.style.use("seaborn-v0_8")
     from matplotlib.lines import Line2D
 
     # --------------------------------------------------
-    # Check if the Cython version returns the same value
+    # Test activation temperature behaviour
     # --------------------------------------------------
     fig, ax = plt.subplots()
     t = np.arange(0, 210 * 60, 5)
@@ -159,15 +175,14 @@ def test_steel_temperature_protected_with_activation():
 
     ax.grid(ls='--', c='k', linewidth=0.5)
     lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
-    labels = ['temperature', 'temperature_c']
+    labels = ['steel temperature', 'gas temperature']
     ax.legend(lines, labels).set_visible(True)
     plt.show()
 
 
 def test_temperature_param_2():
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
-
     from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature
+
     import matplotlib.pyplot as plt
     plt.style.use("seaborn-v0_8")
     from matplotlib.lines import Line2D
@@ -184,15 +199,18 @@ def test_temperature_param_2():
     for d_p in list_dp:
         kwargs['protection_thickness'] = d_p
         T = temperature(**kwargs)
-        T_c = temperature_c(**kwargs)
-        # print(temperature_max(**kwargs), np.amax(T_c))
         ax.plot(t / 60, T - 273.15, c='k')
-        ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
-        assert np.allclose(T, T_c, rtol=1.e-4)  # check if the two function return the same
+        if _HAS_CYTHON:
+            T_c = temperature_c(**kwargs)
+            ax.plot(t / 60, T_c - 273.15, c='r', ls='--')
+            assert np.allclose(T, T_c, rtol=1.e-4)
 
     ax.grid(ls='--', c='k', linewidth=0.5)
-    lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
-    labels = ['temperature', 'temperature_c']
+    lines = [Line2D([0], [0], color='k')]
+    labels = ['temperature']
+    if _HAS_CYTHON:
+        lines.append(Line2D([0], [0], color='r', linestyle='--'))
+        labels.append('temperature_c')
     ax.legend(lines, labels).set_visible(True)
     plt.show()
 
@@ -219,9 +237,8 @@ def test_temperature_extreme():
     fig.show()
 
 
-def test_protection_thickness_c():
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import protection_thickness as protection_thickness_c
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
+def test_protection_thickness():
+    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import protection_thickness, temperature
 
     import matplotlib.pyplot as plt
     plt.style.use("seaborn-v0_8")
@@ -232,7 +249,7 @@ def test_protection_thickness_c():
     kwargs['solver_temperature_goal'] = 873.15 + 20
     kwargs['solver_temperature_goal_tol'] = 0.1
 
-    solver_d_p, solver_T_a_max, _, _ = protection_thickness_c(**kwargs)
+    solver_d_p, solver_T_a_max, _, _ = protection_thickness(**kwargs)
 
     print(
         f'Solved protection thickness   {solver_d_p:<8.4} mm\n'
@@ -244,20 +261,19 @@ def test_protection_thickness_c():
 
     kwargs_check = __test_heat_transfer_kwargs(t, __trav_fire(t))
     kwargs_check['protection_thickness'] = solver_d_p
-    T_c = temperature_c(**kwargs_check)
-    assert abs(np.amax(T_c) - solver_T_a_max) < 1e-3
+    T = temperature(**kwargs_check)
+    assert abs(np.amax(T) - solver_T_a_max) < 1e-3
 
     fig, ax = plt.subplots()
     ax.plot(t, __trav_fire(t), label='Gas temperature')
-    ax.plot(t, T_c, label='Steel temperature')
+    ax.plot(t, T, label='Steel temperature')
     ax.axhline(solver_T_a_max, ls='--', color='k', label=f'Steel temp. at d_p={solver_d_p:.4} mm')
     ax.legend().set_visible(True)
     fig.show()
 
 
-def test_protection_thickness_c_extreme():
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature as temperature_c
-    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer_c import temperature_max as temperature_max_c
+def test_protection_thickness_extreme():
+    from fsetools.lib.fse_bs_en_1993_1_2_heat_transfer import temperature, temperature_max
 
     import matplotlib.pyplot as plt
     plt.style.use("seaborn-v0_8")
@@ -270,7 +286,7 @@ def test_protection_thickness_c_extreme():
 
     for protection_thickness in np.linspace(0.0001, 0.5, 10):
         kwargs['protection_thickness'] = protection_thickness
-        T_a = temperature_c(**kwargs)
+        T_a = temperature(**kwargs)
         ax1.plot(t / 60, T_a, label=f'd_p {protection_thickness * 1000:<4.0f} mm')
     ax1.legend().set_visible(True)
     ax1.set_xlabel('Time [$min$]')
@@ -278,9 +294,9 @@ def test_protection_thickness_c_extreme():
 
     for protection_thickness in list_d_p:
         kwargs['protection_thickness'] = protection_thickness
-        T_a_max, t = temperature_max_c(**kwargs)
+        T_a_max, t_at_max = temperature_max(**kwargs)
         list_T_a_max.append(T_a_max)
-    ax2.plot(list_d_p * 1000, list_T_a_max)
+    ax2.plot(np.array(list_d_p) * 1000, list_T_a_max)
     ax2.set_xlabel('d_p [$mm$]')
 
     fig.show()
@@ -290,7 +306,7 @@ if __name__ == '__main__':
     test_temperature_trav()
     test_temperature_param()
     test_temperature_param_2()
-    test_protection_thickness_c()
-    test_protection_thickness_c_extreme()
+    test_protection_thickness()
+    test_protection_thickness_extreme()
     test_temperature_extreme()
     test_steel_temperature_protected_with_activation()
