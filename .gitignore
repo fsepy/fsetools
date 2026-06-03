@@ -135,26 +135,22 @@ dmypy.json
 
 # Dev files
 /.coverage
-fsetools/lib/*.tex
-fsetools/lib/*.pdf
+src/fsetools/lib/*.tex
+src/fsetools/lib/*.pdf
 
 # build files
 buildscript/build
 buildscript/dist
-fsetools/build
-fsetools/dist
 buildscript/*.exe
 buildscript/*.nsh
 buildscript/*.nsi
 
 # Temporary UI files
-fsetools/gui/layout/*.py
+src/fsetools/gui/layout/*.py
 
 # Include project files
-!fsetools/lib/
-!test/*
+!src/fsetools/lib/
 *key.txt
 *__key__.py
 *.png
-fsetools/lib/fse_bs_en_1993_1_2_heat_transfer_c.c
-fsetools/ht1d/ht1d_inexplicit_c.c
+src/fsetools/lib/fse_bs_en_1993_1_2_heat_transfer_c.c

@@ -7,7 +7,7 @@ name = "fsetools"
 version = "0.0.6"
 description = "Structural Fire Engineering - Probabilistic Reliability Assessment (Equivalent Time Exposure)"
 authors = [{ name = "Yan Fu", email = "fuyans@gmail.com" }]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -20,5 +20,5 @@ dev = ["pandas>=1.1.1", "matplotlib"]
 docs = ["sphinx>=6"]
 
 [tool.setuptools]
-packages = ["fsetools", "fsetools.etc", "fsetools.lib", "fsetools.libstd"]
+packages = ["fsetools", "fsetools.etc", "fsetools.lib", "fsetools.libstd", "fsetools.pytexit", "fsetools.pytexit.core", "fsetools.pytexit.test"]
 package-dir = { "fsetools" = "src/fsetools" }
