@@ -31,22 +31,18 @@ cdef double c_steel_T(double T):
     if T < 20:
         # warnings.warn('Temperature ({:.1f} °C) is below 20 °C'.format(temperature))
         return 425 + 0.773 * 20 - 1.69e-3 * 400 + 2.22e-6 * 8000
-    if 20 <= T < 600:
+    elif T < 600:
         return 425 + 0.773 * T - 1.69e-3 * (T ** 2) + 2.22e-6 * (T ** 3)
-    elif 600 <= T < 735:
+    elif T < 735:
         return 666 + 13002 / (738 - T)
-    elif 735 <= T < 900:
+    elif T < 900:
         return 545 + 17820 / (T - 731)
-    elif 900 <= T <= 1200:
-        return 650
-    elif T > 1200:
-        return 650
     else:
-        return 0
+        return 650
 
 
 def temperature(
-        fire_time,
+        double[:] fire_time,
         double[:] fire_temperature,
         double beam_rho,
         double beam_cross_section_area,
@@ -179,7 +175,7 @@ def temperature_2(
 
     T_a[0] = fire_temperature[0]  # assign steel initial temperature
     cdef int i
-    cdef double a, b, c, dt, phi, c_s, T_g, dT, h_net_c, h_net_r, h_net_d,const
+    cdef double a, b, c, dt, phi, c_s, T_g, dT, h_net_c, h_net_r, h_net_d, a_m
     cdef double t_act = -1.
 
     if T_act == 0.:
@@ -212,9 +208,9 @@ def temperature_2(
             h_net_d = h_net_c + h_net_r
 
             # BS EN 1993-1-2:2005 (e4.25)
-            const = (A_p / V) / rho_a / c_steel_T(T_a[i - 1])
+            a_m = (A_p / V) / rho_a / c_steel_T(T_a[i - 1])
             dt = fire_time[i] - fire_time[i - 1]
-            dT = k_sh * const * h_net_d
+            dT = k_sh * a_m * h_net_d
 
         T_a[i] = T_a[i - 1] + dT * dt
 
@@ -296,7 +292,9 @@ cpdef tuple temperature_max(
 
         T = T + dT * d
 
+        # Terminate early if maximum temperature is reached
         if dT < 0:
+            T -= dT * d
             break
 
     return T, fire_time[i-1]
@@ -409,7 +407,7 @@ def protection_thickness(
     if T_a_max_2 > solver_temperature_goal - solver_temperature_goal_tol:
         return np.inf, T_a_max_2, t, solver_iter_count
 
-    cdef double d_p = (d_p_1+d_p_2) / 2 + ((np.random.rand() - 0.5) * abs(d_p_1-d_p_2) * 0.1)  # initial
+    cdef double d_p = (d_p_1 + d_p_2) / 2 + 0.05 * (d_p_2 - d_p_1)  # initial (deterministic offset)
 
     while True:
         T, t = temperature_max(
@@ -543,21 +541,12 @@ cpdef tuple protection_thickness_2(
     cdef double current_diff
     cdef int i # Loop counter for binary search
 
-    # Common parameters dict for temperature_max call
-    # Using dict is convenient; pass args directly if call overhead is critical
-    cdef dict common_params = {
-        'fire_time': fire_time,
-        'fire_temperature': fire_temperature,
-        'beam_rho': beam_rho,
-        'beam_cross_section_area': beam_cross_section_area,
-        'protection_k': protection_k,
-        'protection_rho': protection_rho,
-        'protection_c': protection_c,
-        'protection_protected_perimeter': protection_protected_perimeter,
-    }
-
     # --- Initial Check at Lower Bound (d_p_1) ---
-    (T_current, t_current) = temperature_max(protection_thickness=d_p_1, **common_params)
+    (T_current, t_current) = temperature_max(
+        fire_time, fire_temperature, beam_rho, beam_cross_section_area,
+        protection_k, protection_rho, protection_c,
+        d_p_1, protection_protected_perimeter,
+    )
     total_iter_count += 1
 
     # Initialise best solution tracking using the first result
@@ -597,7 +586,11 @@ cpdef tuple protection_thickness_2(
             break
 
         # Solve T for current d_p
-        (T_current, t_current) = temperature_max(protection_thickness=d_p_current, **common_params)
+        (T_current, t_current) = temperature_max(
+            fire_time, fire_temperature, beam_rho, beam_cross_section_area,
+            protection_k, protection_rho, protection_c,
+            d_p_current, protection_protected_perimeter,
+        )
         total_iter_count += 1
 
         # --- Monotonicity Check ---
@@ -669,7 +662,11 @@ cpdef tuple protection_thickness_2(
             if (d_p_high - d_p_low) < 1e-12: # Adjust tolerance as needed based on d_p scale
                  # Interval too small, consider it converged. Return the best found so far.
                  # Check if the midpoint temperature is actually closer than 'best' before returning
-                 (T_mid, t_mid) = temperature_max(protection_thickness=d_p_mid, **common_params)
+                 (T_mid, t_mid) = temperature_max(
+                     fire_time, fire_temperature, beam_rho, beam_cross_section_area,
+                     protection_k, protection_rho, protection_c,
+                     d_p_mid, protection_protected_perimeter,
+                 )
                  total_iter_count += 1 # Count this evaluation
                  mid_diff = fabs(T_mid - solver_temperature_goal)
                  if mid_diff < min_abs_diff_found:
@@ -680,7 +677,11 @@ cpdef tuple protection_thickness_2(
 
 
             # Evaluate temperature at midpoint
-            (T_current, t_current) = temperature_max(protection_thickness=d_p_mid, **common_params)
+            (T_current, t_current) = temperature_max(
+                fire_time, fire_temperature, beam_rho, beam_cross_section_area,
+                protection_k, protection_rho, protection_c,
+                d_p_mid, protection_protected_perimeter,
+            )
             total_iter_count += 1 # Increment AFTER the call
 
             # Update best solution tracking during binary search
