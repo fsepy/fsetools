@@ -174,6 +174,6 @@ def temperature_si(
 
     # UNIT CONVERSION TO FIT OUTPUT (SI)
     T_g = T_g + 273.15  # C -> K
-    Q *= 10e6  # MJ -> J
+    Q *= 1e6  # MJ -> J
 
     return T_g

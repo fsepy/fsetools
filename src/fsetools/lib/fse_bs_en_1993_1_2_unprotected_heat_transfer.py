@@ -7,15 +7,13 @@ def c_steel_T(T):
     T -= 273.15
     if T < 20:
         return 425 + 0.773 * 20 - 1.69e-3 * 400 + 2.22e-6 * 8000
-    if 20 <= T < 600:
+    elif T < 600:
         return 425 + 0.773 * T - 1.69e-3 * T ** 2 + 2.22e-6 * T ** 3
-    elif 600 <= T < 735:
+    elif T < 735:
         return 666. + 13002. / (738. - T)
-    elif 735 <= T < 900:
+    elif T < 900:
         return 545. + 17820. / (T - 731.)
-    elif 900 <= T <= 1200:
-        return 650.
-    elif T > 1200:
+    else:
         return 650.
 
 
@@ -69,4 +67,4 @@ def temperature(
         T_a_i = k_sh * const * h_net_d * dt
         T_a[i] = T_a[i - 1] + T_a_i
 
-    return dict(T_a=T_a)
+    return T_a

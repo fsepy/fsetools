@@ -1,8 +1,8 @@
-from .fse_activation_hd import *
+from fsetools.lib.fse_activation_hd import *
 
 
 def test_heat_detector_activation_ceiling_pd7974():
-    from ..libstd.pd_7974_1_2019 import eq_22_t_squared_fire_growth
+    from fsetools.libstd.pd_7974_1_2019 import eq_22_t_squared_fire_growth
 
     # Pre-calculated results
 
@@ -27,7 +27,7 @@ def test_heat_detector_activation_ceiling_pd7974():
 
 
 def test_heat_detector_activation_ceiling_pd7974_2():
-    from ..libstd.pd_7974_1_2019 import eq_22_t_squared_fire_growth
+    from fsetools.libstd.pd_7974_1_2019 import eq_22_t_squared_fire_growth
 
     # Pre-calculated results
 

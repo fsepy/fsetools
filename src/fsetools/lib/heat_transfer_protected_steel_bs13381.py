@@ -64,7 +64,7 @@ def protected_steel_bs13381(
     # [BS EN 13381-8:2013, ANNEX E, Equation E.5]
     def _d_theta_at(c_a, rho_a, lambda_ave, d_p, A_p, V, theta_t, theta_at, dt):
         return (
-                (1 / (c_a + rho_a))
+                (1 / (c_a * rho_a))
                 * (lambda_ave / d_p)
                 * (A_p / V)
                 * (theta_t - theta_at)

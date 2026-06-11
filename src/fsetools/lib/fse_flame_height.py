@@ -24,7 +24,7 @@ def mean_flame_height_pd_7974(
         elif Q_dot_star < 40:
             flame_height = fire_diameter * 3.3 * Q_dot_star ** (2 / 5)
         else:
-            raise AssertionError(
+            raise ValueError(
                 f'Condition `0 < Q_dot_star < 40` unsatisfied (Q_dot_star={Q_dot_star:.2f}). '
                 f'See Table 1 in PD 7974-1:2019.'
             )
@@ -32,7 +32,7 @@ def mean_flame_height_pd_7974(
         if 0.75 < Q_dot_star < 8.8:
             flame_height = fire_diameter * 3.4 * Q_dot_star ** 0.61
         else:
-            raise AssertionError(
+            raise ValueError(
                 f'Condition 0.75 < Q_dot_star < 8.8 unsatisfied (Q_dot_star={Q_dot_star:.2f}). '
                 f'See Table 1 in PD 7974-1:2019.'
             )
@@ -40,7 +40,7 @@ def mean_flame_height_pd_7974(
         if 0.12 < Q_dot_star < 12000:
             flame_height = fire_diameter * (3.7 * Q_dot_star ** (2 / 5) - 1.02)
         else:
-            raise AssertionError(
+            raise ValueError(
                 f'Condition 0.12 < Q_dot_star < 12000 unsatisfied (Q_dot_star={Q_dot_star:.2f}). '
                 f'See Table 1 in PD 7974-1:2019.'
             )

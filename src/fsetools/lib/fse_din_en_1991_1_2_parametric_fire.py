@@ -167,7 +167,7 @@ def temperature(
 
         # AA.21
         T_2_x = (T_2 - T_1) * ((t_2_x - t_1) / (t_2 - t_1)) ** 0.5 + T_1  # [°C]
-    elif Q_1 >= 0.7:
+    elif Q_1 >= 0.7 * Q_x_d:
         # AA.22
         t_1_x = (0.7 * Q_x_d * 3 * t_alpha ** 2) ** (1 / 3)  # [s]
         t_2_x = (0.7 * Q_x_d * 3 * t_alpha ** 2) ** (1 / 3)  # [s]

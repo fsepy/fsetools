@@ -98,7 +98,7 @@ def heat_detector_temperature_pd7974(
 
         # Decide whehter to use plume or jet
         # ----------------------------------
-        if (r / (z_H - z_0) > 0.134) and (r / (z_H - z_0) > 0.246):
+        if r / (z_H - z_0) > 0.246:
             air_type = 2  # jet
         else:
             air_type = 1  # plume

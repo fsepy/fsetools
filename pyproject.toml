@@ -20,5 +20,5 @@ dev = ["pandas>=1.1.1", "matplotlib"]
 docs = ["sphinx>=6"]
 
 [tool.setuptools]
-packages = ["fsetools", "fsetools.etc", "fsetools.lib", "fsetools.libstd", "fsetools.pytexit", "fsetools.pytexit.core", "fsetools.pytexit.test"]
+packages = ["fsetools", "fsetools.etc", "fsetools.lib", "fsetools.libstd"]
 package-dir = { "fsetools" = "src/fsetools" }

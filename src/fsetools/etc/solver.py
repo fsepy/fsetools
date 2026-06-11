@@ -33,6 +33,8 @@ def linear_solver(
 
     y_target *= func_multiplier
 
+    func_kwargs = func_kwargs.copy()  # avoid mutating caller's dict
+
     x1 = x_lower
     x2 = (x_lower + x_upper) / 2
     x3 = x_upper
