@@ -1,4 +1,5 @@
 from .fse_plume import *
+import os
 
 
 def test_1():
@@ -22,7 +23,8 @@ def test_2():
     ax1.set_ylabel('dT [$^o$C]')
     ax1.set_xlabel('z/$Q_{c}$$^{2/5}$')
     ax1.grid()
-    fig.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        fig.show()
 
 
 if __name__ == '__main__':

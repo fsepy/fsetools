@@ -1,4 +1,5 @@
 from .fse_thermal_radiation_2d_ortho import *
+import os
 
 
 def test_Plane():
@@ -72,7 +73,8 @@ def test_Emitter_Receiver():
     add_ax(16, emitter16.phi, 'flat 0.5 m')
 
     fig.tight_layout()
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_CuboidRoomModel():
@@ -87,7 +89,8 @@ def test_CuboidRoomModel():
     ax.imshow(model.resultant_heat_flux((1, 0, 0, 0, 0))[:, :, 0])
     ax.invert_yaxis()
 
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_visual_CuboidRoomModel():
@@ -137,7 +140,8 @@ def test_visual_CuboidRoomModel():
 
     fig.tight_layout()
 
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 if __name__ == '__main__':

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from .fse_travelling_fire_flux import *
 
 
@@ -53,7 +55,8 @@ def test_fire():
     ax.legend(loc=4).set_visible(True)
     ax.grid(color="k", linestyle="--")
     plt.tight_layout()
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
     # df_data = pd.DataFrame.from_dict(dict_data)
 

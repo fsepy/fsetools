@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 from .fse_din_en_1991_1_2_parametric_fire import temperature
 
@@ -104,7 +105,8 @@ def test_temperature_and_key_locations():
             ax2.set_ylim(0, Q_2 / 1e3 + Q_2 / 1e3 * 0.3)
 
         func_(**res)
-        plt.show()
+        if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+            plt.show()
     except Exception as e:
         raise e
 

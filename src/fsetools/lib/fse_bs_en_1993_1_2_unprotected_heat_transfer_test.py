@@ -16,7 +16,7 @@ def test():
         rho_a=7850,
         alpha_c=25.,
         epsilon_m=0.7
-    )['T_a']
+    )
 
     t = 30
     print(f'Steel temperature at {t} minutes is {np.amax(temperature_steel[time <= t * 60]) - 273.15} deg.C')

@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 from .fse_travelling_fire import temperature, temperature_si
 
@@ -33,7 +34,8 @@ def test_fire_travelling():
     ax.set_xlim((-10, 190))
     ax.grid(color="k", linestyle="--")
     plt.tight_layout()
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_fire_travelling_backup():
@@ -81,7 +83,8 @@ def test_fire_travelling_backup():
     ax.set_xlim((0, 180))
     ax.grid(color="grey", linestyle="--", linewidth=0.5)
     plt.tight_layout()
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_fire_travelling_multiple():
@@ -114,7 +117,8 @@ def test_fire_travelling_multiple():
     ax.set_xlim((-10, 190))
     ax.grid(color="k", linestyle="--")
     plt.tight_layout()
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 if __name__ == '__main__':

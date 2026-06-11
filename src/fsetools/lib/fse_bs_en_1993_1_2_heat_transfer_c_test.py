@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 
 def __trav_fire(t: np.ndarray):
@@ -106,7 +107,8 @@ def test_temperature_trav():
         lines.append(Line2D([0], [0], color='r', linestyle='--'))
         labels.append('temperature_c')
     ax.legend(lines, labels).set_visible(True)
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_temperature_param():
@@ -141,7 +143,8 @@ def test_temperature_param():
         lines.append(Line2D([0], [0], color='r', linestyle='--'))
         labels.append('temperature_c')
     ax.legend(lines, labels).set_visible(True)
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_steel_temperature_protected_with_activation():
@@ -177,7 +180,8 @@ def test_steel_temperature_protected_with_activation():
     lines = [Line2D([0], [0], color='k'), Line2D([0], [0], color='r', linestyle='--')]
     labels = ['steel temperature', 'gas temperature']
     ax.legend(lines, labels).set_visible(True)
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_temperature_param_2():
@@ -212,7 +216,8 @@ def test_temperature_param_2():
         lines.append(Line2D([0], [0], color='r', linestyle='--'))
         labels.append('temperature_c')
     ax.legend(lines, labels).set_visible(True)
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 def test_temperature_extreme():
@@ -234,7 +239,8 @@ def test_temperature_extreme():
     ax1.set_xlabel('Time [$min$]')
     ax1.set_ylabel('Steel temperature [$K$]')
 
-    fig.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        fig.show()
 
 
 def test_protection_thickness():
@@ -269,7 +275,8 @@ def test_protection_thickness():
     ax.plot(t, T, label='Steel temperature')
     ax.axhline(solver_T_a_max, ls='--', color='k', label=f'Steel temp. at d_p={solver_d_p:.4} mm')
     ax.legend().set_visible(True)
-    fig.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        fig.show()
 
 
 def test_protection_thickness_extreme():
@@ -299,7 +306,8 @@ def test_protection_thickness_extreme():
     ax2.plot(np.array(list_d_p) * 1000, list_T_a_max)
     ax2.set_xlabel('d_p [$mm$]')
 
-    fig.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        fig.show()
 
 
 if __name__ == '__main__':

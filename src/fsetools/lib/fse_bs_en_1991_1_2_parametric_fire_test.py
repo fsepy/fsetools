@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 from .fse_bs_en_1991_1_2_parametric_fire import *
 
@@ -58,7 +59,8 @@ def plot_test_1():
     for i, ax in enumerate(axes):
         ax.plot(x1_list[i], y1_list[i], label='Result')
         ax.scatter(t, Ts[i], label='Benchmark')
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 if __name__ == '__main__':

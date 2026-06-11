@@ -101,7 +101,7 @@ def protected_steel_bs13381(
         c_a = c_a_T(T_g)
         rho_a = rho_a_T(T_g)
         lambda_pt = lambda_pt_T(T_g)
-        conductivity_protection[i] = lambda_pt
+        conductivity_protection.append(lambda_pt)
 
         # Determine time step
         dt = _dt(c_a, rho_a, lambda_pt, d_p, A_p, V)

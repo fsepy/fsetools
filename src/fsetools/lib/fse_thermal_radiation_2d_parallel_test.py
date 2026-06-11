@@ -1,3 +1,5 @@
+import os
+
 def test_solve_phi():
     import numpy as np
     from .fse_thermal_radiation_2d_parallel import solver_phi_2d, phi_parallel_any_br187
@@ -141,7 +143,8 @@ def test_main():
     plt.style.use("seaborn-v0_8")
     fig, ax = plt.subplots()
     _, ax = main_plot(out, ax, fig)
-    plt.show()
+    if os.environ.get('FSETOOLS_SHOW_PLOTS') == '1':
+        plt.show()
 
 
 if __name__ == '__main__':
