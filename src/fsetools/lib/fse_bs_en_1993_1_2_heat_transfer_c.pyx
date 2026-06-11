@@ -82,7 +82,7 @@ def temperature(
     cdef double A_p = protection_protected_perimeter
     cdef double c_p = protection_c
 
-    cdef double[:] T_a = fire_time * 0.0
+    cdef double[:] T_a = np.zeros(len(fire_time), dtype=np.float64)
 
     # Check time step <= 30 seconds. [BS EN 1993-1-2:2005, Clauses 4.2.5.2 (3)]
 
@@ -169,7 +169,7 @@ def temperature_2(
     cdef double epsilon_f = 1.0  # Section 4.2.5.1 (3)
     cdef double Phi = 1.0  # Assumed, should be 1.0 within a fire compartment
 
-    cdef double[:] T_a = fire_time * 0.0
+    cdef double[:] T_a = np.zeros(len(fire_time), dtype=np.float64)
 
     # Check time step <= 30 seconds. [BS EN 1993-1-2:2005, Clauses 4.2.5.2 (3)]
 

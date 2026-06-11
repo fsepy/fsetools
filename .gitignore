@@ -23,6 +23,10 @@ __pycache__/
 
 # C extensions
 *.so
+*.pyd
+*.obj
+*.exp
+*.lib
 
 # Distribution / packaging
 .Python
